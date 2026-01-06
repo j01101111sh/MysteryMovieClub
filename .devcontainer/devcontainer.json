@@ -1,13 +1,8 @@
 {
   "name": "Django 6 Dev Container",
   "image": "mcr.microsoft.com/devcontainers/python:3",
-  "features": {
-    // specific features if needed
-  },
-  // Install uv after the container is created
+  "features": {},
   "postCreateCommand": "curl -LsSf https://astral.sh/uv/0.9.22/install.sh | sh && source $HOME/.cargo/env && uv sync && source .venv/bin/activate && pipx install pre-commit && pre-commit install --install-hooks",
-
-  // Ensure the PATH updates apply to the VS Code terminal
   "remoteEnv": {
     "PATH": "${containerEnv:PATH}:/home/vscode/.cargo/bin"
   },
