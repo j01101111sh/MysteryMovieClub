@@ -57,3 +57,9 @@ repos:
       - id: rst-backticks # detect use of single backticks when writing rst
       - id: rst-directive-colons # detect rst directive formatting
       - id: rst-inline-touching-normal # detect inline code touching normal text in rst
+
+  - repo: https://github.com/igorshubovych/markdownlint-cli
+    rev: v0.47.0
+    hooks:
+      - id: markdownlint-fix
+        args: [ "--disable", "MD033" ]
