@@ -1,3 +1,6 @@
+default_install_hook_types: [ pre-commit, post-checkout, post-merge ]
+default_stages: [ pre-commit, post-checkout, post-merge ]
+
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
@@ -63,3 +66,14 @@ repos:
     hooks:
       - id: markdownlint-fix
         args: [ "--disable", "MD033" ]
+
+  - repo: local
+    hooks:
+      - id: uv-sync
+        name: uv-sync
+        entry: uv sync
+        language: system
+        always_run: true
+        stages:
+          - post-checkout
+          - post-merge
