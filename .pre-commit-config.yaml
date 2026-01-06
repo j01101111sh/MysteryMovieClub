@@ -1,3 +1,6 @@
+default_install_hook_types: [ pre-commit, post-checkout, post-merge ]
+default_stages: [ pre-commit, post-checkout, post-merge ]
+
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
@@ -46,3 +49,31 @@ repos:
     hooks:
       - id: djlint-reformat-django
       - id: djlint-django
+
+  - repo: https://github.com/pre-commit/pygrep-hooks
+    rev: v1.10.0
+    hooks:
+      # python checks
+      - id: python-no-eval # check for the eval() built-in function
+      - id: python-no-log-warn # check for the deprecated .warn() method of python loggers
+      # rst checks
+      - id: rst-backticks # detect use of single backticks when writing rst
+      - id: rst-directive-colons # detect rst directive formatting
+      - id: rst-inline-touching-normal # detect inline code touching normal text in rst
+
+  - repo: https://github.com/igorshubovych/markdownlint-cli
+    rev: v0.47.0
+    hooks:
+      - id: markdownlint-fix
+        args: [ "--disable", "MD033" ]
+
+  - repo: local
+    hooks:
+      - id: uv-sync
+        name: uv-sync
+        entry: uv sync
+        language: system
+        always_run: true
+        stages:
+          - post-checkout
+          - post-merge
