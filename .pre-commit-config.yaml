@@ -34,3 +34,15 @@ repos:
       - id: ruff
         args: [ --fix ]
       - id: ruff-format
+
+  - repo: https://github.com/adamchainz/django-upgrade
+    rev: '1.29.1'
+    hooks:
+      - id: django-upgrade
+        args: ['--target-version', '6.0']
+
+  - repo: https://github.com/Riverside-Healthcare/djLint
+    rev: v1.36.4
+    hooks:
+      - id: djlint-reformat-django
+      - id: djlint-django
