@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>Mystery Titles</h2>
+  <ul>
+    {% for content in contents %}
+      <li>
+        <a href="{% url 'reviews:mystery_detail' content.pk %}">{{ content.title }}</a>
+        {% if content.avg_rating %}
+          - Rated: {{ content.avg_rating|floatformat:1 }}/10
+        {% endif %}
+      </li>
+    {% empty %}
+      <li>No mysteries added yet.</li>
+    {% endfor %}
+  </ul>
+{% endblock %}
