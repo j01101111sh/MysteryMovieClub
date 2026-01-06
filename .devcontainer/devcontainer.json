@@ -1,17 +1,31 @@
 {
-  "name": "Django 6 Dev Container",
-  "image": "mcr.microsoft.com/devcontainers/python:3",
-  "features": {},
-  "postCreateCommand": "curl -LsSf https://astral.sh/uv/0.9.22/install.sh | sh && source $HOME/.cargo/env && uv sync && source .venv/bin/activate && pipx install pre-commit && pre-commit install --install-hooks",
-  "remoteEnv": {
-    "PATH": "${containerEnv:PATH}:/home/vscode/.cargo/bin"
+  "name": "Mystery Movie Club (Django 6)",
+  "image": "mcr.microsoft.com/devcontainers/python:3.14",
+  "features": {
+    "ghcr.io/devcontainers/features/git:1": {}
   },
+  "postCreateCommand": "bash setup_dev.sh",
   "customizations": {
     "vscode": {
+      "settings": {
+        "python.defaultInterpreterPath": ".venv/bin/python",
+        "python.terminal.activateEnvironment": true
+      },
       "extensions": [
         "ms-python.python",
-        "ms-python.vscode-pylance"
+        "ms-python.vscode-pylance",
+        "batisteo.vscode-django",
+        "charliermarsh.ruff"
       ]
+    }
+  },
+  "forwardPorts": [
+    8000
+  ],
+  "portsAttributes": {
+    "8000": {
+      "label": "Django App",
+      "onAutoForward": "notify"
     }
   }
 }
