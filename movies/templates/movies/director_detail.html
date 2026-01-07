@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}
+    {{ director.name }}
+{% endblock title %}
+{% block content %}
+    <h1>{{ director.name }}</h1>
+    <div class="card">
+        <div class="card-header">Movies Directed</div>
+        <ul class="list-group list-group-flush">
+            {% for movie in director.movies.all %}
+                <li class="list-group-item">
+                    <a href="{{ movie.get_absolute_url }}">{{ movie.title }}</a> ({{ movie.release_year }})
+                </li>
+            {% empty %}
+                <li class="list-group-item">No movies found for this director.</li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endblock content %}
