@@ -15,7 +15,12 @@
         "ms-python.python",
         "ms-python.vscode-pylance",
         "batisteo.vscode-django",
-        "charliermarsh.ruff"
+        "charliermarsh.ruff",
+        "esbenp.prettier-vscode",
+        "google.geminicodeassist",
+        "ms-python.isort",
+        "ms-python.debugpy",
+        "ms-python.vscode-python-envs"
       ]
     }
   },
