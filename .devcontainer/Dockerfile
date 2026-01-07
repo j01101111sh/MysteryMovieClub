@@ -24,5 +24,3 @@ WORKDIR /workspace
 
 COPY pyproject.toml uv.lock ./
 RUN uv sync --frozen
-
-RUN uv run pre-commit install --install-hooks
