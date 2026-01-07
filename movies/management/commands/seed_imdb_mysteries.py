@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand
 from django.utils.text import slugify
 
-from movies.models import Director, MysteryTitle
+from movies.models import Director, MysteryTitle, Series
 
 
 class Command(BaseCommand):
@@ -14,24 +14,28 @@ class Command(BaseCommand):
                 "release_year": 2019,
                 "director": "Rian Johnson",
                 "description": "A detective investigates the death of a patriarch of an eccentric, combative family.",
+                "series": "Benoit Blanc",
             },
             {
                 "title": "Glass Onion",
                 "release_year": 2022,
                 "director": "Rian Johnson",
                 "description": "Famed Southern detective Benoit Blanc travels to Greece for his latest case.",
+                "series": "Benoit Blanc",
             },
             {
                 "title": "Murder on the Orient Express",
                 "release_year": 1974,
                 "director": "Sidney Lumet",
                 "description": "In December 1935, when his train is stopped by deep snow, Detective Hercule Poirot is called on to solve a murder that occurred in his car the night before.",
+                "series": "Hercule Poirot (70s)",
             },
             {
                 "title": "Death on the Nile",
                 "release_year": 1978,
                 "director": "John Guillermin",
                 "description": "As Hercule Poirot enjoys a luxurious cruise down the Nile, a newlywed heiress is found murdered on board.",
+                "series": "Hercule Poirot (70s)",
             },
             {
                 "title": "Clue",
@@ -160,6 +164,20 @@ class Command(BaseCommand):
                     slug=director_slug, defaults={"name": director_name}
                 )
                 obj.directors.set([director])
+
+            # Handle Series
+            series_name = movie_data.get("series")
+            if series_name:
+                series_slug = slugify(series_name)
+                series, _ = Series.objects.get_or_create(
+                    slug=series_slug, defaults={"name": series_name}
+                )
+                obj.series = series
+            else:
+                # If a movie was previously in a series and now is not
+                obj.series = None
+
+            obj.save()
 
             if created:
                 created_count += 1

@@ -19,6 +19,23 @@ class Director(models.Model):
         return reverse("movies:director_detail", kwargs={"slug": self.slug})
 
 
+class Series(models.Model):
+    name = models.CharField(max_length=255, unique=True)
+    slug = models.SlugField(
+        unique=True, help_text="URL friendly name (e.g. benoit-blanc)"
+    )
+
+    class Meta:
+        ordering = ["name"]
+        verbose_name_plural = "series"
+
+    def __str__(self):
+        return self.name
+
+    def get_absolute_url(self):
+        return reverse("movies:series_detail", kwargs={"slug": self.slug})
+
+
 class MysteryTitle(models.Model):
     class MediaType(models.TextChoices):
         MOVIE = "MV", _("Movie")
@@ -38,6 +55,13 @@ class MysteryTitle(models.Model):
     release_year = models.PositiveIntegerField()
     directors = models.ManyToManyField(
         "Director", related_name="movies", help_text="Director or Creator"
+    )
+    series = models.ForeignKey(
+        "Series",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="movies",
     )
     description = models.TextField(blank=True)
 
