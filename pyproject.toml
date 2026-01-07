@@ -47,14 +47,14 @@ exclude = [
     "venv",
     "**/migrations/*.py", # Ignore Django migrations
 ]
-
+target-version = "py314"
 line-length = 88
 indent-width = 4
 
 [tool.ruff.lint]
 # Enable Pyflakes (`F`) and a subset of the pycodestyle (`E`)  codes by default.
 # Add Django (`DJ`) specific rules.
-select = ["E4", "E7", "E9", "F", "DJ"]
+select = ["E4", "E7", "E9", "F", "DJ", "I", "UP", "B", "SIM", "C4"]
 ignore = []
 
 # Allow fix for all enabled rules (when `--fix`) is provided.
@@ -66,3 +66,19 @@ quote-style = "double"
 indent-style = "space"
 skip-magic-trailing-comma = false
 line-ending = "auto"
+
+[tool.bandit]
+exclude_dirs = ["tests"]
+
+[tool.djlint]
+profile = "django"
+blank_line_after_tag = "load,extends,include"
+close_void_tags = true
+format_css = true
+format_js = true
+
+[tool.djlint.css]
+indent_size = 2
+
+[tool.djlint.js]
+indent_size = 2
