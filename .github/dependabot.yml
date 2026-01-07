@@ -7,7 +7,7 @@ updates:
       day: "monday"
       time: "09:00"
       timezone: "America/Chicago"
-    
+
     groups:
       production-dependencies:
         patterns:
@@ -21,7 +21,7 @@ updates:
           - "pytest*"
           - "ruff"
           - "mypy"
-          
+
     ignore:
       - dependency-name: "django"
         update-types: ["version-update:semver-major"]
