@@ -13,6 +13,7 @@ dependencies = [
 dev = [
     "bandit>=1.9.2",
     "pre-commit>=4.5.1",
+    "pyupgrade>=3.21.2",
     "ruff>=0.14.10",
 ]
 
