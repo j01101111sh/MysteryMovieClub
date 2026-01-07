@@ -20,6 +20,8 @@ uv run pre-commit install --install-hooks
 if [ ! -f .env ]; then
     echo ".env file not found. Generating new file with Django SECRET_KEY..."
     echo "SECRET_KEY=$(uv run python -c 'from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())')" > .env
+    echo "Setting DEBUG to True for dev environments..."
+    echo "DEBUG=True" >> .env
     echo "Done: .env created."
 else
     echo ".env file already exists. Skipping generation."
