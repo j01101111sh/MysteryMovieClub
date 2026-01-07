@@ -13,6 +13,11 @@
                     {% if not forloop.last %},{% endif %}
                 {% endfor %}
             </p>
+            {% if movie.series %}
+                <p class="series">
+                    Part of the <a href="{{ movie.series.get_absolute_url }}">{{ movie.series.name }}</a> series
+                </p>
+            {% endif %}
             <span class="badge">{{ movie.get_media_type_display }}</span>
             {% if movie.is_fair_play_candidate %}
                 {% if movie.fair_play_consensus >= 75 %}
