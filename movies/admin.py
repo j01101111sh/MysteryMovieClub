@@ -1,4 +1,5 @@
 from django.contrib import admin
+
 from .models import MysteryTitle
 
 
@@ -18,15 +19,4 @@ class MysteryTitleAdmin(admin.ModelAdmin):
     fieldsets = (
         (None, {"fields": ("title", "slug", "media_type", "release_year", "director")}),
         ("Synopsis", {"fields": ("description",)}),
-        (
-            "Mystery Metrics",
-            {
-                "fields": (
-                    "is_fair_play_candidate",
-                    "avg_quality",
-                    "avg_difficulty",
-                    "fair_play_consensus",
-                )
-            },
-        ),
     )
