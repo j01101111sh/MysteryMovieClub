@@ -25,8 +25,10 @@ jobs:
         run: uv python install 3.14
 
       - name: Install dependencies
-        # --frozen ensures we use the exact versions from uv.lock
         run: uv sync --frozen
+
+      - name: Run pre-commit hooks
+        run: uv run pre-commit run --all-files --show-diff-on-failure
 
       - name: Run Django Tests
         run: uv run python manage.py test
