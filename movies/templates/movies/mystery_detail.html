@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block content %}
+    <div class="movie-container">
+        <div class="movie-header">
+            <h1>
+                {{ movie.title }} <span class="year">({{ movie.release_year }})</span>
+            </h1>
+            <p class="director">Directed by {{ movie.director }}</p>
+            <span class="badge">{{ movie.get_media_type_display }}</span>
+            {% if movie.is_fair_play_candidate %}
+                {% if movie.fair_play_consensus >= 75 %}
+                    <span class="badge badge-success">⚖️ Certified Fair Play ({{ movie.fair_play_consensus }}%)</span>
+                {% else %}
+                    <span class="badge badge-warning">⚠️ Contested Fairness ({{ movie.fair_play_consensus }}%)</span>
+                {% endif %}
+            {% endif %}
+        </div>
+        <div class="movie-grid">
+            <div class="info-column">
+                <div class="stats-box">
+                    <div class="stat">
+                        <strong>Quality</strong>
+                        <div class="score">⭐ {{ movie.avg_quality|floatformat:1 }}/5</div>
+                    </div>
+                    <div class="stat">
+                        <strong>Difficulty</strong>
+                        <div class="score">🧠 {{ movie.avg_difficulty|floatformat:1 }}/5</div>
+                    </div>
+                </div>
+                <div class="synopsis">
+                    <h3>Plot Summary</h3>
+                    <p>{{ movie.description|linebreaks }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
