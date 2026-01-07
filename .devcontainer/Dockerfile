@@ -13,6 +13,7 @@ RUN apt-get update && apt-get install -y \
 
 # Create a directory for Gemini settings in the user's home directory
 RUN mkdir -p $HOME/.gemini
+COPY .gemini/settings.json $HOME/.gemini/
 
 # Set environment variables for uv
 # Compile bytecode for faster startup
