@@ -2,7 +2,7 @@ from django.db.utils import IntegrityError
 from django.test import TestCase
 from django.urls import reverse
 
-from movies.models import Director, MysteryTitle
+from movies.models import Director, MysteryTitle, Series
 
 
 class MysteryTitleModelTests(TestCase):
@@ -10,12 +10,14 @@ class MysteryTitleModelTests(TestCase):
         self.director = Director.objects.create(
             name="Rian Johnson", slug="rian-johnson"
         )
+        self.series = Series.objects.create(name="Benoit Blanc", slug="benoit-blanc")
         self.movie = MysteryTitle.objects.create(
             title="Knives Out",
             slug="knives-out-2019",
             release_year=2019,
             description="A detective investigates...",
             media_type=MysteryTitle.MediaType.MOVIE,
+            series=self.series,
         )
         self.movie.directors.add(self.director)
 
@@ -57,6 +59,11 @@ class MysteryTitleModelTests(TestCase):
                 title="Dup", slug=self.movie.slug, release_year=2020
             )
 
+    def test_series_relationship(self):
+        """Test the foreign key relationship to the Series model."""
+        self.assertEqual(self.movie.series, self.series)
+        self.assertIn(self.movie, self.series.movies.all())
+
 
 class DirectorModelTests(TestCase):
     def setUp(self):
@@ -80,6 +87,28 @@ class DirectorModelTests(TestCase):
     def test_name_uniqueness(self):
         with self.assertRaises(IntegrityError):
             Director.objects.create(name="Alfred Hitchcock", slug="hitchcock")
+
+
+class SeriesModelTests(TestCase):
+    def setUp(self):
+        self.series = Series.objects.create(name="Benoit Blanc", slug="benoit-blanc")
+
+    def test_string_representation(self):
+        self.assertEqual(str(self.series), "Benoit Blanc")
+
+    def test_get_absolute_url(self):
+        expected_url = reverse(
+            "movies:series_detail", kwargs={"slug": self.series.slug}
+        )
+        self.assertEqual(self.series.get_absolute_url(), expected_url)
+
+    def test_slug_uniqueness(self):
+        with self.assertRaises(IntegrityError):
+            Series.objects.create(name="Blanc", slug="benoit-blanc")
+
+    def test_name_uniqueness(self):
+        with self.assertRaises(IntegrityError):
+            Series.objects.create(name="Benoit Blanc", slug="blanc")
 
 
 class BaseTemplateTests(TestCase):
@@ -214,3 +243,50 @@ class DirectorViewTests(TestCase):
         response = self.client.get(url)
         self.assertContains(response, "Rian Johnson")
         self.assertContains(response, "Knives Out")
+
+
+class SeriesViewTests(TestCase):
+    def setUp(self):
+        self.series1 = Series.objects.create(name="Benoit Blanc", slug="benoit-blanc")
+        self.series2 = Series.objects.create(
+            name="Sherlock Holmes", slug="sherlock-holmes"
+        )
+
+    def test_series_list_page_status_code(self):
+        response = self.client.get(reverse("movies:series_list"))
+        self.assertEqual(response.status_code, 200)
+
+    def test_series_list_page_template(self):
+        response = self.client.get(reverse("movies:series_list"))
+        self.assertTemplateUsed(response, "movies/series_list.html")
+
+    def test_series_list_page_context(self):
+        response = self.client.get(reverse("movies:series_list"))
+        self.assertContains(response, "Benoit Blanc")
+        self.assertContains(response, "Sherlock Holmes")
+        self.assertIn(self.series1, response.context["series_list"])
+        self.assertIn(self.series2, response.context["series_list"])
+
+    def test_series_detail_page_status_code(self):
+        url = reverse("movies:series_detail", kwargs={"slug": self.series1.slug})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+
+    def test_series_detail_page_template(self):
+        url = reverse("movies:series_detail", kwargs={"slug": self.series1.slug})
+        response = self.client.get(url)
+        self.assertTemplateUsed(response, "movies/series_detail.html")
+
+    def test_series_detail_page_content(self):
+        movie = MysteryTitle.objects.create(
+            title="Knives Out",
+            slug="knives-out",
+            release_year=2019,
+            series=self.series1,
+        )
+        url = reverse("movies:series_detail", kwargs={"slug": self.series1.slug})
+        response = self.client.get(url)
+        self.assertContains(response, "Benoit Blanc")
+        self.assertContains(response, "Knives Out")
+        self.assertEqual(response.context["series"], self.series1)
+        self.assertIn(movie, response.context["series"].movies.all())
