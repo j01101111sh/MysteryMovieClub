@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Exit immediately if a command exits with a non-zero status
+set -ex
+
 # Configuration
 SU_NAME="admin"
 SU_EMAIL="admin@example.com"
@@ -42,4 +45,9 @@ else:
 echo "Seeding movie database..."
 uv run python manage.py seed_imdb_mysteries
 
+# 7. Verify Setup
+echo "Verifying setup..."
+uv run python manage.py check
+
 echo "Setup complete."
+echo "Run the server with: uv run python manage.py runserver"
