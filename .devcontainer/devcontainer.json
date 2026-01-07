@@ -20,5 +20,5 @@
     }
   },
   "remoteUser": "root",
-  "postCreateCommand": "pre-commit install"
+  "postCreateCommand": "bash dev_setup.sh"
 }
