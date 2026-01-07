@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Exit immediately if a command exits with a non-zero status
+set -ex
+
 # Configuration
 SU_NAME="admin"
 SU_EMAIL="admin@example.com"
@@ -17,6 +20,8 @@ uv run pre-commit install --install-hooks
 if [ ! -f .env ]; then
     echo ".env file not found. Generating new file with Django SECRET_KEY..."
     echo "SECRET_KEY=$(uv run python -c 'from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())')" > .env
+    echo "Setting DEBUG to True for dev environments..."
+    echo "DEBUG=True" >> .env
     echo "Done: .env created."
 else
     echo ".env file already exists. Skipping generation."
@@ -42,4 +47,9 @@ else:
 echo "Seeding movie database..."
 uv run python manage.py seed_imdb_mysteries
 
+# 7. Verify Setup
+echo "Verifying setup..."
+uv run python manage.py check
+
 echo "Setup complete."
+echo "Run the server with: uv run python manage.py runserver"
