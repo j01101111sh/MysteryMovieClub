@@ -8,6 +8,12 @@ SU_NAME="admin"
 SU_EMAIL="admin@example.com"
 SU_PASSWORD="admin"
 
+# 0. Delete existing dev database
+if [ -f "db.sqlite3" ]; then
+    echo "Deleting existing dev database..."
+    rm "db.sqlite3"
+fi
+
 # 1. Sync Dependencies (uv)
 echo "Syncing dependencies with uv..."
 uv sync
