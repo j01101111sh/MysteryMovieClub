@@ -1,3 +1,4 @@
+from django.db.utils import IntegrityError
 from django.test import TestCase
 from django.urls import reverse
 
@@ -31,6 +32,31 @@ class MysteryTitleModelTests(TestCase):
         self.assertEqual(self.movie.avg_quality, 0.0)
         self.assertEqual(self.movie.avg_difficulty, 0.0)
         self.assertEqual(self.movie.fair_play_consensus, 0.0)
+
+    def test_ordering(self):
+        """Test that movies are ordered by release_year descending, then title."""
+        # self.movie is "Knives Out" (2019)
+        m_older = MysteryTitle.objects.create(
+            title="A Older", slug="older", release_year=2018
+        )
+        m_newer = MysteryTitle.objects.create(
+            title="Z Newer", slug="newer", release_year=2020
+        )
+        m_same_year = MysteryTitle.objects.create(
+            title="A Same Year", slug="same-year", release_year=2019
+        )
+
+        # Expected order: 2020, 2019 (A..), 2019 (Knives..), 2018
+        expected = [m_newer, m_same_year, self.movie, m_older]
+        self.assertEqual(list(MysteryTitle.objects.all()), expected)
+
+    def test_slug_uniqueness(self):
+        """Test that duplicate slugs raise an IntegrityError."""
+        with self.assertRaises(IntegrityError):
+            # Attempt to create a movie with the same slug as self.movie
+            MysteryTitle.objects.create(
+                title="Dup", slug=self.movie.slug, release_year=2020
+            )
 
 
 class BaseTemplateTests(TestCase):
@@ -119,3 +145,10 @@ class MysteryViewTests(TestCase):
         url = reverse("movies:detail", kwargs={"slug": "non-existent-slug"})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 404)
+
+    def test_home_page_empty_list(self):
+        """Test that the home page loads correctly with no data."""
+        MysteryTitle.objects.all().delete()
+        response = self.client.get(reverse("home"))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(list(response.context["movies"]), [])
