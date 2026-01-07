@@ -11,6 +11,9 @@ RUN apt-get update && apt-get install -y \
     git \
     && rm -rf /var/lib/apt/lists/*
 
+# Create a directory for Gemini settings in the user's home directory
+RUN mkdir -p $HOME/.gemini
+
 # Set environment variables for uv
 # Compile bytecode for faster startup
 ENV UV_COMPILE_BYTECODE=1
