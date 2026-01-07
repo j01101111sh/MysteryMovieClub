@@ -1,3 +1,8 @@
-from django.shortcuts import render
+from django.views.generic import DetailView
+from .models import MysteryTitle
 
-# Create your views here.
+
+class MysteryDetailView(DetailView):
+    model = MysteryTitle
+    template_name = "movies/mystery_detail.html"
+    context_object_name = "movie"
