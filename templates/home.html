@@ -23,7 +23,13 @@
                                 </h5>
                                 <span class="badge bg-secondary">{{ movie.get_media_type_display }}</span>
                             </div>
-                            <h6 class="card-subtitle text-muted mb-3">{{ movie.release_year }} • {{ movie.director }}</h6>
+                            <h6 class="card-subtitle text-muted mb-3">
+                                {{ movie.release_year }} •
+                                {% for director in movie.directors.all %}
+                                    {{ director.name }}
+                                    {% if not forloop.last %},{% endif %}
+                                {% endfor %}
+                            </h6>
                             <p class="card-text text-truncate">{{ movie.description }}</p>
                         </div>
                         <div class="card-footer bg-transparent border-top-0">

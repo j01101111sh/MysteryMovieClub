@@ -127,12 +127,18 @@ class MysteryViewTests(TestCase):
         self.assertTemplateUsed(response, "home.html")
         self.assertTemplateUsed(response, "base.html")
 
-    def test_home_page_context(self):
+    def test_home_page_content(self):
+        """Test that the list view context contains our movies and directors."""
         response = self.client.get(reverse("home"))
+        # Check for movie titles
         self.assertContains(response, "Knives Out")
         self.assertContains(response, "Sherlock")
+        # Check that movies are in context
         self.assertIn(self.movie1, response.context["movies"])
         self.assertIn(self.movie2, response.context["movies"])
+        # Check for director names
+        self.assertContains(response, "Rian Johnson")
+        self.assertContains(response, "Steven Moffat")
 
     def test_detail_page_status_code(self):
         url = reverse("movies:detail", kwargs={"slug": self.movie1.slug})
