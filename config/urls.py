@@ -17,10 +17,11 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import include, path
-from django.views.generic import TemplateView
+
+from movies.views import MysteryListView
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("movies/", include("movies.urls")),
-    path("", TemplateView.as_view(template_name="home.html"), name="home"),
+    path("", MysteryListView.as_view(), name="home"),
 ]
