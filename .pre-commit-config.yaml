@@ -74,9 +74,9 @@ repos:
         entry: uv run bandit
         language: system
         types: [python]
-      - id: env-setup
-        name: env-setup
-        entry: uv sync && ./dev_setup.sh
+      - id: uv
+        name: uv
+        entry: uv sync
         language: system
         always_run: true
         stages:
