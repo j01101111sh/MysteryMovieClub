@@ -3,6 +3,22 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 
+class Director(models.Model):
+    name = models.CharField(max_length=255, unique=True)
+    slug = models.SlugField(
+        unique=True, help_text="URL friendly name (e.g. rian-johnson)"
+    )
+
+    class Meta:
+        ordering = ["name"]
+
+    def __str__(self):
+        return self.name
+
+    def get_absolute_url(self):
+        return reverse("movies:director_detail", kwargs={"slug": self.slug})
+
+
 class MysteryTitle(models.Model):
     class MediaType(models.TextChoices):
         MOVIE = "MV", _("Movie")
@@ -20,7 +36,9 @@ class MysteryTitle(models.Model):
         default=MediaType.MOVIE,
     )
     release_year = models.PositiveIntegerField()
-    director = models.CharField(max_length=255, help_text="Director or Creator")
+    directors = models.ManyToManyField(
+        "Director", related_name="movies", help_text="Director or Creator"
+    )
     description = models.TextField(blank=True)
 
     # Mystery Specifics

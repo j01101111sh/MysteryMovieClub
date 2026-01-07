@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand
 from django.utils.text import slugify
 
-from movies.models import MysteryTitle
+from movies.models import Director, MysteryTitle
 
 
 class Command(BaseCommand):
@@ -144,7 +144,6 @@ class Command(BaseCommand):
                 defaults={
                     "title": movie_data["title"],
                     "release_year": movie_data["release_year"],
-                    "director": movie_data["director"],
                     "description": movie_data["description"],
                     "media_type": MysteryTitle.MediaType.MOVIE,
                     # We leave user-voting fields (quality, difficulty) as defaults
@@ -152,6 +151,15 @@ class Command(BaseCommand):
                     "is_fair_play_candidate": True,
                 },
             )
+
+            # Handle Directors
+            director_name = movie_data.get("director")
+            if director_name:
+                director_slug = slugify(director_name)
+                director, _ = Director.objects.get_or_create(
+                    slug=director_slug, defaults={"name": director_name}
+                )
+                obj.directors.set([director])
 
             if created:
                 created_count += 1

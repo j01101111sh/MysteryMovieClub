@@ -6,7 +6,13 @@
             <h1>
                 {{ movie.title }} <span class="year">({{ movie.release_year }})</span>
             </h1>
-            <p class="director">Directed by {{ movie.director }}</p>
+            <p class="director">
+                Directed by
+                {% for director in movie.directors.all %}
+                    <a href="{{ director.get_absolute_url }}">{{ director.name }}</a>
+                    {% if not forloop.last %},{% endif %}
+                {% endfor %}
+            </p>
             <span class="badge">{{ movie.get_media_type_display }}</span>
             {% if movie.is_fair_play_candidate %}
                 {% if movie.fair_play_consensus >= 75 %}

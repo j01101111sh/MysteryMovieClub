@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Directors
+{% endblock title %}
+{% block content %}
+    <h1>Directors</h1>
+    <ul>
+        {% for director in directors %}
+            <li>
+                <a href="{{ director.get_absolute_url }}">{{ director.name }}</a>
+            </li>
+        {% empty %}
+            <li>No directors found.</li>
+        {% endfor %}
+    </ul>
+{% endblock content %}

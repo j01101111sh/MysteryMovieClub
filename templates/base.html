@@ -59,7 +59,10 @@
                             <a class="nav-link" href="{% url 'home' %}">Home</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#">Latest Mysteries</a>
+                            <a class="nav-link" href="{% url 'movies:list' %}">Mysteries</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'movies:director_list' %}">Directors</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'admin:index' %}">Staff Login</a>
