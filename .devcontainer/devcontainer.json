@@ -1,15 +1,15 @@
 {
   "name": "Mystery Movie Club (Django 6)",
-  "image": "mcr.microsoft.com/devcontainers/python:3.14",
-  "features": {
-    "ghcr.io/devcontainers/features/git:1": {}
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": ".."
   },
-  "postCreateCommand": "bash setup_dev.sh",
   "customizations": {
     "vscode": {
       "settings": {
         "python.defaultInterpreterPath": ".venv/bin/python",
-        "python.terminal.activateEnvironment": true
+        "python.terminal.activateEnvironment": true,
+        "editor.formatOnSave": true
       },
       "extensions": [
         "ms-python.python",
@@ -18,5 +18,6 @@
         "charliermarsh.ruff"
       ]
     }
-  }
+  },
+  "remoteUser": "root"
 }
