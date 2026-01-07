@@ -1,0 +1,32 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    env:
+      SECRET_KEY: "django-insecure-test-key-for-ci-environment"
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+          cache-suffix: "python-3.14"
+
+      - name: Install Python 3.14
+        run: uv python install 3.14
+
+      - name: Install dependencies
+        # --frozen ensures we use the exact versions from uv.lock
+        run: uv sync --frozen
+
+      - name: Run Django Tests
+        run: uv run python manage.py test
