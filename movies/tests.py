@@ -1,5 +1,6 @@
 from django.test import TestCase
 from django.urls import reverse
+
 from movies.models import MysteryTitle
 
 
@@ -30,6 +31,25 @@ class MysteryTitleModelTests(TestCase):
         self.assertEqual(self.movie.avg_quality, 0.0)
         self.assertEqual(self.movie.avg_difficulty, 0.0)
         self.assertEqual(self.movie.fair_play_consensus, 0.0)
+
+
+class BaseTemplateTests(TestCase):
+    def test_favicon_present(self):
+        """
+        Test that the base template includes the correct favicon.
+        """
+        # Request the home page, which extends base.html
+        response = self.client.get(reverse("home"))
+        self.assertEqual(response.status_code, 200)
+
+        # Check for the presence of the favicon link tag
+        self.assertContains(response, '<link rel="icon"')
+
+        # Check for the specific SVG data URI
+        self.assertContains(
+            response,
+            "data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🕵️</text></svg>",
+        )
 
 
 class MysteryViewTests(TestCase):
