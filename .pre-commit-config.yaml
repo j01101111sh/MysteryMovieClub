@@ -1,5 +1,5 @@
-default_install_hook_types: [ pre-commit, post-checkout, post-merge ]
-default_stages: [ pre-commit, post-checkout, post-merge ]
+default_install_hook_types: [pre-commit, post-checkout, post-merge]
+default_stages: [pre-commit, post-checkout, post-merge]
 
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
@@ -9,7 +9,7 @@ repos:
       - id: check-yaml # verifies syntax of yaml files
       - id: check-json # verifies syntax of json files
       - id: pretty-format-json # fixes indentation of json files
-        args: [ "--autofix", "--no-sort-keys" ]
+        args: ["--autofix", "--no-sort-keys"]
       - id: check-toml # verifies syntax of toml files
       - id: check-executables-have-shebangs # verifies non-binary executables have shebang
       # general files
@@ -19,30 +19,30 @@ repos:
       - id: check-case-conflict # check for files that would conflict on a case-insensitive filesystem
       - id: detect-private-key # checks for the existence of private keys
       - id: check-added-large-files # prevent giant files from being committed
-        args: [ "--maxkb=2048" ]
+        args: ["--maxkb=2048"]
       # python checks
       - id: name-tests-test # verifies that test files are named correctly
-        args: [ "--pytest-test-first" ]
+        args: ["--pytest-test-first"]
         exclude: 'tests\/(helpers|setup_metabase).py'
       - id: check-docstring-first # checks for code before the docstring
       - id: debug-statements # check for debugger imports and breakpoint calls in python source
       # git checks
       - id: no-commit-to-branch # protect specific branches from direct checkins
-        args: [ "--branch", "main" ]
-        stages: [ pre-commit ]
+        args: ["--branch", "main"]
+        stages: [pre-commit]
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.14.10
     hooks:
       - id: ruff
-        args: [ --fix ]
+        args: [--fix]
       - id: ruff-format
 
   - repo: https://github.com/adamchainz/django-upgrade
-    rev: '1.29.1'
+    rev: "1.29.1"
     hooks:
       - id: django-upgrade
-        args: ['--target-version', '6.0']
+        args: ["--target-version", "6.0"]
 
   - repo: https://github.com/Riverside-Healthcare/djLint
     rev: v1.36.4
@@ -65,13 +65,13 @@ repos:
     rev: v0.47.0
     hooks:
       - id: markdownlint-fix
-        args: [ "--disable", "MD033" ]
+        args: ["--disable", "MD033"]
 
   - repo: local
     hooks:
       - id: bandit
         name: bandit
-        entry: poetry run bandit
+        entry: uv run bandit
         language: system
         types: [python]
       - id: uv-sync
