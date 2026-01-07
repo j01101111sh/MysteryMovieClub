@@ -38,4 +38,8 @@ else:
     print('Superuser already exists. Skipping creation.');
 "
 
+# 6. Seed movie database
+echo "Seeding movie database..."
+uv run python manage.py seed_imdb_mysteries
+
 echo "Setup complete."
