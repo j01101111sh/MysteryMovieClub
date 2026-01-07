@@ -47,7 +47,7 @@ exclude = [
     "venv",
     "**/migrations/*.py", # Ignore Django migrations
 ]
-
+target-version = "py314"
 line-length = 88
 indent-width = 4
 
@@ -73,4 +73,12 @@ exclude_dirs = ["tests"]
 [tool.djlint]
 profile = "django"
 blank_line_after_tag = "load,extends,include"
+close_void_tags = true
 format_css = true
+format_js = true
+
+[tool.djlint.css]
+indent_size = 2
+
+[tool.djlint.js]
+indent_size = 2
