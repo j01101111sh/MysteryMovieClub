@@ -56,9 +56,17 @@ class ReviewCreateView(LoginRequiredMixin, CreateView):
     template_name = "movies/review_form.html"
 
     def form_valid(self, form):
+        from django.contrib import messages
+        from django.db import IntegrityError
+        from django.shortcuts import redirect
+
         form.instance.user = self.request.user
         form.instance.movie = get_object_or_404(MysteryTitle, slug=self.kwargs["slug"])
-        return super().form_valid(form)
+        try:
+            return super().form_valid(form)
+        except IntegrityError:
+            messages.warning(self.request, "You have already reviewed this movie.")
+            return redirect(form.instance.movie.get_absolute_url())
 
     def get_success_url(self):
         return self.object.movie.get_absolute_url()
