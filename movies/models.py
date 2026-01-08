@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
@@ -89,3 +90,26 @@ class MysteryTitle(models.Model):
 
     def get_absolute_url(self):
         return reverse("movies:detail", kwargs={"slug": self.slug})
+
+
+class Review(models.Model):
+    movie = models.ForeignKey(
+        MysteryTitle, on_delete=models.CASCADE, related_name="reviews"
+    )
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    rating = models.PositiveIntegerField(
+        choices=[(i, str(i)) for i in range(1, 6)], verbose_name="Rating (1-5)"
+    )
+    comment = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["movie", "user"], name="unique_review_per_user"
+            )
+        ]
+
+    def __str__(self):
+        return f"{self.user}'s review of {self.movie}"

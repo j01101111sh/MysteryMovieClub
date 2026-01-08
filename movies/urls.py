@@ -5,6 +5,7 @@ from .views import (
     DirectorListView,
     MysteryDetailView,
     MysteryListView,
+    ReviewCreateView,
     SeriesDetailView,
     SeriesListView,
 )
@@ -19,5 +20,6 @@ urlpatterns = [
     path("series/", SeriesListView.as_view(), name="series_list"),
     path("series/<slug:slug>/", SeriesDetailView.as_view(), name="series_detail"),
     path("<slug:slug>/", MysteryDetailView.as_view(), name="detail"),
+    path("<slug:slug>/review/", ReviewCreateView.as_view(), name="add_review"),
     path("", MysteryListView.as_view(), name="list"),
 ]

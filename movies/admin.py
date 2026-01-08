@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import MysteryTitle
+from .models import MysteryTitle, Review
 
 
 @admin.register(MysteryTitle)
@@ -20,3 +20,10 @@ class MysteryTitleAdmin(admin.ModelAdmin):
         (None, {"fields": ("title", "slug", "media_type", "release_year", "director")}),
         ("Synopsis", {"fields": ("description",)}),
     )
+
+
+@admin.register(Review)
+class ReviewAdmin(admin.ModelAdmin):
+    list_display = ("movie", "user", "rating", "created_at")
+    list_filter = ("rating", "created_at")
+    search_fields = ("movie__title", "user__username", "comment")

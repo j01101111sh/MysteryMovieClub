@@ -1,6 +1,9 @@
-from django.views.generic import DetailView, ListView
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.shortcuts import get_object_or_404
+from django.views.generic import CreateView, DetailView, ListView
 
-from .models import Director, MysteryTitle, Series
+from .forms import ReviewForm
+from .models import Director, MysteryTitle, Review, Series
 
 
 class MysteryDetailView(DetailView):
@@ -37,3 +40,22 @@ class SeriesDetailView(DetailView):
     model = Series
     template_name = "movies/series_detail.html"
     context_object_name = "series"
+
+
+class ReviewCreateView(LoginRequiredMixin, CreateView):
+    model = Review
+    form_class = ReviewForm
+    template_name = "movies/review_form.html"
+
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+        form.instance.movie = get_object_or_404(MysteryTitle, slug=self.kwargs["slug"])
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return self.object.movie.get_absolute_url()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["movie"] = get_object_or_404(MysteryTitle, slug=self.kwargs["slug"])
+        return context
