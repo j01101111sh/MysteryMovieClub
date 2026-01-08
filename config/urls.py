@@ -21,6 +21,8 @@ from django.urls import include, path
 from movies.views import MysteryListView
 
 urlpatterns = [
+    path("accounts/", include("django.contrib.auth.urls")),
+    path("users/", include("users.urls")),
     path("admin/", admin.site.urls),
     path("movies/", include("movies.urls")),
     path("", MysteryListView.as_view(), name="home"),
