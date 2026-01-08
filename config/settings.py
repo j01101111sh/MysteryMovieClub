@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "movies",
+    "users",
 ]
 
 MIDDLEWARE = [
@@ -127,3 +128,14 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = "static/"
+
+# Login and Logout Redirect URLs
+
+# Login and Logout Redirect URLs
+
+# Custom User Model
+AUTH_USER_MODEL = "users.CustomUser"
+
+# Login and Logout Redirect URLs
+LOGIN_REDIRECT_URL = "/"
+LOGOUT_REDIRECT_URL = "/"
