@@ -24,6 +24,13 @@ class MysteryTitleAdmin(admin.ModelAdmin):
 
 @admin.register(Review)
 class ReviewAdmin(admin.ModelAdmin):
-    list_display = ("movie", "user", "rating", "created_at")
-    list_filter = ("rating", "created_at")
+    list_display = (
+        "movie",
+        "user",
+        "quality",
+        "difficulty",
+        "is_fair_play",
+        "created_at",
+    )
+    list_filter = ("quality", "difficulty", "is_fair_play", "created_at")
     search_fields = ("movie__title", "user__username", "comment")

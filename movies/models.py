@@ -100,8 +100,15 @@ class Review(models.Model):
         MysteryTitle, on_delete=models.CASCADE, related_name="reviews"
     )
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    rating = models.PositiveIntegerField(
-        choices=[(i, str(i)) for i in range(1, 6)], verbose_name="Rating (1-5)"
+    quality = models.PositiveIntegerField(
+        choices=[(i, str(i)) for i in range(1, 6)], verbose_name="Quality (1-5)"
+    )
+    difficulty = models.PositiveIntegerField(
+        choices=[(i, str(i)) for i in range(1, 6)], verbose_name="Difficulty (1-5)"
+    )
+    is_fair_play = models.BooleanField(
+        verbose_name="Fair Play?",
+        help_text="Was the mystery solvable with the clues provided?",
     )
     comment = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)

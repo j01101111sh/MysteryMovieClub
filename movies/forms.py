@@ -6,7 +6,7 @@ from .models import Review
 class ReviewForm(forms.ModelForm):
     class Meta:
         model = Review
-        fields = ["rating", "comment"]
+        fields = ["quality", "difficulty", "is_fair_play", "comment"]
         widgets = {
             "comment": forms.Textarea(attrs={"rows": 4}),
         }
