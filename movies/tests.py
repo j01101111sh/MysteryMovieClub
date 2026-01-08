@@ -1,8 +1,9 @@
+from django.contrib.auth import get_user_model
 from django.db.utils import IntegrityError
 from django.test import TestCase
 from django.urls import reverse
 
-from movies.models import Director, MysteryTitle, Series
+from movies.models import Director, MysteryTitle, Review, Series
 
 
 class MysteryTitleModelTests(TestCase):
@@ -290,3 +291,127 @@ class SeriesViewTests(TestCase):
         self.assertContains(response, "Knives Out")
         self.assertEqual(response.context["series"], self.series1)
         self.assertIn(movie, response.context["series"].movies.all())
+
+
+class ReviewTests(TestCase):
+    def setUp(self):
+        self.user = get_user_model().objects.create_user(
+            username="testuser", password="password"
+        )
+        self.movie = MysteryTitle.objects.create(
+            title="Knives Out",
+            slug="knives-out-2019",
+            release_year=2019,
+            media_type=MysteryTitle.MediaType.MOVIE,
+        )
+        self.url = reverse("movies:add_review", kwargs={"slug": self.movie.slug})
+
+    def test_review_model_creation(self):
+        review = Review.objects.create(
+            movie=self.movie,
+            user=self.user,
+            quality=5,
+            difficulty=3,
+            is_fair_play=True,
+            comment="Great movie!",
+        )
+        self.assertEqual(str(review), f"{self.user}'s review of {self.movie}")
+        self.assertEqual(Review.objects.count(), 1)
+
+    def test_unique_review_constraint(self):
+        Review.objects.create(
+            movie=self.movie,
+            user=self.user,
+            quality=5,
+            difficulty=3,
+            is_fair_play=True,
+        )
+        with self.assertRaises(IntegrityError):
+            Review.objects.create(
+                movie=self.movie,
+                user=self.user,
+                quality=1,
+                difficulty=1,
+                is_fair_play=False,
+            )
+
+    def test_create_view_login_required(self):
+        response = self.client.get(self.url)
+        self.assertNotEqual(response.status_code, 200)
+        # Should redirect to login
+        self.assertEqual(response.status_code, 302)
+
+    def test_create_view_get(self):
+        self.client.login(username="testuser", password="password")
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "movies/review_form.html")
+        self.assertEqual(response.context["movie"], self.movie)
+
+    def test_create_view_post_success(self):
+        self.client.login(username="testuser", password="password")
+        data = {
+            "quality": 5,
+            "difficulty": 4,
+            "is_fair_play": True,
+            "comment": "Loved it",
+        }
+        response = self.client.post(self.url, data)
+        self.assertRedirects(response, self.movie.get_absolute_url())
+        self.assertEqual(Review.objects.count(), 1)
+        review = Review.objects.first()
+        self.assertEqual(review.quality, 5)
+        self.assertEqual(review.user, self.user)
+
+    def test_create_view_post_duplicate(self):
+        # Create initial review
+        Review.objects.create(
+            movie=self.movie,
+            user=self.user,
+            quality=3,
+            difficulty=3,
+            is_fair_play=False,
+        )
+
+        self.client.login(username="testuser", password="password")
+        data = {
+            "quality": 5,
+            "difficulty": 4,
+            "is_fair_play": True,
+            "comment": "Changed my mind",
+        }
+        # The view catches IntegrityError and redirects
+        response = self.client.post(self.url, data, follow=True)
+        self.assertRedirects(response, self.movie.get_absolute_url())
+
+        # Check for message
+        messages = list(response.context["messages"])
+        self.assertEqual(len(messages), 1)
+        self.assertEqual(str(messages[0]), "You have already reviewed this movie.")
+
+        # Ensure count is still 1 and data hasn't changed
+        self.assertEqual(Review.objects.count(), 1)
+        self.assertEqual(Review.objects.first().quality, 3)
+
+    def test_detail_view_context_has_reviewed(self):
+        detail_url = self.movie.get_absolute_url()
+
+        # Not logged in
+        response = self.client.get(detail_url)
+        self.assertNotIn("has_reviewed", response.context)
+
+        # Logged in, no review
+        self.client.login(username="testuser", password="password")
+        response = self.client.get(detail_url)
+        self.assertFalse(response.context["has_reviewed"])
+
+        # Logged in, with review
+        Review.objects.create(
+            movie=self.movie,
+            user=self.user,
+            quality=4,
+            difficulty=4,
+            is_fair_play=True,
+        )
+        response = self.client.get(detail_url)
+        self.assertTrue(response.context["has_reviewed"])
