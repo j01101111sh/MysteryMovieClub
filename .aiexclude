@@ -1,0 +1,10 @@
+# Ignore environment variables
+.env
+.env.local
+
+# Ignore data dumps
+*.sql
+*.csv
+
+# Ignore database files
+db.sqlite3
