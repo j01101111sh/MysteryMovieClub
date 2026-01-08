@@ -11,6 +11,14 @@ class MysteryDetailView(DetailView):
     template_name = "movies/mystery_detail.html"
     context_object_name = "movie"
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.request.user.is_authenticated:
+            context["has_reviewed"] = self.object.reviews.filter(
+                user=self.request.user
+            ).exists()
+        return context
+
 
 class MysteryListView(ListView):
     model = MysteryTitle

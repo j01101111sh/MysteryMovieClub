@@ -91,6 +91,9 @@ class MysteryTitle(models.Model):
     def get_absolute_url(self):
         return reverse("movies:detail", kwargs={"slug": self.slug})
 
+    def get_review_url(self):
+        return reverse("movies:add_review", kwargs={"slug": self.slug})
+
 
 class Review(models.Model):
     movie = models.ForeignKey(
