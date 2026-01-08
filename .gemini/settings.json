@@ -6,6 +6,8 @@
   ],
   "excludeTools": [
     "ShellTool(rm -rf)",
-    "ShellTool(shutdown)"
+    "ShellTool(shutdown)",
+    "ShellTool(gh)",
+    "ShellTool(git push)"
   ]
 }
