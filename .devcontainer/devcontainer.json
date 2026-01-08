@@ -9,7 +9,8 @@
       "settings": {
         "python.defaultInterpreterPath": "/usr/local/bin/python",
         "python.terminal.activateEnvironment": true,
-        "editor.formatOnSave": true
+        "editor.formatOnSave": true,
+        "geminicodeassist.agentYoloMode": true
       },
       "extensions": [
         "ms-python.python",
