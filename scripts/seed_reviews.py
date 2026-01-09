@@ -82,7 +82,7 @@ def main():
                     movie=movie,
                     user=user,
                     quality=secrets.randbelow(3) + 3,  # Bias towards good movies
-                    difficulty=secrets.randbelow(6) + 1,
+                    difficulty=secrets.randbelow(5) + 1,
                     is_fair_play=secrets.choice(
                         [True, True, False]
                     ),  # Bias towards True
