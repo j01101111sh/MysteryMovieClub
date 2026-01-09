@@ -74,10 +74,6 @@
             {% else %}
                 <p>No reviews yet.</p>
             {% endif %}
-            <div class="mt-3">
-                <a href="{% url 'movies:add_review' movie.slug %}"
-                   class="btn btn-primary">Write a Review</a>
-            </div>
         </div>
     </div>
 {% endblock content %}
