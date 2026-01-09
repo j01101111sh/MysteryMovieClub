@@ -17,6 +17,15 @@ from django.utils.text import slugify  # noqa: E402
 from movies.models import Director, MysteryTitle, Series  # noqa: E402
 
 
+# Helper function to get/create director
+def get_create_director(name):
+    d_slug = slugify(name)
+    director_obj, _ = Director.objects.get_or_create(
+        slug=d_slug, defaults={"name": name}
+    )
+    return director_obj
+
+
 def main():
     movies = [
         # --- Existing Seeds ---
@@ -650,14 +659,6 @@ def main():
 
         # Handle Directors
         directors_to_set = []
-
-        # Helper function to get/create director
-        def get_create_director(name):
-            d_slug = slugify(name)
-            director_obj, _ = Director.objects.get_or_create(
-                slug=d_slug, defaults={"name": name}
-            )
-            return director_obj
 
         if "directors" in movie_data:
             for d_name in movie_data["directors"]:
