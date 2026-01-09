@@ -9,10 +9,11 @@
             </h1>
             <p class="director">
                 Directed by
-                {% for director in movie.directors.all %}
-                    <a href="{{ director.get_absolute_url }}">{{ director.name }}</a>
-                    {% if not forloop.last %},{% endif %}
-                {% endfor %}
+                {% if movie.director %}
+                    <a href="{{ movie.director.get_absolute_url }}">{{ movie.director.name }}</a>
+                {% else %}
+                    Unknown
+                {% endif %}
             </p>
             {% if movie.series %}
                 <p class="series">

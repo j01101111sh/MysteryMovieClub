@@ -21,8 +21,8 @@ class MysteryTitleModelTests(TestCase):
             description="A detective investigates...",
             media_type=MysteryTitle.MediaType.MOVIE,
             series=self.series,
+            director=self.director,
         )
-        self.movie.directors.add(self.director)
 
     def test_string_representation(self):
         """Test the model's string representation uses Title (Year)."""
@@ -136,8 +136,8 @@ class MysteryViewTests(TestCase):
             release_year=2019,
             media_type=MysteryTitle.MediaType.MOVIE,
             description="Whodunit description",
+            director=self.director1,
         )
-        self.movie1.directors.add(self.director1)
 
         self.director2 = Director.objects.create(
             name="Steven Moffat", slug="steven-moffat"
@@ -147,8 +147,8 @@ class MysteryViewTests(TestCase):
             slug="sherlock-2010",
             release_year=2010,
             media_type=MysteryTitle.MediaType.TV_SHOW,
+            director=self.director2,
         )
-        self.movie2.directors.add(self.director2)
 
     def test_home_page_status_code(self):
         response = self.client.get(reverse("home"))
@@ -160,7 +160,7 @@ class MysteryViewTests(TestCase):
         self.assertTemplateUsed(response, "base.html")
 
     def test_home_page_content(self):
-        """Test that the list view context contains our movies and directors."""
+        """Test that the list view context contains our movies and director."""
         response = self.client.get(reverse("home"))
         # Check for movie titles
         self.assertContains(response, "Knives Out")
@@ -252,10 +252,12 @@ class DirectorViewTests(TestCase):
         self.assertTemplateUsed(response, "movies/director_detail.html")
 
     def test_director_detail_page_content(self):
-        movie = MysteryTitle.objects.create(
-            title="Knives Out", slug="knives-out", release_year=2019
+        _ = MysteryTitle.objects.create(
+            title="Knives Out",
+            slug="knives-out",
+            release_year=2019,
+            director=self.director1,
         )
-        movie.directors.add(self.director1)
         url = reverse("movies:director_detail", kwargs={"slug": self.director1.slug})
         response = self.client.get(url)
         self.assertContains(response, "Rian Johnson")

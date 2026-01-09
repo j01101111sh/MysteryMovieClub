@@ -13,7 +13,7 @@ class MysteryTitleAdmin(admin.ModelAdmin):
         "fair_play_consensus",
     )
     list_filter = ("media_type", "is_fair_play_candidate")
-    search_fields = ("title", "director")
+    search_fields = ("title", "director__name")
     prepopulated_fields = {"slug": ("title",)}
 
     fieldsets = (
