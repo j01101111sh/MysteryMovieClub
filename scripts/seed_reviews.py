@@ -52,7 +52,7 @@ def main():
         user_objects.append(user)
 
     # 2. Fetch Movies
-    movies = list(MysteryTitle.objects.all())
+    movies = MysteryTitle.objects.all()
     if not movies:
         print("No movies found. Please run seed_imdb_mysteries.py first.")
         return
