@@ -74,7 +74,7 @@ def main():
     reviews_created = 0
 
     for movie in movies:
-        # Randomly decide how many reviews this movie gets (0 to 3)
+        # Decide how many reviews this movie gets (0 to 3)
         num_reviews = 2
 
         # Pick random users to review this movie
