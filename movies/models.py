@@ -1,5 +1,7 @@
 from django.conf import settings
 from django.db import models
+from django.db.models.signals import post_delete, post_save
+from django.dispatch import receiver
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
@@ -94,6 +96,27 @@ class MysteryTitle(models.Model):
     def get_review_url(self):
         return reverse("movies:add_review", kwargs={"slug": self.slug})
 
+    def update_stats(self):
+        """Recalculate and save aggregate stats based on reviews."""
+        reviews = self.reviews.all()
+        stats = reviews.aggregate(
+            avg_quality=models.Avg("quality"),
+            avg_difficulty=models.Avg("difficulty"),
+        )
+        self.avg_quality = stats["avg_quality"] or 0.0
+        self.avg_difficulty = stats["avg_difficulty"] or 0.0
+
+        total_reviews = reviews.count()
+        if total_reviews > 0:
+            fair_play_count = reviews.filter(is_fair_play=True).count()
+            self.fair_play_consensus = (fair_play_count / total_reviews) * 100
+        else:
+            self.fair_play_consensus = 0.0
+
+        self.save(
+            update_fields=["avg_quality", "avg_difficulty", "fair_play_consensus"]
+        )
+
 
 class Review(models.Model):
     movie = models.ForeignKey(
@@ -123,3 +146,9 @@ class Review(models.Model):
 
     def __str__(self):
         return f"{self.user}'s review of {self.movie}"
+
+
+@receiver(post_save, sender=Review)
+@receiver(post_delete, sender=Review)
+def update_movie_stats(sender, instance, **kwargs):
+    instance.movie.update_stats()
