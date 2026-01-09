@@ -27,17 +27,14 @@ def main():
     # Decide how many reviews this movie gets (0 to 3)
     num_reviews = 2
 
-    reviewers = []
-    for _ in range(num_reviews):
-        uname = f"user_{secrets.token_hex(8)}"
-        upass = secrets.token_urlsafe(16)
-        reviewers.append(
-            {
-                "username": uname,
-                "email": f"{uname}@example.com",
-                "password": upass,
-            }
-        )
+    reviewers = [
+        {
+            "username": (uname := f"user_{secrets.token_hex(8)}"),
+            "email": f"{uname}@example.com",
+            "password": secrets.token_urlsafe(16),
+        }
+        for _ in range(num_reviews)
+    ]
 
     user_objects = []
     for reviewer in reviewers:
