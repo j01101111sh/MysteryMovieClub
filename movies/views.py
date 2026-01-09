@@ -29,6 +29,7 @@ class MysteryListView(ListView):
     model = MysteryTitle
     template_name = "home.html"
     context_object_name = "movies"
+    paginate_by = 15
 
 
 class DirectorListView(ListView):
