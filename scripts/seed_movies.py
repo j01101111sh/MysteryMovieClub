@@ -658,16 +658,19 @@ def main():
         )
 
         # Handle Directors
-        directors_to_set = []
+        director_name = movie_data.get("director")
 
-        if "directors" in movie_data:
-            for d_name in movie_data["directors"]:
-                directors_to_set.append(get_create_director(d_name))
-        elif "director" in movie_data:
-            directors_to_set.append(get_create_director(movie_data["director"]))
+        # If "directors" list exists, combine them (e.g. "Joel Coen & Ethan Coen")
+        if not director_name and "directors" in movie_data:
+            director_name = " & ".join(movie_data["directors"])
 
-        if directors_to_set:
-            obj.directors.set(directors_to_set)
+        if director_name:
+            d_slug = slugify(director_name)
+            director_obj, _ = Director.objects.get_or_create(
+                slug=d_slug, defaults={"name": director_name}
+            )
+            obj.director = director_obj
+            obj.save()
 
         # Handle Series
         series_name = movie_data.get("series")

@@ -56,8 +56,13 @@ class MysteryTitle(models.Model):
         default=MediaType.MOVIE,
     )
     release_year = models.PositiveIntegerField()
-    directors = models.ManyToManyField(
-        "Director", related_name="movies", help_text="Director or Creator"
+    director = models.ForeignKey(
+        "Director",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="movies",
+        help_text="Director or Creator",
     )
     series = models.ForeignKey(
         "Series",
