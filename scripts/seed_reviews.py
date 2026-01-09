@@ -24,8 +24,7 @@ def main():
     print("Seeding reviews...")
 
     # 1. Create Sample Users
-    # Decide how many reviews this movie gets (0 to 3)
-    num_reviews = 2
+    num_reviews = 10
 
     reviewers = [
         {
