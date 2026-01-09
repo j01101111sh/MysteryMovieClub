@@ -64,17 +64,17 @@
                                         data-bs-target="#collapse{{ review.id }}"
                                         aria-expanded="false"
                                         aria-controls="collapse{{ review.id }}">
-                                    Quality: {{ review.quality }}/5 | Difficulty: {{ review.difficulty }}/5 | Fair Play: {{ review.is_fair_play|yesno:"Yes,No" }}
+                                    <div class="w-100 pe-3">
+                                        <div>⭐ {{ review.quality }}/5 | 🧠 {{ review.difficulty }}/5 | Fair Play: {{ review.is_fair_play|yesno:"Yes,No" }}</div>
+                                        <small class="text-muted">By {{ review.user.username }} - {{ review.created_at|timesince }} ago</small>
+                                    </div>
                                 </button>
                             </h2>
                             <div id="collapse{{ review.id }}"
                                  class="accordion-collapse collapse"
                                  aria-labelledby="heading{{ review.id }}"
                                  data-bs-parent="#reviewsAccordion">
-                                <div class="accordion-body">
-                                    <p class="mb-1">{{ review.comment }}</p>
-                                    <small class="text-muted">By {{ review.user.username }} - {{ review.created_at|timesince }} ago</small>
-                                </div>
+                                <div class="accordion-body">{{ review.comment|linebreaks }}</div>
                             </div>
                         </div>
                     {% endfor %}
