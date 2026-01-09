@@ -5,6 +5,7 @@
         <div class="movie-header">
             <h1>
                 {{ movie.title }} <span class="year">({{ movie.release_year }})</span>
+                <span class="badge text-bg-secondary">{{ movie.get_media_type_display }}</span>
             </h1>
             <p class="director">
                 Directed by
@@ -18,7 +19,6 @@
                     Part of the <a href="{{ movie.series.get_absolute_url }}">{{ movie.series.name }}</a> series
                 </p>
             {% endif %}
-            <span class="badge">{{ movie.get_media_type_display }}</span>
             {% if movie.is_fair_play_candidate %}
                 {% if movie.fair_play_consensus >= 75 %}
                     <span class="badge text-bg-success">⚖️ Certified Fair Play ({{ movie.fair_play_consensus }}%)</span>
