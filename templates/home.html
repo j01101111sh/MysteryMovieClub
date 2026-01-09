@@ -61,9 +61,13 @@
                             <span class="page-link">Previous</span>
                         </li>
                     {% endif %}
-                    {% for i in page_obj.paginator.page_range %}
+                    {% for i in elided_page_range %}
                         {% if page_obj.number == i %}
                             <li class="page-item active" aria-current="page">
+                                <span class="page-link">{{ i }}</span>
+                            </li>
+                        {% elif i == page_obj.paginator.ELLIPSIS %}
+                            <li class="page-item disabled">
                                 <span class="page-link">{{ i }}</span>
                             </li>
                         {% else %}
