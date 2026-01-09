@@ -194,6 +194,18 @@ class MysteryViewTests(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 404)
 
+    def test_detail_page_reviews_context(self):
+        """Test that recent reviews are included in the detail page context."""
+        user = get_user_model().objects.create_user(username="reviewer", password="pw")
+        Review.objects.create(
+            movie=self.movie1, user=user, quality=5, difficulty=3, is_fair_play=True
+        )
+        url = reverse("movies:detail", kwargs={"slug": self.movie1.slug})
+        response = self.client.get(url)
+        self.assertIn("recent_reviews", response.context)
+        self.assertEqual(len(response.context["recent_reviews"]), 1)
+        self.assertEqual(response.context["total_reviews_count"], 1)
+
     def test_home_page_empty_list(self):
         MysteryTitle.objects.all().delete()
         response = self.client.get(reverse("home"))
@@ -415,3 +427,34 @@ class ReviewTests(TestCase):
         )
         response = self.client.get(detail_url)
         self.assertTrue(response.context["has_reviewed"])
+
+
+class ReviewListViewTests(TestCase):
+    def setUp(self):
+        self.user = get_user_model().objects.create_user(
+            username="testuser", password="password"
+        )
+        self.movie = MysteryTitle.objects.create(
+            title="Knives Out",
+            slug="knives-out-2019",
+            release_year=2019,
+            media_type=MysteryTitle.MediaType.MOVIE,
+        )
+        self.review = Review.objects.create(
+            movie=self.movie,
+            user=self.user,
+            quality=5,
+            difficulty=3,
+            is_fair_play=True,
+            comment="Great movie!",
+        )
+        self.url = reverse("movies:review_list", kwargs={"slug": self.movie.slug})
+
+    def test_review_list_status_code(self):
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
+
+    def test_review_list_context(self):
+        response = self.client.get(self.url)
+        self.assertIn(self.review, response.context["reviews"])
+        self.assertEqual(response.context["movie"], self.movie)

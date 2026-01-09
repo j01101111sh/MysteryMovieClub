@@ -15,6 +15,9 @@ class MysteryDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        reviews = self.object.reviews.select_related("user").order_by("-created_at")
+        context["recent_reviews"] = reviews[:3]
+        context["total_reviews_count"] = reviews.count()
         if self.request.user.is_authenticated:
             context["has_reviewed"] = self.object.reviews.filter(
                 user=self.request.user
@@ -50,6 +53,26 @@ class SeriesDetailView(DetailView):
     model = Series
     template_name = "movies/series_detail.html"
     context_object_name = "series"
+
+
+class ReviewListView(ListView):
+    model = Review
+    template_name = "movies/review_list.html"
+    context_object_name = "reviews"
+    paginate_by = 10
+
+    def get_queryset(self):
+        self.movie = get_object_or_404(MysteryTitle, slug=self.kwargs["slug"])
+        return (
+            Review.objects.filter(movie=self.movie)
+            .select_related("user")
+            .order_by("-created_at")
+        )
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["movie"] = self.movie
+        return context
 
 
 class ReviewCreateView(LoginRequiredMixin, CreateView):
