@@ -9,6 +9,7 @@ RUN apt-get update && apt-get install -y \
     libpq-dev \
     gettext \
     git \
+    vim \
     && rm -rf /var/lib/apt/lists/*
 
 # Add alias to the system-wide bashrc so it's available for all users
