@@ -67,9 +67,6 @@ indent-style = "space"
 skip-magic-trailing-comma = false
 line-ending = "auto"
 
-[tool.bandit]
-exclude_dirs = ["tests"]
-
 [tool.djlint]
 profile = "django"
 blank_line_after_tag = "load,extends,include"
