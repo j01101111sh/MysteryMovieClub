@@ -11,6 +11,9 @@ RUN apt-get update && apt-get install -y \
     git \
     && rm -rf /var/lib/apt/lists/*
 
+# Add alias to the system-wide bashrc so it's available for all users
+RUN echo "alias dj='uv run python manage.py'" >> /etc/bash.bashrc
+
 # Set environment variables for uv
 # Compile bytecode for faster startup
 ENV UV_COMPILE_BYTECODE=1
