@@ -13,6 +13,8 @@ dependencies = [
 dev = [
     "bandit>=1.9.2",
     "pre-commit>=4.5.1",
+    "pytest>=9.0.2",
+    "pytest-django>=4.11.1",
     "ruff>=0.14.10",
 ]
 
@@ -79,3 +81,9 @@ indent_size = 2
 
 [tool.djlint.js]
 indent_size = 2
+
+[tool.pytest.ini_options]
+addopts = "--ds=config.settings --reuse-db"
+python_files = [
+    "tests.py",
+]
