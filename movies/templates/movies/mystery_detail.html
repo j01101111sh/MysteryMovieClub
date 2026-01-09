@@ -39,6 +39,11 @@
                         <div class="score">🧠 {{ movie.avg_difficulty|floatformat:1 }}/5</div>
                     </div>
                 </div>
+                {% if user.is_authenticated and not has_reviewed %}
+                    <div class="mt-3">
+                        <a href="{{ movie.get_review_url }}">Leave a Review</a>
+                    </div>
+                {% endif %}
                 <div class="synopsis">
                     <h3>Plot Summary</h3>
                     <p>{{ movie.description|linebreaks }}</p>
