@@ -438,11 +438,8 @@ class ReviewTests(TestCase):
 
 class ReviewListViewTests(TestCase):
     def setUp(self):
-        self.uname = f"user_{secrets.token_hex(4)}"
-        self.upass = secrets.token_urlsafe(16)
-
         self.user = get_user_model().objects.create_user(
-            username=self.uname, password=self.upass
+            username=f"user_{secrets.token_hex(4)}", password=secrets.token_urlsafe(16)
         )
         self.movie = MysteryTitle.objects.create(
             title="Knives Out",
