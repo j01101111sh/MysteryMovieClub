@@ -71,9 +71,10 @@ repos:
     hooks:
       - id: bandit
         name: bandit
-        entry: uv run bandit -x '*/tests.py'
+        entry: uv run bandit
         language: system
         types: [python]
+        exclude: '^.*/management/commands/|(^|/)tests\.py$'
       - id: uv
         name: uv
         entry: uv sync
