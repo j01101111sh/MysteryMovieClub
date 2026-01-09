@@ -51,11 +51,11 @@ else:
 
 # 6. Seed movie database
 echo "Seeding movie database..."
-uv run python manage.py seed_imdb_mysteries
+uv run python scripts/seed_movies.py
 
 # 7. Seed reviews
 echo "Seeding reviews..."
-uv run python manage.py seed_reviews
+uv run python scripts/seed_reviews.py
 
 # 8. Verify Setup
 echo "Verifying setup..."
