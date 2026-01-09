@@ -38,6 +38,10 @@ DEBUG = os.getenv("DEBUG", "False") == "True"
 
 ALLOWED_HOSTS = ["*"]
 
+CSRF_TRUSTED_ORIGINS_CSV = os.getenv("CSRF_TRUSTED_ORIGINS", "")
+CSRF_TRUSTED_ORIGINS = [
+    origin.strip() for origin in CSRF_TRUSTED_ORIGINS_CSV.split(",") if origin.strip()
+]
 
 # Application definition
 

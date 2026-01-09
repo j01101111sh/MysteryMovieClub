@@ -1,7 +1,7 @@
 import secrets
 
 from django.contrib.auth import get_user_model
-from django.test import TestCase
+from django.test import Client, TestCase
 from django.urls import reverse
 
 from users.forms import CustomUserCreationForm
@@ -65,3 +65,16 @@ class SignUpViewTests(TestCase):
         )
         # Follow the redirect to the login page
         self.assertEqual(response.status_code, 200)
+
+    def test_signup_csrf_error(self):
+        """Test that the signup page enforces CSRF protection."""
+        # Create a client that enforces CSRF checks
+        csrf_client = Client(enforce_csrf_checks=True)
+
+        response = csrf_client.post(
+            reverse("signup"),
+            {"username": "csrf_test_user", "password": secrets.token_urlsafe(16)},
+        )
+
+        # Expect a 403 Forbidden response due to missing CSRF token
+        self.assertEqual(response.status_code, 403)
