@@ -7,6 +7,8 @@ from django.views.generic import CreateView, DetailView, ListView
 from .forms import ReviewForm
 from .models import Director, MysteryTitle, Review, Series
 
+DEFAULT_PAGE_SIZE = 15
+
 
 class MysteryDetailView(DetailView):
     model = MysteryTitle
@@ -29,6 +31,15 @@ class MysteryListView(ListView):
     model = MysteryTitle
     template_name = "home.html"
     context_object_name = "movies"
+    paginate_by = DEFAULT_PAGE_SIZE
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if context.get("is_paginated"):
+            context["elided_page_range"] = context["paginator"].get_elided_page_range(
+                context["page_obj"].number, on_each_side=2, on_ends=1
+            )
+        return context
 
 
 class DirectorListView(ListView):

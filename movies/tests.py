@@ -216,6 +216,24 @@ class MysteryViewTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(list(response.context["movies"]), [])
 
+    def test_pagination(self):
+        """Test that the movie list is paginated."""
+        # Create enough movies to trigger pagination
+        for i in range(25):
+            MysteryTitle.objects.create(
+                title=f"Pagination Movie {i}",
+                slug=f"pagination-movie-{i}",
+                release_year=2020,
+            )
+
+        response = self.client.get(reverse("home"))
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.context["is_paginated"])
+        self.assertEqual(
+            len(response.context["movies"]), response.context["paginator"].per_page
+        )
+        self.assertGreater(response.context["paginator"].num_pages, 1)
+
 
 class DirectorViewTests(TestCase):
     def setUp(self):
