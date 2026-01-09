@@ -82,6 +82,11 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/7d/3f/7c9543ad5ade5ce1d33d187a3abd82164570314ebee72c6206ab5c044ebf/django_stubs-5.2.8-py3-none-any.whl", hash = "sha256:a3c63119fd7062ac63d58869698d07c9e5ec0561295c4e700317c54e8d26716c", size = 508136, upload-time = "2025-12-01T08:13:07.963Z" },
 ]
 
+[package.optional-dependencies]
+compatible-mypy = [
+    { name = "mypy" },
+]
+
 [[package]]
 name = "django-stubs-ext"
 version = "5.2.8"
@@ -216,7 +221,7 @@ dependencies = [
 [package.dev-dependencies]
 dev = [
     { name = "bandit" },
-    { name = "django-stubs" },
+    { name = "django-stubs", extra = ["compatible-mypy"] },
     { name = "mypy" },
     { name = "pre-commit" },
     { name = "pytest" },
@@ -234,7 +239,7 @@ requires-dist = [
 [package.metadata.requires-dev]
 dev = [
     { name = "bandit", specifier = ">=1.9.2" },
-    { name = "django-stubs", specifier = ">=5.2.8" },
+    { name = "django-stubs", extras = ["compatible-mypy"], specifier = ">=5.2.8" },
     { name = "mypy", specifier = ">=1.19.1" },
     { name = "pre-commit", specifier = ">=4.5.1" },
     { name = "pytest", specifier = ">=9.0.2" },
