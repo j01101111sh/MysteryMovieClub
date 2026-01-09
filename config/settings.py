@@ -38,10 +38,9 @@ DEBUG = os.getenv("DEBUG", "False") == "True"
 
 ALLOWED_HOSTS = ["*"]
 
+CSRF_TRUSTED_ORIGINS_CSV = os.getenv("CSRF_TRUSTED_ORIGINS", "")
 CSRF_TRUSTED_ORIGINS = [
-    "https://localhost:8000",
-    "https://*.github.dev",  # Wildcard for GitHub Codespaces
-    "https://*.app.github.dev",  # Alternative Codespaces domain
+    origin.strip() for origin in CSRF_TRUSTED_ORIGINS_CSV.split(",") if origin.strip()
 ]
 
 # Application definition
