@@ -194,6 +194,18 @@ class MysteryViewTests(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 404)
 
+    def test_detail_page_reviews_context(self):
+        """Test that recent reviews are included in the detail page context."""
+        user = get_user_model().objects.create_user(username="reviewer", password="pw")
+        Review.objects.create(
+            movie=self.movie1, user=user, quality=5, difficulty=3, is_fair_play=True
+        )
+        url = reverse("movies:detail", kwargs={"slug": self.movie1.slug})
+        response = self.client.get(url)
+        self.assertIn("recent_reviews", response.context)
+        self.assertEqual(len(response.context["recent_reviews"]), 1)
+        self.assertEqual(response.context["total_reviews_count"], 1)
+
     def test_home_page_empty_list(self):
         MysteryTitle.objects.all().delete()
         response = self.client.get(reverse("home"))
@@ -415,3 +427,103 @@ class ReviewTests(TestCase):
         )
         response = self.client.get(detail_url)
         self.assertTrue(response.context["has_reviewed"])
+
+
+class ReviewListViewTests(TestCase):
+    def setUp(self):
+        self.user = get_user_model().objects.create_user(
+            username="testuser", password="password"
+        )
+        self.movie = MysteryTitle.objects.create(
+            title="Knives Out",
+            slug="knives-out-2019",
+            release_year=2019,
+            media_type=MysteryTitle.MediaType.MOVIE,
+        )
+        self.review = Review.objects.create(
+            movie=self.movie,
+            user=self.user,
+            quality=5,
+            difficulty=3,
+            is_fair_play=True,
+            comment="Great movie!",
+        )
+        self.url = reverse("movies:review_list", kwargs={"slug": self.movie.slug})
+
+    def test_review_list_status_code(self):
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
+
+    def test_review_list_context(self):
+        response = self.client.get(self.url)
+        self.assertIn(self.review, response.context["reviews"])
+        self.assertEqual(response.context["movie"], self.movie)
+
+
+class MysteryTitleStatsTests(TestCase):
+    def setUp(self):
+        self.user1 = get_user_model().objects.create_user(username="u1", password="pw")
+        self.user2 = get_user_model().objects.create_user(username="u2", password="pw")
+        self.movie = MysteryTitle.objects.create(
+            title="Stats Movie",
+            slug="stats-movie",
+            release_year=2020,
+        )
+
+    def test_stats_calculation_and_signals(self):
+        """Test that stats are updated when reviews are created, updated, or deleted."""
+        # Initial state
+        self.assertEqual(self.movie.avg_quality, 0.0)
+        self.assertEqual(self.movie.avg_difficulty, 0.0)
+        self.assertEqual(self.movie.fair_play_consensus, 0.0)
+
+        # Add first review
+        Review.objects.create(
+            movie=self.movie,
+            user=self.user1,
+            quality=4,
+            difficulty=2,
+            is_fair_play=True,
+        )
+
+        self.movie.refresh_from_db()
+        self.assertEqual(self.movie.avg_quality, 4.0)
+        self.assertEqual(self.movie.avg_difficulty, 2.0)
+        self.assertEqual(self.movie.fair_play_consensus, 100.0)
+
+        # Add second review
+        review2 = Review.objects.create(
+            movie=self.movie,
+            user=self.user2,
+            quality=2,
+            difficulty=4,
+            is_fair_play=False,
+        )
+
+        self.movie.refresh_from_db()
+        self.assertEqual(self.movie.avg_quality, 3.0)
+        self.assertEqual(self.movie.avg_difficulty, 3.0)
+        self.assertEqual(self.movie.fair_play_consensus, 50.0)
+
+        # Update second review
+        review2.quality = 5
+        review2.save()
+
+        self.movie.refresh_from_db()
+        self.assertEqual(self.movie.avg_quality, 4.5)  # (4+5)/2
+
+        # Delete second review
+        review2.delete()
+
+        self.movie.refresh_from_db()
+        self.assertEqual(self.movie.avg_quality, 4.0)
+        self.assertEqual(self.movie.fair_play_consensus, 100.0)
+
+        # Delete all reviews
+        for review in Review.objects.filter(movie=self.movie):
+            review.delete()
+
+        self.movie.refresh_from_db()
+        self.assertEqual(self.movie.avg_quality, 0.0)
+        self.assertEqual(self.movie.avg_difficulty, 0.0)
+        self.assertEqual(self.movie.fair_play_consensus, 0.0)

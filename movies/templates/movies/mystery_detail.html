@@ -5,6 +5,7 @@
         <div class="movie-header">
             <h1>
                 {{ movie.title }} <span class="year">({{ movie.release_year }})</span>
+                <span class="badge text-bg-secondary">{{ movie.get_media_type_display }}</span>
             </h1>
             <p class="director">
                 Directed by
@@ -18,12 +19,11 @@
                     Part of the <a href="{{ movie.series.get_absolute_url }}">{{ movie.series.name }}</a> series
                 </p>
             {% endif %}
-            <span class="badge">{{ movie.get_media_type_display }}</span>
             {% if movie.is_fair_play_candidate %}
                 {% if movie.fair_play_consensus >= 75 %}
-                    <span class="badge badge-success">⚖️ Certified Fair Play ({{ movie.fair_play_consensus }}%)</span>
+                    <span class="badge text-bg-success">⚖️ Certified Fair Play ({{ movie.fair_play_consensus }}%)</span>
                 {% else %}
-                    <span class="badge badge-warning">⚠️ Contested Fairness ({{ movie.fair_play_consensus }}%)</span>
+                    <span class="badge text-bg-warning">⚠️ Contested Fairness ({{ movie.fair_play_consensus }}%)</span>
                 {% endif %}
             {% endif %}
         </div>
@@ -49,6 +49,31 @@
                     <p>{{ movie.description|linebreaks }}</p>
                 </div>
             </div>
+        </div>
+        <div class="mt-5">
+            <h3>Reviews</h3>
+            {% if recent_reviews %}
+                <div class="list-group mb-3">
+                    {% for review in recent_reviews %}
+                        <div class="list-group-item">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">
+                                    Quality: {{ review.quality }}/5 | Difficulty: {{ review.difficulty }}/5 | Fair Play: {{ review.is_fair_play|yesno:"Yes,No" }}
+                                </h5>
+                                <small class="text-muted">{{ review.created_at|timesince }} ago</small>
+                            </div>
+                            <p class="mb-1">{{ review.comment|truncatewords:30 }}</p>
+                            <small class="text-muted">By {{ review.user.username }}</small>
+                        </div>
+                    {% endfor %}
+                </div>
+                {% if total_reviews_count > 3 %}
+                    <a href="{% url 'movies:review_list' movie.slug %}"
+                       class="btn btn-outline-secondary">Read all {{ total_reviews_count }} reviews</a>
+                {% endif %}
+            {% else %}
+                <p>No reviews yet.</p>
+            {% endif %}
         </div>
     </div>
 {% endblock content %}
