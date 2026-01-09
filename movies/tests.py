@@ -520,7 +520,8 @@ class MysteryTitleStatsTests(TestCase):
         self.assertEqual(self.movie.fair_play_consensus, 100.0)
 
         # Delete all reviews
-        Review.objects.filter(movie=self.movie).delete()
+        for review in Review.objects.filter(movie=self.movie):
+            review.delete()
 
         self.movie.refresh_from_db()
         self.assertEqual(self.movie.avg_quality, 0.0)
