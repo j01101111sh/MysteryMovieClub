@@ -38,6 +38,11 @@ DEBUG = os.getenv("DEBUG", "False") == "True"
 
 ALLOWED_HOSTS = ["*"]
 
+CSRF_TRUSTED_ORIGINS = [
+    "https://localhost:8000",
+    "https://*.github.dev",  # Wildcard for GitHub Codespaces
+    "https://*.app.github.dev",  # Alternative Codespaces domain
+]
 
 # Application definition
 
