@@ -102,16 +102,17 @@ class MysteryTitle(models.Model):
         stats = reviews.aggregate(
             avg_quality=models.Avg("quality"),
             avg_difficulty=models.Avg("difficulty"),
+            fair_play_consensus=models.Avg(
+                models.Case(
+                    models.When(is_fair_play=True, then=100.0),
+                    default=0.0,
+                    output_field=models.FloatField(),
+                )
+            ),
         )
         self.avg_quality = stats["avg_quality"] or 0.0
         self.avg_difficulty = stats["avg_difficulty"] or 0.0
-
-        total_reviews = reviews.count()
-        if total_reviews > 0:
-            fair_play_count = reviews.filter(is_fair_play=True).count()
-            self.fair_play_consensus = (fair_play_count / total_reviews) * 100
-        else:
-            self.fair_play_consensus = 0.0
+        self.fair_play_consensus = stats["fair_play_consensus"] or 0.0
 
         self.save(
             update_fields=["avg_quality", "avg_difficulty", "fair_play_consensus"]
