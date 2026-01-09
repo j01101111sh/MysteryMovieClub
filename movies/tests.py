@@ -469,18 +469,11 @@ class ReviewListViewTests(TestCase):
 
 class MysteryTitleStatsTests(TestCase):
     def setUp(self):
-        self.uname1 = f"user_{secrets.token_hex(4)}"
-        self.upass1 = secrets.token_urlsafe(16)
-
         self.user1 = get_user_model().objects.create_user(
-            username=self.uname1, password=self.upass1
+            username=f"user_{secrets.token_hex(4)}", password=secrets.token_urlsafe(16)
         )
-
-        self.uname2 = f"user_{secrets.token_hex(4)}"
-        self.upass2 = secrets.token_urlsafe(16)
-
         self.user2 = get_user_model().objects.create_user(
-            username=self.uname2, password=self.upass2
+            username=f"user_{secrets.token_hex(4)}", password=secrets.token_urlsafe(16)
         )
 
         self.movie = MysteryTitle.objects.create(
