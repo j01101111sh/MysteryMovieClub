@@ -74,7 +74,6 @@ repos:
         entry: uv run bandit
         language: system
         types: [python]
-        exclude: '^scripts/|(^|/)tests\.py$'
       - id: uv
         name: uv
         entry: uv sync

@@ -1,6 +1,6 @@
 # scripts/seed_reviews.py
 import os
-import random
+import secrets
 import sys
 from pathlib import Path
 
@@ -24,18 +24,16 @@ def main():
     print("Seeding reviews...")
 
     # 1. Create Sample Users
+    # Decide how many reviews this movie gets (0 to 3)
+    num_reviews = 2
+
     reviewers = [
         {
-            "username": "alice_detective",
-            "email": "alice@example.com",
-            "password": "password123",
-        },
-        {"username": "bob_noir", "email": "bob@example.com", "password": "password123"},
-        {
-            "username": "charlie_clue",
-            "email": "charlie@example.com",
-            "password": "password123",
-        },
+            "username": (uname := f"user_{secrets.token_hex(8)}"),
+            "email": f"{uname}@example.com",
+            "password": secrets.token_urlsafe(16),
+        }
+        for _ in range(num_reviews)
     ]
 
     user_objects = []
@@ -74,24 +72,18 @@ def main():
     reviews_created = 0
 
     for movie in movies:
-        # Decide how many reviews this movie gets (0 to 3)
-        num_reviews = 2
-
-        # Pick random users to review this movie
-        selected_users = random.sample(user_objects, num_reviews)
-
-        for user in selected_users:
+        for user in user_objects:
             # Check if review already exists to avoid unique constraint error
             if not Review.objects.filter(movie=movie, user=user).exists():
                 _ = Review.objects.create(
                     movie=movie,
                     user=user,
-                    quality=random.randint(3, 5),  # Bias towards good movies
-                    difficulty=random.randint(1, 5),
-                    is_fair_play=random.choice(
+                    quality=secrets.randbelow(3) + 3,  # Bias towards good movies
+                    difficulty=secrets.randbelow(5) + 1,
+                    is_fair_play=secrets.choice(
                         [True, True, False]
                     ),  # Bias towards True
-                    comment=random.choice(comments),
+                    comment=secrets.choice(comments),
                 )
                 reviews_created += 1
 

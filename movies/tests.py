@@ -1,3 +1,5 @@
+import secrets
+
 from django.contrib.auth import get_user_model
 from django.db.utils import IntegrityError
 from django.test import TestCase
@@ -196,7 +198,9 @@ class MysteryViewTests(TestCase):
 
     def test_detail_page_reviews_context(self):
         """Test that recent reviews are included in the detail page context."""
-        user = get_user_model().objects.create_user(username="reviewer", password="pw")
+        user = get_user_model().objects.create_user(
+            username="reviewer", password=secrets.token_urlsafe(16)
+        )
         Review.objects.create(
             movie=self.movie1, user=user, quality=5, difficulty=3, is_fair_play=True
         )
@@ -307,8 +311,11 @@ class SeriesViewTests(TestCase):
 
 class ReviewTests(TestCase):
     def setUp(self):
+        self.uname = f"user_{secrets.token_hex(4)}"
+        self.upass = secrets.token_urlsafe(16)
+
         self.user = get_user_model().objects.create_user(
-            username="testuser", password="password"
+            username=self.uname, password=self.upass
         )
         self.movie = MysteryTitle.objects.create(
             title="Knives Out",
@@ -354,14 +361,14 @@ class ReviewTests(TestCase):
         self.assertEqual(response.status_code, 302)
 
     def test_create_view_get(self):
-        self.client.login(username="testuser", password="password")
+        self.client.login(username=self.uname, password=self.upass)
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "movies/review_form.html")
         self.assertEqual(response.context["movie"], self.movie)
 
     def test_create_view_post_success(self):
-        self.client.login(username="testuser", password="password")
+        self.client.login(username=self.uname, password=self.upass)
         data = {
             "quality": 5,
             "difficulty": 4,
@@ -385,7 +392,7 @@ class ReviewTests(TestCase):
             is_fair_play=False,
         )
 
-        self.client.login(username="testuser", password="password")
+        self.client.login(username=self.uname, password=self.upass)
         data = {
             "quality": 5,
             "difficulty": 4,
@@ -413,7 +420,7 @@ class ReviewTests(TestCase):
         self.assertNotIn("has_reviewed", response.context)
 
         # Logged in, no review
-        self.client.login(username="testuser", password="password")
+        self.client.login(username=self.uname, password=self.upass)
         response = self.client.get(detail_url)
         self.assertFalse(response.context["has_reviewed"])
 
@@ -432,7 +439,7 @@ class ReviewTests(TestCase):
 class ReviewListViewTests(TestCase):
     def setUp(self):
         self.user = get_user_model().objects.create_user(
-            username="testuser", password="password"
+            username=f"user_{secrets.token_hex(4)}", password=secrets.token_urlsafe(16)
         )
         self.movie = MysteryTitle.objects.create(
             title="Knives Out",
@@ -462,8 +469,13 @@ class ReviewListViewTests(TestCase):
 
 class MysteryTitleStatsTests(TestCase):
     def setUp(self):
-        self.user1 = get_user_model().objects.create_user(username="u1", password="pw")
-        self.user2 = get_user_model().objects.create_user(username="u2", password="pw")
+        self.user1 = get_user_model().objects.create_user(
+            username=f"user_{secrets.token_hex(4)}", password=secrets.token_urlsafe(16)
+        )
+        self.user2 = get_user_model().objects.create_user(
+            username=f"user_{secrets.token_hex(4)}", password=secrets.token_urlsafe(16)
+        )
+
         self.movie = MysteryTitle.objects.create(
             title="Stats Movie",
             slug="stats-movie",
