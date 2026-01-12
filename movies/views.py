@@ -102,7 +102,9 @@ class ReviewCreateView(LoginRequiredMixin, CreateView):
             return redirect(form.instance.movie.get_absolute_url())
 
     def get_success_url(self):
-        return self.object.movie.get_absolute_url()
+        if self.object is not None:
+            return self.object.movie.get_absolute_url()
+        raise AttributeError
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
