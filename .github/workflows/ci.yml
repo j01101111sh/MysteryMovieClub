@@ -45,5 +45,8 @@ jobs:
       - name: Check for missing migrations
         run: uv run python manage.py makemigrations --check --dry-run
 
+      - name: Generate staticfiles to mimic production
+        run: uv run python manage.py collectstatic --noinput
+
       - name: Run Django Tests
         run: uv run python manage.py test

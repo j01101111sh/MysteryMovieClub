@@ -1,6 +1,7 @@
 import secrets
 
 from django.contrib.auth import get_user_model
+from django.contrib.staticfiles import finders
 from django.db.utils import IntegrityError
 from django.test import TestCase
 from django.urls import reverse
@@ -559,3 +560,35 @@ class MysteryTitleStatsTests(TestCase):
         self.assertEqual(self.movie.avg_quality, 0.0)
         self.assertEqual(self.movie.avg_difficulty, 0.0)
         self.assertEqual(self.movie.fair_play_consensus, 0.0)
+
+
+class StaticFilesTests(TestCase):
+    def test_heatmap_css_exists(self):
+        """Test that the heatmap.css file is found by staticfiles finders."""
+        # Verify the file exists in the expected namespaced location
+        found_path = finders.find("movies/css/heatmap.css")
+        self.assertIsNotNone(found_path)
+
+
+class MovieStyleSheetTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.movie = MysteryTitle.objects.create(
+            title="Test Movie",
+            release_year=2023,
+            description="Test Description",
+            slug="test-movie-2023",
+        )
+
+    def test_detail_view_loads_css(self):
+        """Test that the mystery detail page loads the heatmap CSS."""
+        response = self.client.get(self.movie.get_absolute_url())
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'href="/static/movies/css/heatmap')
+
+    def test_review_list_view_loads_css(self):
+        """Test that the review list page loads the heatmap CSS."""
+        url = reverse("movies:review_list", args=[self.movie.slug])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'href="/static/movies/css/heatmap')

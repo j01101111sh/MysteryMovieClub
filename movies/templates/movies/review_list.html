@@ -1,31 +1,11 @@
 {% extends "base.html" %}
 
-{% load movie_extras %}
+{% load movie_extras static %}
 
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'movies/css/heatmap.css' %}" />
+{% endblock extra_css %}
 {% block content %}
-    <style>
-      .heatmap-vertical-text {
-        writing-mode: vertical-rl;
-        transform: rotate(180deg);
-      }
-
-      .heatmap-row-label {
-        width: 10px;
-      }
-
-      .heatmap-cell {
-        width: 30px;
-        height: 30px;
-      }
-
-      .heatmap-cell-text {
-        font-size: 0.7rem;
-      }
-
-      .heatmap-col-label {
-        width: 30px;
-      }
-    </style>
     <div class="container mt-4">
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
@@ -54,7 +34,7 @@
                                     <small class="text-muted me-1 heatmap-row-label">{{ row.difficulty }}</small>
                                     {% for cell in row.cells %}
                                         <div class="d-flex align-items-center justify-content-center border border-white heatmap-cell"
-                                             style="background-color: rgba(13, 110, 253, {{ cell.intensity }})"
+                                             style="background-color: rgba(var(--heatmap-base-rgb), {{ cell.intensity }})"
                                              title="Quality: {{ cell.quality }}, Difficulty: {{ cell.difficulty }} ({{ cell.count }} reviews)">
                                             {% if cell.count > 0 %}
                                                 <span class="small fw-bold heatmap-cell-text {% if cell.intensity > 0.5 %}text-white{% else %}text-black{% endif %}">{{ cell.count }}</span>

@@ -1,0 +1,22 @@
+.heatmap-vertical-text {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+}
+
+.heatmap-row-label {
+  width: 10px;
+}
+
+.heatmap-cell {
+  --heatmap-base-rgb: 13, 110, 253;
+  width: 30px;
+  height: 30px;
+}
+
+.heatmap-cell-text {
+  font-size: 0.7rem;
+}
+
+.heatmap-col-label {
+  width: 30px;
+}
