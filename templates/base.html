@@ -38,6 +38,18 @@
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="navbarCollapse">
+                    <form class="d-flex me-auto"
+                          role="search"
+                          action="{% url 'home' %}"
+                          method="get">
+                        <input class="form-control me-2"
+                               type="search"
+                               name="q"
+                               placeholder="Search mysteries..."
+                               aria-label="Search"
+                               value="{{ search_query|default:'' }}" />
+                        <button class="btn btn-outline-secondary" type="submit">Search</button>
+                    </form>
                     <ul class="navbar-nav ms-auto mb-2 mb-md-0">
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'home' %}">Home</a>
