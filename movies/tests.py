@@ -157,7 +157,7 @@ class MysteryViewTests(TestCase):
 
     def test_home_page_template(self):
         response = self.client.get(reverse("home"))
-        self.assertTemplateUsed(response, "movies/home.html")
+        self.assertTemplateUsed(response, "movies/movie_list.html")
         self.assertTemplateUsed(response, "base.html")
 
     def test_home_page_content(self):
