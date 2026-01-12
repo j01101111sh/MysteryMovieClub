@@ -30,6 +30,9 @@ class Series(models.Model):
         unique=True, help_text="URL friendly name (e.g. benoit-blanc)"
     )
 
+    if TYPE_CHECKING:
+        movies: models.QuerySet[MysteryTitle]
+
     class Meta:
         ordering = ["name"]
         verbose_name_plural = "series"
