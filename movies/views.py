@@ -29,7 +29,7 @@ class MysteryDetailView(DetailView):
 
 class MysteryListView(ListView):
     model = MysteryTitle
-    template_name = "home.html"
+    template_name = "movies/home.html"
     context_object_name = "movies"
     paginate_by = DEFAULT_PAGE_SIZE
 
