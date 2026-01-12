@@ -66,6 +66,14 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
+# In settings.py, after the MIDDLEWARE list definition
+if not DEBUG:
+    # The whitenoise documentation recommends inserting it right after SecurityMiddleware.
+    MIDDLEWARE.insert(
+        MIDDLEWARE.index("django.middleware.security.SecurityMiddleware"),
+        "whitenoise.middleware.WhiteNoiseMiddleware",
+    )
+
 ROOT_URLCONF = "config.urls"
 
 TEMPLATES = [
@@ -132,6 +140,26 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = "static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"
+
+# Define where you will put your source static files (e.g., global css/js)
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+]
+
+# Configure Whitenoise to compress and hash files
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": (
+            "django.contrib.staticfiles.storage.StaticFilesStorage"
+            if DEBUG
+            else "whitenoise.storage.CompressedManifestStaticFilesStorage"
+        )
+    },
+}
 
 # Login and Logout Redirect URLs
 
