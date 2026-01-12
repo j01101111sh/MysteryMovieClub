@@ -1,6 +1,7 @@
 import os
 import sys
 from pathlib import Path
+from typing import cast
 
 import django
 
@@ -662,10 +663,10 @@ def main():
 
         # If "directors" list exists, combine them (e.g. "Joel Coen & Ethan Coen")
         if not director_name and "directors" in movie_data:
-            director_name = " & ".join(movie_data["directors"])
+            director_name = " & ".join(cast(list[str], movie_data["directors"]))
 
         if director_name:
-            d_slug = slugify(director_name)
+            d_slug = slugify(str(director_name))
             director_obj, _ = Director.objects.get_or_create(
                 slug=d_slug, defaults={"name": director_name}
             )
@@ -675,7 +676,7 @@ def main():
         # Handle Series
         series_name = movie_data.get("series")
         if series_name:
-            series_slug = slugify(series_name)
+            series_slug = slugify(str(series_name))
             series, _ = Series.objects.get_or_create(
                 slug=series_slug, defaults={"name": series_name}
             )

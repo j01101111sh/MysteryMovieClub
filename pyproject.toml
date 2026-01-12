@@ -13,6 +13,8 @@ dependencies = [
 [dependency-groups]
 dev = [
     "bandit>=1.9.2",
+    "django-stubs[compatible-mypy]>=5.2.8",
+    "mypy>=1.19.1",
     "pre-commit>=4.5.1",
     "pytest>=9.0.2",
     "pytest-django>=4.11.1",
@@ -88,3 +90,23 @@ addopts = "--ds=config.settings --reuse-db"
 python_files = [
     "tests.py",
 ]
+
+[tool.mypy]
+python_version = "3.14"
+check_untyped_defs = true
+ignore_missing_imports = true
+warn_unused_ignores = true
+warn_redundant_casts = true
+warn_unused_configs = true
+plugins = [
+    "mypy_django_plugin.main",
+]
+disable_error_code = ["unused-ignore"]
+
+[[tool.mypy.overrides]]
+# Django migrations should not produce any errors:
+module = "*.migrations.*"
+ignore_errors = true
+
+[tool.django-stubs]
+django_settings_module = "config.settings"

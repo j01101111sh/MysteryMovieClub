@@ -199,7 +199,7 @@ class MysteryViewTests(TestCase):
 
     def test_detail_page_reviews_context(self):
         """Test that recent reviews are included in the detail page context."""
-        user = get_user_model().objects.create_user(
+        user = get_user_model().objects.create_user(  # type: ignore
             username="reviewer", password=secrets.token_urlsafe(16)
         )
         Review.objects.create(
@@ -335,7 +335,7 @@ class ReviewTests(TestCase):
         self.uname = f"user_{secrets.token_hex(4)}"
         self.upass = secrets.token_urlsafe(16)
 
-        self.user = get_user_model().objects.create_user(
+        self.user = get_user_model().objects.create_user(  # type: ignore
             username=self.uname, password=self.upass
         )
         self.movie = MysteryTitle.objects.create(
@@ -400,8 +400,11 @@ class ReviewTests(TestCase):
         self.assertRedirects(response, self.movie.get_absolute_url())
         self.assertEqual(Review.objects.count(), 1)
         review = Review.objects.first()
-        self.assertEqual(review.quality, 5)
-        self.assertEqual(review.user, self.user)
+        if review:
+            self.assertEqual(review.quality, 5)
+            self.assertEqual(review.user, self.user)
+        else:
+            raise AssertionError
 
     def test_create_view_post_duplicate(self):
         # Create initial review
@@ -431,7 +434,11 @@ class ReviewTests(TestCase):
 
         # Ensure count is still 1 and data hasn't changed
         self.assertEqual(Review.objects.count(), 1)
-        self.assertEqual(Review.objects.first().quality, 3)
+        review = Review.objects.first()
+        if review:
+            self.assertEqual(review.quality, 3)
+        else:
+            raise AssertionError
 
     def test_detail_view_context_has_reviewed(self):
         detail_url = self.movie.get_absolute_url()
@@ -459,7 +466,7 @@ class ReviewTests(TestCase):
 
 class ReviewListViewTests(TestCase):
     def setUp(self):
-        self.user = get_user_model().objects.create_user(
+        self.user = get_user_model().objects.create_user(  # type: ignore
             username=f"user_{secrets.token_hex(4)}", password=secrets.token_urlsafe(16)
         )
         self.movie = MysteryTitle.objects.create(
@@ -490,10 +497,10 @@ class ReviewListViewTests(TestCase):
 
 class MysteryTitleStatsTests(TestCase):
     def setUp(self):
-        self.user1 = get_user_model().objects.create_user(
+        self.user1 = get_user_model().objects.create_user(  # type: ignore
             username=f"user_{secrets.token_hex(4)}", password=secrets.token_urlsafe(16)
         )
-        self.user2 = get_user_model().objects.create_user(
+        self.user2 = get_user_model().objects.create_user(  # type: ignore
             username=f"user_{secrets.token_hex(4)}", password=secrets.token_urlsafe(16)
         )
 
@@ -571,6 +578,8 @@ class StaticFilesTests(TestCase):
 
 
 class MovieStyleSheetTests(TestCase):
+    movie: MysteryTitle
+
     @classmethod
     def setUpTestData(cls):
         cls.movie = MysteryTitle.objects.create(
