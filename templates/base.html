@@ -1,3 +1,5 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -18,26 +20,8 @@
               rel="stylesheet"
               integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
               crossorigin="anonymous" />
-        <style>
-          body {
-            padding-top: 4.5rem;
-            /* Space for fixed navbar */
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-          }
-
-          main {
-            flex: 1;
-            /* Pushes footer to bottom */
-          }
-
-          .navbar-brand {
-            font-weight: bold;
-            letter-spacing: 0.5px;
-          }
-        </style>
         {% block extra_css %}
+            <link rel="stylesheet" href="{% static 'css/styles.css' %}" />
         {% endblock extra_css %}
     </head>
     <body>
