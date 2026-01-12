@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from django.conf import settings
 from django.db import models
 from django.db.models.signals import post_delete, post_save
@@ -73,7 +75,9 @@ class MysteryTitle(models.Model):
     )
     description = models.TextField(blank=True)
 
-    # Mystery Specifics
+    if TYPE_CHECKING:
+        reviews: models.QuerySet[Review]
+
     is_fair_play_candidate = models.BooleanField(
         default=True, help_text="Is this title applicable for Fair Play analysis?"
     )
@@ -103,7 +107,7 @@ class MysteryTitle(models.Model):
 
     def update_stats(self):
         """Recalculate and save aggregate stats based on reviews."""
-        reviews = self.reviews.all()
+        reviews = self.reviews.all()  # noqa
         stats = reviews.aggregate(
             avg_quality=models.Avg("quality"),
             avg_difficulty=models.Avg("difficulty"),
