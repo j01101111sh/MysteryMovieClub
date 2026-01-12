@@ -1,31 +1,11 @@
 {% extends "base.html" %}
 
-{% load movie_extras %}
+{% load movie_extras static %}
 
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/heatmap.css' %}" />
+{% endblock extra_css %}
 {% block content %}
-    <style>
-      .heatmap-vertical-text {
-        writing-mode: vertical-rl;
-        transform: rotate(180deg);
-      }
-
-      .heatmap-row-label {
-        width: 10px;
-      }
-
-      .heatmap-cell {
-        width: 30px;
-        height: 30px;
-      }
-
-      .heatmap-cell-text {
-        font-size: 0.7rem;
-      }
-
-      .heatmap-col-label {
-        width: 30px;
-      }
-    </style>
     <div class="movie-container">
         <div class="movie-header">
             <h1>
