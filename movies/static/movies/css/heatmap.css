@@ -8,6 +8,7 @@
 }
 
 .heatmap-cell {
+  --heatmap-base-rgb: 13, 110, 253;
   width: 30px;
   height: 30px;
 }
