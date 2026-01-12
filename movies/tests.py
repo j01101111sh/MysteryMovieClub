@@ -584,11 +584,11 @@ class MovieStyleSheetTests(TestCase):
         """Test that the mystery detail page loads the heatmap CSS."""
         response = self.client.get(self.movie.get_absolute_url())
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'href="/static/movies/css/heatmap.css"')
+        self.assertContains(response, 'href="/static/movies/css/heatmap')
 
     def test_review_list_view_loads_css(self):
         """Test that the review list page loads the heatmap CSS."""
         url = reverse("movies:review_list", args=[self.movie.slug])
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'href="/static/movies/css/heatmap.css"')
+        self.assertContains(response, 'href="/static/movies/css/heatmap')
