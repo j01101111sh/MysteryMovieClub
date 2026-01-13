@@ -1,0 +1,58 @@
+<nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
+    <div class="container">
+        <a class="navbar-brand" href="{% url 'home' %}">🕵️ MysteryMovieClub</a>
+        <button class="navbar-toggler"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#navbarCollapse"
+                aria-controls="navbarCollapse"
+                aria-expanded="false"
+                aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarCollapse">
+            <form class="d-flex me-auto"
+                  role="search"
+                  action="{% url 'home' %}"
+                  method="get">
+                <input class="form-control me-2"
+                       type="search"
+                       name="q"
+                       placeholder="Search mysteries..."
+                       aria-label="Search"
+                       value="{{ search_query|default:'' }}" />
+                <button class="btn btn-outline-secondary" type="submit">Search</button>
+            </form>
+            <ul class="navbar-nav ms-auto mb-2 mb-md-0">
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'home' %}">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'movies:list' %}">Mysteries</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'movies:director_list' %}">Directors</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'movies:series_list' %}">Series</a>
+                </li>
+                {% if user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'logout' %}">Logout</a>
+                    </li>
+                {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'login' %}">Login</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'signup' %}">Sign Up</a>
+                    </li>
+                {% endif %}
+                <button class="nav-link btn btn-link"
+                        id="theme-toggle"
+                        type="button"
+                        aria-label="Toggle theme">🌗</button>
+            </ul>
+        </div>
+    </div>
+</nav>
