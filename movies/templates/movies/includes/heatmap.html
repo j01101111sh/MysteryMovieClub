@@ -1,0 +1,36 @@
+{% load movie_extras %}
+
+{% get_review_heatmap movie as heatmap %}
+{% if heatmap.max_count > 0 %}
+    <div class="card mt-3 border-0 bg-body-tertiary">
+        <div class="card-body p-3">
+            <h6 class="card-title text-center mb-3">Review Heatmap</h6>
+            <div class="d-flex justify-content-center">
+                <div class="d-flex flex-column justify-content-center me-2">
+                    <small class="text-muted heatmap-vertical-text">Difficulty</small>
+                </div>
+                <div>
+                    {% for row in heatmap.rows %}
+                        <div class="d-flex align-items-center">
+                            <small class="text-muted me-1 heatmap-row-label">{{ row.difficulty }}</small>
+                            {% for cell in row.cells %}
+                                <div class="d-flex align-items-center justify-content-center border border-white heatmap-cell"
+                                     style="background-color: rgba(var(--heatmap-base-rgb), {{ cell.intensity }})"
+                                     title="Quality: {{ cell.quality }}, Difficulty: {{ cell.difficulty }} ({{ cell.count }} reviews)">
+                                    {% if cell.count > 0 %}
+                                        <span class="small fw-bold heatmap-cell-text {% if cell.intensity > 0.5 %}text-white{% else %}text-body{% endif %}">{{ cell.count }}</span>
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
+                    <div class="d-flex mt-1">
+                        <div class="me-1 heatmap-row-label"></div>
+                        {% for i in "12345" %}<div class="text-center text-muted small heatmap-col-label">{{ i }}</div>{% endfor %}
+                    </div>
+                    <div class="text-center text-muted small">Quality</div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endif %}
