@@ -1,11 +1,15 @@
+from typing import Any
+
 from django import template
 from django.db.models import Count
+
+from movies.models import MysteryTitle
 
 register = template.Library()
 
 
 @register.simple_tag
-def get_review_heatmap(movie):
+def get_review_heatmap(movie: MysteryTitle) -> dict[str, Any]:
     data = movie.reviews.values("quality", "difficulty").annotate(count=Count("id"))
     counts = {(d["quality"], d["difficulty"]): d["count"] for d in data}
 
