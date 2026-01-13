@@ -101,7 +101,7 @@ warn_unused_configs = true
 plugins = [
     "mypy_django_plugin.main",
 ]
-disable_error_code = ["unused-ignore"]
+disable_error_code = ["unused-ignore","type-arg"]
 
 [[tool.mypy.overrides]]
 # Django migrations should not produce any errors:

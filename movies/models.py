@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from django.conf import settings
 from django.db import models
@@ -17,10 +17,10 @@ class Director(models.Model):
     class Meta:
         ordering = ["name"]
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
-    def get_absolute_url(self):
+    def get_absolute_url(self) -> str:
         return reverse("movies:director_detail", kwargs={"slug": self.slug})
 
 
@@ -37,10 +37,10 @@ class Series(models.Model):
         ordering = ["name"]
         verbose_name_plural = "series"
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
-    def get_absolute_url(self):
+    def get_absolute_url(self) -> str:
         return reverse("movies:series_detail", kwargs={"slug": self.slug})
 
 
@@ -99,16 +99,16 @@ class MysteryTitle(models.Model):
         verbose_name = "Mystery Title"
         verbose_name_plural = "Mystery Titles"
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.title} ({self.release_year})"
 
-    def get_absolute_url(self):
+    def get_absolute_url(self) -> str:
         return reverse("movies:detail", kwargs={"slug": self.slug})
 
-    def get_review_url(self):
+    def get_review_url(self) -> str:
         return reverse("movies:add_review", kwargs={"slug": self.slug})
 
-    def update_stats(self):
+    def update_stats(self) -> None:
         """Recalculate and save aggregate stats based on reviews."""
         reviews = self.reviews.all()  # noqa
         stats = reviews.aggregate(
@@ -157,11 +157,11 @@ class Review(models.Model):
             )
         ]
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.user}'s review of {self.movie}"
 
 
 @receiver(post_save, sender=Review)
 @receiver(post_delete, sender=Review)
-def update_movie_stats(sender, instance, **kwargs):
+def update_movie_stats(sender: type[Review], instance: Review, **kwargs: Any) -> None:
     instance.movie.update_stats()

@@ -1,7 +1,10 @@
+from typing import Any
+
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import IntegrityError, transaction
-from django.db.models import Q
+from django.db.models import Q, QuerySet
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.views.generic import CreateView, DetailView, ListView
 
@@ -16,7 +19,7 @@ class MysteryDetailView(DetailView):
     template_name = "movies/mystery_detail.html"
     context_object_name = "movie"
 
-    def get_context_data(self, **kwargs):
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
         reviews = self.object.reviews.select_related("user").order_by("-created_at")
         context["recent_reviews"] = reviews[:3]
@@ -34,7 +37,7 @@ class MysteryListView(ListView):
     context_object_name = "movies"
     paginate_by = DEFAULT_PAGE_SIZE
 
-    def get_queryset(self):
+    def get_queryset(self) -> QuerySet[MysteryTitle]:
         # Start with the default queryset (ordered by release year)
         queryset = super().get_queryset()
 
@@ -52,7 +55,7 @@ class MysteryListView(ListView):
 
         return queryset
 
-    def get_context_data(self, **kwargs):
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
         if context.get("is_paginated"):
             context["elided_page_range"] = context["paginator"].get_elided_page_range(
@@ -93,7 +96,7 @@ class ReviewListView(ListView):
     context_object_name = "reviews"
     paginate_by = 10
 
-    def get_queryset(self):
+    def get_queryset(self) -> QuerySet[Review]:
         self.movie = get_object_or_404(MysteryTitle, slug=self.kwargs["slug"])
         return (
             Review.objects.filter(movie=self.movie)
@@ -101,7 +104,7 @@ class ReviewListView(ListView):
             .order_by("-created_at")
         )
 
-    def get_context_data(self, **kwargs):
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
         context["movie"] = self.movie
         return context
@@ -112,7 +115,7 @@ class ReviewCreateView(LoginRequiredMixin, CreateView):
     form_class = ReviewForm
     template_name = "movies/review_form.html"
 
-    def form_valid(self, form):
+    def form_valid(self, form: ReviewForm) -> HttpResponse:
         form.instance.user = self.request.user
         form.instance.movie = get_object_or_404(MysteryTitle, slug=self.kwargs["slug"])
         try:
@@ -122,12 +125,12 @@ class ReviewCreateView(LoginRequiredMixin, CreateView):
             messages.warning(self.request, "You have already reviewed this movie.")
             return redirect(form.instance.movie.get_absolute_url())
 
-    def get_success_url(self):
+    def get_success_url(self) -> str:
         if self.object is not None:
-            return self.object.movie.get_absolute_url()
+            return str(self.object.movie.get_absolute_url())
         raise AttributeError
 
-    def get_context_data(self, **kwargs):
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
         context["movie"] = get_object_or_404(MysteryTitle, slug=self.kwargs["slug"])
         return context
