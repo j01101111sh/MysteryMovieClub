@@ -13,8 +13,8 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Add alias to the system-wide bashrc so it's available for all users
-COPY .devcontainer/bash_aliases /tmp/bash_aliases
-RUN cat /tmp/bash_aliases >> /etc/bash.bashrc && rm /tmp/bash_aliases
+COPY .devcontainer/bash_aliases.sh /tmp/bash_aliases.sh
+RUN cat /tmp/bash_aliases.sh >> /etc/bash.bashrc && rm /tmp/bash_aliases.sh
 
 # Set environment variables for uv
 # Compile bytecode for faster startup
