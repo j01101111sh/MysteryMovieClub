@@ -3,6 +3,7 @@ import os
 import secrets
 import sys
 from pathlib import Path
+from typing import Any
 
 import django
 
@@ -20,13 +21,13 @@ from movies.models import MysteryTitle, Review  # noqa: E402
 User = get_user_model()
 
 
-def main():
+def main() -> None:
     print("Seeding reviews...")
 
     # 1. Create Sample Users
     num_reviews = 10
 
-    reviewers = [
+    reviewers: list[dict[str, str]] = [
         {
             "username": (uname := f"user_{secrets.token_hex(8)}"),
             "email": f"{uname}@example.com",
@@ -35,7 +36,7 @@ def main():
         for _ in range(num_reviews)
     ]
 
-    user_objects = []
+    user_objects: list[Any] = []
     for reviewer in reviewers:
         user, created = User.objects.get_or_create(
             username=reviewer["username"], defaults={"email": reviewer["email"]}
@@ -58,7 +59,7 @@ def main():
 
     # 3. Generate Reviews
     # Comments to pick from randomly
-    comments = [
+    comments: list[str] = [
         "A classic whodunit structure!",
         "I figured it out halfway through.",
         "Completely baffled me until the end.",
