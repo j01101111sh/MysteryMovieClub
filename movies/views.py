@@ -39,15 +39,15 @@ class MysteryListView(ListView):
         queryset = super().get_queryset()
 
         # Get the search query from the URL parameters
-        query = self.request.GET.get("q")
+        self.query = self.request.GET.get("q")
 
-        if query:
+        if self.query:
             # Filter by title, description, or director name
             # We use Q objects to perform OR lookups
             queryset = queryset.filter(
-                Q(title__icontains=query)
-                | Q(description__icontains=query)
-                | Q(director__name__icontains=query)
+                Q(title__icontains=self.query)
+                | Q(description__icontains=self.query)
+                | Q(director__name__icontains=self.query)
             )
 
         return queryset
@@ -59,7 +59,7 @@ class MysteryListView(ListView):
                 context["page_obj"].number, on_each_side=2, on_ends=1
             )
         # Pass the search query back to the template to keep it in the search bar
-        context["search_query"] = self.request.GET.get("q", "")
+        context["search_query"] = self.query
         return context
 
 
