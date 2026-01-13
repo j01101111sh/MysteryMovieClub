@@ -353,10 +353,23 @@ class ReviewTests(TestCase):
             quality=5,
             difficulty=3,
             is_fair_play=True,
+            solved=True,
             comment="Great movie!",
         )
         self.assertEqual(str(review), f"{self.user}'s review of {self.movie}")
         self.assertEqual(Review.objects.count(), 1)
+        self.assertTrue(review.solved)
+
+    def test_review_model_solved_default(self) -> None:
+        """Test that the solved field defaults to False."""
+        review = Review.objects.create(
+            movie=self.movie,
+            user=self.user,
+            quality=5,
+            difficulty=3,
+            is_fair_play=True,
+        )
+        self.assertFalse(review.solved)
 
     def test_unique_review_constraint(self) -> None:
         Review.objects.create(
@@ -394,6 +407,7 @@ class ReviewTests(TestCase):
             "quality": 5,
             "difficulty": 4,
             "is_fair_play": True,
+            "solved": True,
             "comment": "Loved it",
         }
         response = self.client.post(self.url, data)
@@ -403,6 +417,7 @@ class ReviewTests(TestCase):
         if review:
             self.assertEqual(review.quality, 5)
             self.assertEqual(review.user, self.user)
+            self.assertTrue(review.solved)
         else:
             raise AssertionError
 

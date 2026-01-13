@@ -80,9 +80,8 @@ def main() -> None:
                     user=user,
                     quality=secrets.randbelow(3) + 3,  # Bias towards good movies
                     difficulty=secrets.randbelow(5) + 1,
-                    is_fair_play=secrets.choice(
-                        [True, True, False]
-                    ),  # Bias towards True
+                    is_fair_play=secrets.choice([True, True, False]),
+                    solved=secrets.choice([True, True, False]),
                     comment=secrets.choice(comments),
                 )
                 reviews_created += 1

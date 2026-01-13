@@ -58,7 +58,7 @@
                 <div class="list-group-item list-group-item-action flex-column align-items-start">
                     <div class="d-flex w-100 justify-content-between">
                         <h5 class="mb-1">
-                            Quality: {{ review.quality }}/5 | Difficulty: {{ review.difficulty }}/5 | Fair Play: {{ review.is_fair_play|yesno:"Yes,No" }}
+                            Quality: {{ review.quality }}/5 | Difficulty: {{ review.difficulty }}/5 | Fair Play: {{ review.is_fair_play|yesno:"Yes,No" }} | Solved: {{ review.solved|yesno:"✅,❌" }}
                         </h5>
                         <small class="text-muted">{{ review.created_at|date:"M d, Y" }}</small>
                     </div>

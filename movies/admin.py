@@ -32,5 +32,5 @@ class ReviewAdmin(admin.ModelAdmin):
         "is_fair_play",
         "created_at",
     )
-    list_filter = ("quality", "difficulty", "is_fair_play", "created_at")
+    list_filter = ("quality", "difficulty", "is_fair_play", "solved", "created_at")
     search_fields = ("movie__title", "user__username", "comment")
