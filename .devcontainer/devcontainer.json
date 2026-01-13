@@ -31,5 +31,5 @@
     }
   },
   "remoteUser": "root",
-  "postCreateCommand": "bash dev_setup.sh"
+  "postCreateCommand": "bash ./.devcontainer/scripts/dev_setup.sh"
 }
