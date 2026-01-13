@@ -105,6 +105,7 @@
                                         aria-controls="collapse{{ review.id }}">
                                     <div class="w-100 pe-3">
                                         <div>⭐ {{ review.quality }}/5 | 🧠 {{ review.difficulty }}/5 | Fair Play: {{ review.is_fair_play|yesno:"Yes,No" }}</div>
+                                        | Solved: {{ review.solved|yesno:"✅,❌" }}
                                         <small class="text-muted">By {{ review.user.username }} - {{ review.created_at|timesince }} ago</small>
                                     </div>
                                 </button>
