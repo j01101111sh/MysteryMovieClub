@@ -146,6 +146,11 @@ class Review(models.Model):
         verbose_name="Fair Play?",
         help_text="Was the mystery solvable with the clues provided?",
     )
+    solved = models.BooleanField(
+        default=False,
+        verbose_name="Solved?",
+        help_text="Did you solve the mystery before the reveal?",
+    )
     comment = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
