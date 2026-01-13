@@ -13,6 +13,11 @@
   height: 30px;
 }
 
+[data-bs-theme="dark"] .heatmap-cell {
+  /* A lighter, more vibrant blue for dark mode visibility */
+  --heatmap-base-rgb: 55, 125, 255;
+}
+
 .heatmap-cell-text {
   font-size: 0.7rem;
 }

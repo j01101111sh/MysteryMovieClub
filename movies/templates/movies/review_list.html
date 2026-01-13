@@ -37,7 +37,7 @@
                                              style="background-color: rgba(var(--heatmap-base-rgb), {{ cell.intensity }})"
                                              title="Quality: {{ cell.quality }}, Difficulty: {{ cell.difficulty }} ({{ cell.count }} reviews)">
                                             {% if cell.count > 0 %}
-                                                <span class="small fw-bold heatmap-cell-text {% if cell.intensity > 0.5 %}text-white{% else %}text-black{% endif %}">{{ cell.count }}</span>
+                                                <span class="small fw-bold heatmap-cell-text {% if cell.intensity > 0.5 %}text-white{% else %}text-body{% endif %}">{{ cell.count }}</span>
                                             {% endif %}
                                         </div>
                                     {% endfor %}
