@@ -1,6 +1,7 @@
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import IntegrityError, transaction
+from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect
 from django.views.generic import CreateView, DetailView, ListView
 
@@ -33,12 +34,32 @@ class MysteryListView(ListView):
     context_object_name = "movies"
     paginate_by = DEFAULT_PAGE_SIZE
 
+    def get_queryset(self):
+        # Start with the default queryset (ordered by release year)
+        queryset = super().get_queryset()
+
+        # Get the search query from the URL parameters
+        self.query = self.request.GET.get("q")
+
+        if self.query:
+            # Filter by title, description, or director name
+            # We use Q objects to perform OR lookups
+            queryset = queryset.filter(
+                Q(title__icontains=self.query)
+                | Q(description__icontains=self.query)
+                | Q(director__name__icontains=self.query)
+            )
+
+        return queryset
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if context.get("is_paginated"):
             context["elided_page_range"] = context["paginator"].get_elided_page_range(
                 context["page_obj"].number, on_each_side=2, on_ends=1
             )
+        # Pass the search query back to the template to keep it in the search bar
+        context["search_query"] = self.query
         return context
 
 
