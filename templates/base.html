@@ -23,6 +23,40 @@
         <link rel="stylesheet" href="{% static 'css/styles.css' %}" />
         {% block extra_css %}
         {% endblock extra_css %}
+        <script>
+          (() => {
+            const getStoredTheme = () => localStorage.getItem('theme')
+            const setStoredTheme = theme => localStorage.setItem('theme', theme)
+
+            const getPreferredTheme = () => {
+              const storedTheme = getStoredTheme()
+              if (storedTheme) {
+                return storedTheme
+              }
+              return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+            }
+
+            const setTheme = theme => {
+              document.documentElement.setAttribute('data-bs-theme', theme)
+            }
+
+            setTheme(getPreferredTheme())
+
+            // Update functionality when DOM is loaded
+            window.addEventListener('DOMContentLoaded', () => {
+              const toggleBtn = document.getElementById('theme-toggle');
+              if (toggleBtn) {
+                // Update icon/text based on current theme if you want logic here
+                toggleBtn.addEventListener('click', () => {
+                  const currentTheme = document.documentElement.getAttribute('data-bs-theme');
+                  const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                  setStoredTheme(newTheme);
+                  setTheme(newTheme);
+                });
+              }
+            });
+          })()
+        </script>
     </head>
     <body>
         <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
@@ -74,6 +108,10 @@
                             <li class="nav-item">
                                 <a class="nav-link" href="{% url 'signup' %}">Sign Up</a>
                             </li>
+                            <button class="nav-link btn btn-link"
+                                    id="theme-toggle"
+                                    type="button"
+                                    aria-label="Toggle theme">🌗</button>
                         {% endif %}
                     </ul>
                 </div>
