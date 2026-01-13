@@ -26,12 +26,13 @@
                 <div class="list-group-item list-group-item-action flex-column align-items-start">
                     <div class="d-flex w-100 justify-content-between">
                         <h5 class="mb-1">
-                            Quality: {{ review.quality }}/5 | Difficulty: {{ review.difficulty }}/5 | Fair Play: {{ review.is_fair_play|yesno:"Yes,No" }} | Solved: {{ review.solved|yesno:"✅,❌" }}
+                            Quality: {{ review.quality }}/5 | Difficulty: {{ review.difficulty }}/5 | Fair Play: {{ review.is_fair_play|yesno:"Yes,No" }}
                         </h5>
                         <small class="text-muted">{{ review.created_at|date:"M d, Y" }}</small>
                     </div>
                     <p class="mb-1">{{ review.comment }}</p>
-                    <small class="text-muted">By {{ review.user.username }}</small>
+                    <small class="text-muted">By <a href="{% url 'profile' review.user.username %}"
+    class="text-decoration-none">{{ review.user.username }}</a></small>
                 </div>
             {% empty %}
                 <p>No reviews found for this movie.</p>

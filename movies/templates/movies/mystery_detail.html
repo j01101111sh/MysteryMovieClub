@@ -72,10 +72,9 @@
                                         aria-expanded="false"
                                         aria-controls="collapse{{ review.id }}">
                                     <div class="w-100 pe-3">
-                                        <div>
-                                            ⭐ {{ review.quality }}/5 | 🧠 {{ review.difficulty }}/5 | Fair Play: {{ review.is_fair_play|yesno:"Yes,No" }} | Solved: {{ review.solved|yesno:"✅,❌" }}
-                                        </div>
-                                        <small class="text-muted">By {{ review.user.username }} - {{ review.created_at|timesince }} ago</small>
+                                        <div>⭐ {{ review.quality }}/5 | 🧠 {{ review.difficulty }}/5 | Fair Play: {{ review.is_fair_play|yesno:"Yes,No" }}</div>
+                                        <small class="text-muted">By <a href="{% url 'profile' review.user.username %}"
+    class="text-decoration-none">{{ review.user.username }}</a> - {{ review.created_at|timesince }} ago</small>
                                     </div>
                                 </button>
                             </h2>
