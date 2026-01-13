@@ -1,7 +1,7 @@
 import os
 import sys
 from pathlib import Path
-from typing import cast
+from typing import Any, cast
 
 import django
 
@@ -19,7 +19,7 @@ from movies.models import Director, MysteryTitle, Series  # noqa: E402
 
 
 # Helper function to get/create director
-def get_create_director(name):
+def get_create_director(name: str) -> Director:
     d_slug = slugify(name)
     director_obj, _ = Director.objects.get_or_create(
         slug=d_slug, defaults={"name": name}
@@ -27,8 +27,8 @@ def get_create_director(name):
     return director_obj
 
 
-def main():
-    movies = [
+def main() -> None:
+    movies: list[dict[str, Any]] = [
         # --- Existing Seeds ---
         {
             "title": "Knives Out",
