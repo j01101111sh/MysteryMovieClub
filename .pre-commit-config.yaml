@@ -80,7 +80,7 @@ repos:
         types: [python]
       - id: mypy
         name: mypy
-        entry: uv run mypy
+        entry: uv run mypy --strict
         language: system
         types: [python]
       - id: uv
