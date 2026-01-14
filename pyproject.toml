@@ -109,7 +109,7 @@ indent_size = 2
 [tool.pytest.ini_options]
 addopts = "--ds=config.settings --reuse-db"
 python_files = [
-    "tests.py",
+    "test_*.py",
 ]
 
 [tool.mypy]
