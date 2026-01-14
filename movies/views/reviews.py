@@ -12,8 +12,6 @@ from django.views.generic import CreateView, ListView
 from movies.forms import ReviewForm
 from movies.models import MysteryTitle, Review
 
-DEFAULT_PAGE_SIZE = 15
-
 logger = logging.getLogger(__name__)
 
 
