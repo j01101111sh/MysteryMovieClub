@@ -6,7 +6,6 @@ from pathlib import Path
 from typing import Any
 
 import django
-from django.utils.text import slugify
 
 # Setup Django environment
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -28,46 +27,11 @@ def main() -> None:
     print("Seeding reviews and tags...")
 
     # 1. Create/Ensure Tags Exist
-    tag_names = [
-        # Sub-genres
-        "Whodunit",
-        "Howcatchem",
-        "Locked Room",
-        "Cozy Mystery",
-        "Noir",
-        "Neo-Noir",
-        "Police Procedural",
-        "Hardboiled",
-        "Giallo",
-        "Historical Mystery",
-        # Tropes & Plot Elements
-        "Unreliable Narrator",
-        "Plot Twist",
-        "Red Herring",
-        "Cold Case",
-        "Serial Killer",
-        "Amateur Sleuth",
-        "Private Investigator",
-        "Courtroom Drama",
-        "Supernatural Elements",
-        "Heist",
-        # Tone & Style
-        "Dark",
-        "Humorous",
-        "Campy",
-        "Tense",
-        "Slow Burn",
-        "Fast-Paced",
-        "Atmospheric",
-        "Brain Burner",
-    ]
-
-    print(f"Ensuring {len(tag_names)} tags exist...")
-    all_tags = []
-    for name in tag_names:
-        slug = slugify(name)
-        tag, _ = Tag.objects.get_or_create(slug=slug, defaults={"name": name})
-        all_tags.append(tag)
+    all_tags = list(Tag.objects.all())
+    if not all_tags:
+        print("No tags found in the database. Please run seed_tags.py first.")
+        return
+    print(f"Found {len(all_tags)} tags to use for voting.")
 
     # 2. Create Sample Users
     num_reviews = 10
