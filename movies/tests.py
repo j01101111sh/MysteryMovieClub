@@ -76,19 +76,23 @@ class DirectorModelTests(TestCase):
         )
 
     def test_string_representation(self) -> None:
+        """Test that the model's string representation returns the director's name."""
         self.assertEqual(str(self.director), "Alfred Hitchcock")
 
     def test_get_absolute_url(self) -> None:
+        """Test that get_absolute_url generates the correct path for a director."""
         expected_url = reverse(
             "movies:director_detail", kwargs={"slug": self.director.slug}
         )
         self.assertEqual(self.director.get_absolute_url(), expected_url)
 
     def test_slug_uniqueness(self) -> None:
+        """Test that duplicate slugs for directors raise an IntegrityError."""
         with self.assertRaises(IntegrityError):
             Director.objects.create(name="Hitchcock", slug="alfred-hitchcock")
 
     def test_name_uniqueness(self) -> None:
+        """Test that duplicate names for directors raise an IntegrityError."""
         with self.assertRaises(IntegrityError):
             Director.objects.create(name="Alfred Hitchcock", slug="hitchcock")
 
@@ -98,25 +102,30 @@ class SeriesModelTests(TestCase):
         self.series = Series.objects.create(name="Benoit Blanc", slug="benoit-blanc")
 
     def test_string_representation(self) -> None:
+        """Test that the model's string representation returns the series name."""
         self.assertEqual(str(self.series), "Benoit Blanc")
 
     def test_get_absolute_url(self) -> None:
+        """Test that get_absolute_url generates the correct path for a series."""
         expected_url = reverse(
             "movies:series_detail", kwargs={"slug": self.series.slug}
         )
         self.assertEqual(self.series.get_absolute_url(), expected_url)
 
     def test_slug_uniqueness(self) -> None:
+        """Test that duplicate slugs for series raise an IntegrityError."""
         with self.assertRaises(IntegrityError):
             Series.objects.create(name="Blanc", slug="benoit-blanc")
 
     def test_name_uniqueness(self) -> None:
+        """Test that duplicate names for series raise an IntegrityError."""
         with self.assertRaises(IntegrityError):
             Series.objects.create(name="Benoit Blanc", slug="blanc")
 
 
 class BaseTemplateTests(TestCase):
     def test_favicon_present(self) -> None:
+        """Test that the favicon link tag is present in the base template."""
         response = self.client.get(reverse("home"))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, '<link rel="icon"')
@@ -152,10 +161,12 @@ class MysteryViewTests(TestCase):
         )
 
     def test_home_page_status_code(self) -> None:
+        """Test that the home page returns a 200 OK status code."""
         response = self.client.get(reverse("home"))
         self.assertEqual(response.status_code, 200)
 
     def test_home_page_template(self) -> None:
+        """Test that the home page uses the correct templates."""
         response = self.client.get(reverse("home"))
         self.assertTemplateUsed(response, "movies/movie_list.html")
         self.assertTemplateUsed(response, "base.html")
@@ -174,16 +185,19 @@ class MysteryViewTests(TestCase):
         self.assertContains(response, "Steven Moffat")
 
     def test_detail_page_status_code(self) -> None:
+        """Test that a valid mystery detail page returns a 200 OK status code."""
         url = reverse("movies:detail", kwargs={"slug": self.movie1.slug})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
     def test_detail_page_template(self) -> None:
+        """Test that the mystery detail page uses the correct template."""
         url = reverse("movies:detail", kwargs={"slug": self.movie1.slug})
         response = self.client.get(url)
         self.assertTemplateUsed(response, "movies/mystery_detail.html")
 
     def test_detail_page_content(self) -> None:
+        """Test that the detail page displays the correct movie information."""
         url = reverse("movies:detail", kwargs={"slug": self.movie1.slug})
         response = self.client.get(url)
         self.assertContains(response, "Knives Out")
@@ -193,6 +207,7 @@ class MysteryViewTests(TestCase):
         self.assertContains(response, "Movie")
 
     def test_detail_page_404(self) -> None:
+        """Test that requesting a non-existent mystery slug returns a 404 error."""
         url = reverse("movies:detail", kwargs={"slug": "non-existent-slug"})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 404)
@@ -212,6 +227,7 @@ class MysteryViewTests(TestCase):
         self.assertEqual(response.context["total_reviews_count"], 1)
 
     def test_home_page_empty_list(self) -> None:
+        """Test that the home page handles an empty database gracefully."""
         MysteryTitle.objects.all().delete()
         response = self.client.get(reverse("home"))
         self.assertEqual(response.status_code, 200)
@@ -246,14 +262,17 @@ class DirectorViewTests(TestCase):
         )
 
     def test_director_list_page_status_code(self) -> None:
+        """Test that the director list page returns a 200 OK status code."""
         response = self.client.get(reverse("movies:director_list"))
         self.assertEqual(response.status_code, 200)
 
     def test_director_list_page_template(self) -> None:
+        """Test that the director list page uses the correct template."""
         response = self.client.get(reverse("movies:director_list"))
         self.assertTemplateUsed(response, "movies/director_list.html")
 
     def test_director_list_page_context(self) -> None:
+        """Test that the director list page context contains the directors."""
         response = self.client.get(reverse("movies:director_list"))
         self.assertContains(response, "Rian Johnson")
         self.assertContains(response, "Alfred Hitchcock")
@@ -261,16 +280,19 @@ class DirectorViewTests(TestCase):
         self.assertIn(self.director2, response.context["directors"])
 
     def test_director_detail_page_status_code(self) -> None:
+        """Test that a valid director detail page returns a 200 OK status code."""
         url = reverse("movies:director_detail", kwargs={"slug": self.director1.slug})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
     def test_director_detail_page_template(self) -> None:
+        """Test that the director detail page uses the correct template."""
         url = reverse("movies:director_detail", kwargs={"slug": self.director1.slug})
         response = self.client.get(url)
         self.assertTemplateUsed(response, "movies/director_detail.html")
 
     def test_director_detail_page_content(self) -> None:
+        """Test that the director detail page displays the director's movies."""
         _ = MysteryTitle.objects.create(
             title="Knives Out",
             slug="knives-out",
@@ -291,14 +313,17 @@ class SeriesViewTests(TestCase):
         )
 
     def test_series_list_page_status_code(self) -> None:
+        """Test that the series list page returns a 200 OK status code."""
         response = self.client.get(reverse("movies:series_list"))
         self.assertEqual(response.status_code, 200)
 
     def test_series_list_page_template(self) -> None:
+        """Test that the series list page uses the correct template."""
         response = self.client.get(reverse("movies:series_list"))
         self.assertTemplateUsed(response, "movies/series_list.html")
 
     def test_series_list_page_context(self) -> None:
+        """Test that the series list page context contains the series."""
         response = self.client.get(reverse("movies:series_list"))
         self.assertContains(response, "Benoit Blanc")
         self.assertContains(response, "Sherlock Holmes")
@@ -306,16 +331,19 @@ class SeriesViewTests(TestCase):
         self.assertIn(self.series2, response.context["series_list"])
 
     def test_series_detail_page_status_code(self) -> None:
+        """Test that a valid series detail page returns a 200 OK status code."""
         url = reverse("movies:series_detail", kwargs={"slug": self.series1.slug})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
     def test_series_detail_page_template(self) -> None:
+        """Test that the series detail page uses the correct template."""
         url = reverse("movies:series_detail", kwargs={"slug": self.series1.slug})
         response = self.client.get(url)
         self.assertTemplateUsed(response, "movies/series_detail.html")
 
     def test_series_detail_page_content(self) -> None:
+        """Test that the series detail page displays the series' movies."""
         movie = MysteryTitle.objects.create(
             title="Knives Out",
             slug="knives-out",
@@ -347,6 +375,7 @@ class ReviewTests(TestCase):
         self.url = reverse("movies:add_review", kwargs={"slug": self.movie.slug})
 
     def test_review_model_creation(self) -> None:
+        """Test that a review can be created and the string representation is correct."""
         review = Review.objects.create(
             movie=self.movie,
             user=self.user,
@@ -372,6 +401,7 @@ class ReviewTests(TestCase):
         self.assertFalse(review.solved)
 
     def test_unique_review_constraint(self) -> None:
+        """Test that a user cannot review the same movie twice."""
         Review.objects.create(
             movie=self.movie,
             user=self.user,
@@ -389,12 +419,14 @@ class ReviewTests(TestCase):
             )
 
     def test_create_view_login_required(self) -> None:
+        """Test that the review creation view requires login."""
         response = self.client.get(self.url)
         self.assertNotEqual(response.status_code, 200)
         # Should redirect to login
         self.assertEqual(response.status_code, 302)
 
     def test_create_view_get(self) -> None:
+        """Test that the review creation page loads for a logged-in user."""
         self.client.login(username=self.uname, password=self.upass)
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
@@ -402,6 +434,7 @@ class ReviewTests(TestCase):
         self.assertEqual(response.context["movie"], self.movie)
 
     def test_create_view_post_success(self) -> None:
+        """Test that a valid review form submission creates a review."""
         self.client.login(username=self.uname, password=self.upass)
         data = {
             "quality": 5,
@@ -422,6 +455,7 @@ class ReviewTests(TestCase):
             raise AssertionError
 
     def test_create_view_post_duplicate(self) -> None:
+        """Test that posting a duplicate review redirects with a warning message."""
         # Create initial review
         Review.objects.create(
             movie=self.movie,
@@ -456,6 +490,7 @@ class ReviewTests(TestCase):
             raise AssertionError
 
     def test_detail_view_context_has_reviewed(self) -> None:
+        """Test that the 'has_reviewed' context variable is set correctly."""
         detail_url = self.movie.get_absolute_url()
 
         # Not logged in
@@ -501,10 +536,12 @@ class ReviewListViewTests(TestCase):
         self.url = reverse("movies:review_list", kwargs={"slug": self.movie.slug})
 
     def test_review_list_status_code(self) -> None:
+        """Test that the review list page returns a 200 OK status code."""
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
 
     def test_review_list_context(self) -> None:
+        """Test that the review list page context contains the reviews and movie."""
         response = self.client.get(self.url)
         self.assertIn(self.review, response.context["reviews"])
         self.assertEqual(response.context["movie"], self.movie)
