@@ -173,11 +173,21 @@ LOGOUT_REDIRECT_URL = "/"
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
+    # 1. Define Formatters
+    "formatters": {
+        "verbose": {
+            # Includes timestamp, log level, logger name, and the message
+            "format": "{asctime} [{levelname}] {name}: {message}",
+            "style": "{",
+        },
+    },
     "handlers": {
         "file": {
             "level": "INFO",
             "class": "logging.FileHandler",
             "filename": BASE_DIR / "django.log",
+            # 2. Apply the formatter to the file handler
+            "formatter": "verbose",
         },
     },
     "root": {
