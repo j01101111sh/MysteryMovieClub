@@ -20,7 +20,7 @@ def custom_permission_denied(
     exception: Exception | None = None,
 ) -> HttpResponse:
     """Custom 403 handler that logs the error."""
-    logger.warning("403 Permission Denied: %s", request.path)
+    logger.warning("403 Permission Denied: %s\n%s", request.path, exception)
     return render(request, "403.html", status=403)
 
 
@@ -29,7 +29,7 @@ def custom_bad_request(
     exception: Exception | None = None,
 ) -> HttpResponse:
     """Custom 400 handler that logs the error."""
-    logger.warning("400 Bad Request: %s", request.path)
+    logger.warning("400 Bad Request: %s\n%s", request.path, exception)
     return render(request, "400.html", status=400)
 
 
