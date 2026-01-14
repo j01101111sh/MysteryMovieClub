@@ -13,7 +13,8 @@ class CustomUserModelTests(TestCase):
         """Test that a user can be created with a username and password."""
         User = get_user_model()
         user = User.objects.create_user(
-            username="testuser", password=secrets.token_urlsafe(16)
+            username="testuser",
+            password=secrets.token_urlsafe(16),
         )
         self.assertEqual(user.username, "testuser")
         self.assertTrue(user.is_active)
@@ -24,7 +25,9 @@ class CustomUserModelTests(TestCase):
         """Test that a superuser can be created."""
         User = get_user_model()
         admin_user = User.objects.create_superuser(
-            username="adminuser", password=secrets.token_urlsafe(16), email=None
+            username="adminuser",
+            password=secrets.token_urlsafe(16),
+            email=None,
         )
         self.assertEqual(admin_user.username, "adminuser")
         self.assertTrue(admin_user.is_active)
@@ -35,7 +38,8 @@ class CustomUserModelTests(TestCase):
         """Test the model's string representation uses the username."""
         User = get_user_model()
         user = User.objects.create_user(
-            username="testuser2", password=secrets.token_urlsafe(16)
+            username="testuser2",
+            password=secrets.token_urlsafe(16),
         )
         self.assertEqual(str(user), "testuser2")
 
@@ -86,7 +90,8 @@ class UserProfileTests(TestCase):
         self.User = get_user_model()
         self.upass = secrets.token_urlsafe(16)
         self.user = self.User.objects.create_user(
-            username="profileuser", password=self.upass
+            username="profileuser",
+            password=self.upass,
         )
         self.movie = MysteryTitle.objects.create(
             title="Test Mystery",
@@ -136,7 +141,8 @@ class UserProfileTests(TestCase):
     def test_profile_does_not_display_others_reviews(self) -> None:
         """Test that the profile page only shows the specific user's reviews."""
         other_user = self.User.objects.create_user(
-            username="otheruser", password=secrets.token_urlsafe(16)
+            username="otheruser",
+            password=secrets.token_urlsafe(16),
         )
         Review.objects.create(
             movie=self.movie,

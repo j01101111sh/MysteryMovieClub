@@ -26,7 +26,7 @@ class MysteryDetailView(DetailView):
         context["total_reviews_count"] = reviews.count()
         if self.request.user.is_authenticated:
             context["has_reviewed"] = self.object.reviews.filter(
-                user=self.request.user
+                user=self.request.user,
             ).exists()
         return context
 
@@ -50,7 +50,7 @@ class MysteryListView(ListView):
             queryset = queryset.filter(
                 Q(title__icontains=self.query)
                 | Q(description__icontains=self.query)
-                | Q(director__name__icontains=self.query)
+                | Q(director__name__icontains=self.query),
             )
 
         return queryset
@@ -59,7 +59,9 @@ class MysteryListView(ListView):
         context = super().get_context_data(**kwargs)
         if context.get("is_paginated"):
             context["elided_page_range"] = context["paginator"].get_elided_page_range(
-                context["page_obj"].number, on_each_side=2, on_ends=1
+                context["page_obj"].number,
+                on_each_side=2,
+                on_ends=1,
             )
         # Pass the search query back to the template to keep it in the search bar
         context["search_query"] = self.query

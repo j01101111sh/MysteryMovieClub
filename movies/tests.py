@@ -12,7 +12,8 @@ from movies.models import Director, MysteryTitle, Review, Series
 class MysteryTitleModelTests(TestCase):
     def setUp(self) -> None:
         self.director = Director.objects.create(
-            name="Rian Johnson", slug="rian-johnson"
+            name="Rian Johnson",
+            slug="rian-johnson",
         )
         self.series = Series.objects.create(name="Benoit Blanc", slug="benoit-blanc")
         self.movie = MysteryTitle.objects.create(
@@ -45,13 +46,19 @@ class MysteryTitleModelTests(TestCase):
     def test_ordering(self) -> None:
         """Test that movies are ordered by release_year descending, then title."""
         m_older = MysteryTitle.objects.create(
-            title="A Older", slug="older", release_year=2018
+            title="A Older",
+            slug="older",
+            release_year=2018,
         )
         m_newer = MysteryTitle.objects.create(
-            title="Z Newer", slug="newer", release_year=2020
+            title="Z Newer",
+            slug="newer",
+            release_year=2020,
         )
         m_same_year = MysteryTitle.objects.create(
-            title="A Same Year", slug="same-year", release_year=2019
+            title="A Same Year",
+            slug="same-year",
+            release_year=2019,
         )
         expected = [m_newer, m_same_year, self.movie, m_older]
         self.assertEqual(list(MysteryTitle.objects.all()), expected)
@@ -60,7 +67,9 @@ class MysteryTitleModelTests(TestCase):
         """Test that duplicate slugs raise an IntegrityError."""
         with self.assertRaises(IntegrityError):
             MysteryTitle.objects.create(
-                title="Dup", slug=self.movie.slug, release_year=2020
+                title="Dup",
+                slug=self.movie.slug,
+                release_year=2020,
             )
 
     def test_series_relationship(self) -> None:
@@ -72,7 +81,8 @@ class MysteryTitleModelTests(TestCase):
 class DirectorModelTests(TestCase):
     def setUp(self) -> None:
         self.director = Director.objects.create(
-            name="Alfred Hitchcock", slug="alfred-hitchcock"
+            name="Alfred Hitchcock",
+            slug="alfred-hitchcock",
         )
 
     def test_string_representation(self) -> None:
@@ -82,7 +92,8 @@ class DirectorModelTests(TestCase):
     def test_get_absolute_url(self) -> None:
         """Test that get_absolute_url generates the correct path for a director."""
         expected_url = reverse(
-            "movies:director_detail", kwargs={"slug": self.director.slug}
+            "movies:director_detail",
+            kwargs={"slug": self.director.slug},
         )
         self.assertEqual(self.director.get_absolute_url(), expected_url)
 
@@ -108,7 +119,8 @@ class SeriesModelTests(TestCase):
     def test_get_absolute_url(self) -> None:
         """Test that get_absolute_url generates the correct path for a series."""
         expected_url = reverse(
-            "movies:series_detail", kwargs={"slug": self.series.slug}
+            "movies:series_detail",
+            kwargs={"slug": self.series.slug},
         )
         self.assertEqual(self.series.get_absolute_url(), expected_url)
 
@@ -138,7 +150,8 @@ class BaseTemplateTests(TestCase):
 class MysteryViewTests(TestCase):
     def setUp(self) -> None:
         self.director1 = Director.objects.create(
-            name="Rian Johnson", slug="rian-johnson"
+            name="Rian Johnson",
+            slug="rian-johnson",
         )
         self.movie1 = MysteryTitle.objects.create(
             title="Knives Out",
@@ -150,7 +163,8 @@ class MysteryViewTests(TestCase):
         )
 
         self.director2 = Director.objects.create(
-            name="Steven Moffat", slug="steven-moffat"
+            name="Steven Moffat",
+            slug="steven-moffat",
         )
         self.movie2 = MysteryTitle.objects.create(
             title="Sherlock",
@@ -215,10 +229,15 @@ class MysteryViewTests(TestCase):
     def test_detail_page_reviews_context(self) -> None:
         """Test that recent reviews are included in the detail page context."""
         user = get_user_model().objects.create_user(  # type: ignore
-            username="reviewer", password=secrets.token_urlsafe(16)
+            username="reviewer",
+            password=secrets.token_urlsafe(16),
         )
         Review.objects.create(
-            movie=self.movie1, user=user, quality=5, difficulty=3, is_fair_play=True
+            movie=self.movie1,
+            user=user,
+            quality=5,
+            difficulty=3,
+            is_fair_play=True,
         )
         url = reverse("movies:detail", kwargs={"slug": self.movie1.slug})
         response = self.client.get(url)
@@ -247,7 +266,8 @@ class MysteryViewTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTrue(response.context["is_paginated"])
         self.assertEqual(
-            len(response.context["movies"]), response.context["paginator"].per_page
+            len(response.context["movies"]),
+            response.context["paginator"].per_page,
         )
         self.assertGreater(response.context["paginator"].num_pages, 1)
 
@@ -255,10 +275,12 @@ class MysteryViewTests(TestCase):
 class DirectorViewTests(TestCase):
     def setUp(self) -> None:
         self.director1 = Director.objects.create(
-            name="Rian Johnson", slug="rian-johnson"
+            name="Rian Johnson",
+            slug="rian-johnson",
         )
         self.director2 = Director.objects.create(
-            name="Alfred Hitchcock", slug="alfred-hitchcock"
+            name="Alfred Hitchcock",
+            slug="alfred-hitchcock",
         )
 
     def test_director_list_page_status_code(self) -> None:
@@ -309,7 +331,8 @@ class SeriesViewTests(TestCase):
     def setUp(self) -> None:
         self.series1 = Series.objects.create(name="Benoit Blanc", slug="benoit-blanc")
         self.series2 = Series.objects.create(
-            name="Sherlock Holmes", slug="sherlock-holmes"
+            name="Sherlock Holmes",
+            slug="sherlock-holmes",
         )
 
     def test_series_list_page_status_code(self) -> None:
@@ -364,7 +387,8 @@ class ReviewTests(TestCase):
         self.upass = secrets.token_urlsafe(16)
 
         self.user = get_user_model().objects.create_user(  # type: ignore
-            username=self.uname, password=self.upass
+            username=self.uname,
+            password=self.upass,
         )
         self.movie = MysteryTitle.objects.create(
             title="Knives Out",
@@ -517,7 +541,8 @@ class ReviewTests(TestCase):
 class ReviewListViewTests(TestCase):
     def setUp(self) -> None:
         self.user = get_user_model().objects.create_user(  # type: ignore
-            username=f"user_{secrets.token_hex(4)}", password=secrets.token_urlsafe(16)
+            username=f"user_{secrets.token_hex(4)}",
+            password=secrets.token_urlsafe(16),
         )
         self.movie = MysteryTitle.objects.create(
             title="Knives Out",
@@ -550,10 +575,12 @@ class ReviewListViewTests(TestCase):
 class MysteryTitleStatsTests(TestCase):
     def setUp(self) -> None:
         self.user1 = get_user_model().objects.create_user(  # type: ignore
-            username=f"user_{secrets.token_hex(4)}", password=secrets.token_urlsafe(16)
+            username=f"user_{secrets.token_hex(4)}",
+            password=secrets.token_urlsafe(16),
         )
         self.user2 = get_user_model().objects.create_user(  # type: ignore
-            username=f"user_{secrets.token_hex(4)}", password=secrets.token_urlsafe(16)
+            username=f"user_{secrets.token_hex(4)}",
+            password=secrets.token_urlsafe(16),
         )
 
         self.movie = MysteryTitle.objects.create(

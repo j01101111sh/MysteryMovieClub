@@ -39,7 +39,8 @@ def main() -> None:
     user_objects: list[Any] = []
     for reviewer in reviewers:
         user, created = User.objects.get_or_create(
-            username=reviewer["username"], defaults={"email": reviewer["email"]}
+            username=reviewer["username"],
+            defaults={"email": reviewer["email"]},
         )
         if created:
             user.set_password(reviewer["password"])
@@ -54,8 +55,7 @@ def main() -> None:
     if not movies:
         print("No movies found. Please run seed_imdb_mysteries.py first.")
         return
-    else:
-        print(f"Found {len(movies)}.")
+    print(f"Found {len(movies)}.")
 
     # 3. Generate Reviews
     # Comments to pick from randomly

@@ -16,7 +16,9 @@ app_name = "movies"
 urlpatterns = [
     path("directors/", DirectorListView.as_view(), name="director_list"),
     path(
-        "directors/<slug:slug>/", DirectorDetailView.as_view(), name="director_detail"
+        "directors/<slug:slug>/",
+        DirectorDetailView.as_view(),
+        name="director_detail",
     ),
     path("series/", SeriesListView.as_view(), name="series_list"),
     path("series/<slug:slug>/", SeriesDetailView.as_view(), name="series_detail"),
