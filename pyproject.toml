@@ -59,7 +59,7 @@ indent-width = 4
 [tool.ruff.lint]
 # Enable Pyflakes (`F`) and a subset of the pycodestyle (`E`)  codes by default.
 # Add Django (`DJ`) specific rules.
-select = ["E", "F", "DJ", "I", "UP", "B", "SIM", "C4", "COM", "LOG", "G", "Q"]
+select = ["E", "F", "DJ", "I", "UP", "B", "SIM", "C4", "COM", "LOG", "G", "Q", "RET"]
 ignore = ["E501"]
 
 # Allow fix for all enabled rules (when `--fix`) is provided.

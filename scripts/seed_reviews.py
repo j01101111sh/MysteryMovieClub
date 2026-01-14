@@ -55,8 +55,7 @@ def main() -> None:
     if not movies:
         print("No movies found. Please run seed_imdb_mysteries.py first.")
         return
-    else:
-        print(f"Found {len(movies)}.")
+    print(f"Found {len(movies)}.")
 
     # 3. Generate Reviews
     # Comments to pick from randomly
