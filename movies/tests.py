@@ -271,6 +271,17 @@ class MysteryViewTests(TestCase):
         )
         self.assertGreater(response.context["paginator"].num_pages, 1)
 
+    def test_search_logging(self) -> None:
+        """Test that searching triggers an INFO log message."""
+        # assertLogs acts as a context manager to capture logs
+        with self.assertLogs("movies.views", level="INFO") as cm:
+            self.client.get(reverse("home"), {"q": "Knives"})
+
+            # Verify that our specific message appears in the captured output
+            self.assertTrue(
+                any("Search query received: Knives" in o for o in cm.output),
+            )
+
 
 class DirectorViewTests(TestCase):
     def setUp(self) -> None:
