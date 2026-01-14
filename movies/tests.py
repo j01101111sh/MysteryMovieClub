@@ -381,6 +381,7 @@ class ReviewTests(TestCase):
             user=self.user,
             quality=5,
             difficulty=3,
+            is_fair_play=True,
             solved=True,
             comment="Great movie!",
         )
