@@ -1,11 +1,11 @@
 from django.apps import AppConfig
 
 
-class MoviesConfig(AppConfig):
-    name = "movies"
+class UsersConfig(AppConfig):
+    name = "users"
 
     def ready(self) -> None:
         """
         Import signals when the app is ready.
         """
-        import movies.signals  # noqa: F401
+        import users.signals  # noqa: F401
