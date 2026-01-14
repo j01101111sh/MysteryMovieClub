@@ -53,8 +53,8 @@ class SignUpViewTests(TestCase):
     def test_get_or_create_logging(self) -> None:
         """Test that get_or_create triggers a log message via signals."""
         User = get_user_model()
-        # assertLogs captures logs from the 'users.models' logger
-        with self.assertLogs("users.models", level="INFO") as cm:
+        # assertLogs captures logs from the 'users.signals' logger
+        with self.assertLogs("users.signals", level="INFO") as cm:
             User.objects.get_or_create(
                 username="signal_test_user",
                 defaults={"password": secrets.token_urlsafe(16)},
