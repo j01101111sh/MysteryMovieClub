@@ -197,6 +197,11 @@ LOGGING = {
             "level": "INFO",
             "propagate": False,
         },
+        "django.db.backends": {
+            "handlers": ["file"],
+            "level": "DEBUG",  # Only logs SQL if DEBUG=True in settings
+            "propagate": False,
+        },
         "config": {
             "handlers": ["file"],
             "level": "INFO",
