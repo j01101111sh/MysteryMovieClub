@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Mystery Missing (404) | Mystery Movie Club
+{% endblock title %}
+{% block content %}
+    <div class="container py-5 text-center">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <h1 class="display-1 fw-bold text-muted">404</h1>
+                <h2 class="mb-4">Mystery Missing</h2>
+                <p class="lead mb-4">
+                    The page you are looking for seems to have vanished without a trace.
+                    Even our best detectives can't locate it.
+                </p>
+                <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+                    <a href="{% url 'home' %}" class="btn btn-primary btn-lg px-4">Return to the Scene of the Crime</a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
