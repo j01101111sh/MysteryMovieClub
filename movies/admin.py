@@ -28,6 +28,11 @@ class MysteryTitleAdmin(admin.ModelAdmin):
     search_fields = ["title", "director__name"]
     prepopulated_fields = {"slug": ("title",)}
 
+    fieldsets = (
+        (None, {"fields": ("title", "slug", "media_type", "release_year", "director")}),
+        ("Synopsis", {"fields": ("description",)}),
+    )
+
 
 @admin.register(Review)
 class ReviewAdmin(admin.ModelAdmin):
