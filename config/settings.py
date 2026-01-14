@@ -181,7 +181,7 @@ LOGGING = {
     },
     "handlers": {
         "file": {
-            "level": "INFO",
+            "level": "DEBUG",
             "class": "logging.FileHandler",
             "filename": BASE_DIR / "django.log",
             "formatter": "verbose",
