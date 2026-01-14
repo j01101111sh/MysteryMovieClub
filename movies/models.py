@@ -207,3 +207,15 @@ def log_review_creation(
     if created:
         # Uses the Review's __str__ method: "{user}'s review of {movie}"
         logger.info("Review created: %s for %s", instance.user, instance.movie.slug)
+
+
+@receiver(post_save, sender=Director)
+def log_director_creation(
+    sender: type[Director],
+    instance: Director,
+    created: bool,
+    **kwargs: Any,
+) -> None:
+    """Log a message whenever a new director is created."""
+    if created:
+        logger.info("Director created: %s", instance.slug)

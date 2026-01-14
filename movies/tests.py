@@ -121,6 +121,19 @@ class DirectorModelTests(TestCase):
         with self.assertRaises(IntegrityError):
             Director.objects.create(name="Alfred Hitchcock", slug="hitchcock")
 
+    def test_director_creation_logging(self) -> None:
+        """Test that creating a director triggers a log message."""
+        with self.assertLogs("movies.models", level="INFO") as cm:
+            Director.objects.create(
+                name="Log Test Director",
+                slug="log-test-director",
+            )
+
+            # Verify the log message exists
+            self.assertTrue(
+                any("Director created: Log Test Director" in o for o in cm.output),
+            )
+
 
 class SeriesModelTests(TestCase):
     def setUp(self) -> None:
