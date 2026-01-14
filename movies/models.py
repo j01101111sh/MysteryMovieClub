@@ -1,3 +1,4 @@
+import logging
 from typing import TYPE_CHECKING, Any
 
 from django.conf import settings
@@ -6,6 +7,8 @@ from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
+
+logger = logging.getLogger(__name__)
 
 
 class Director(models.Model):
@@ -179,3 +182,15 @@ class Review(models.Model):
 @receiver(post_delete, sender=Review)
 def update_movie_stats(sender: type[Review], instance: Review, **kwargs: Any) -> None:
     instance.movie.update_stats()
+
+
+@receiver(post_save, sender=MysteryTitle)
+def log_movie_creation(
+    sender: type[MysteryTitle],
+    instance: MysteryTitle,
+    created: bool,
+    **kwargs: Any,
+) -> None:
+    """Log a message whenever a new movie is created."""
+    if created:
+        logger.info("Movie created: %s", instance.slug)

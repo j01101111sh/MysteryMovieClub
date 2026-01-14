@@ -77,6 +77,20 @@ class MysteryTitleModelTests(TestCase):
         self.assertEqual(self.movie.series, self.series)
         self.assertIn(self.movie, self.series.movies.all())
 
+    def test_movie_creation_logging(self) -> None:
+        """Test that creating a movie triggers a log message."""
+        # Use assertLogs to catch logs from the movies.models logger
+        with self.assertLogs("movies.models", level="INFO") as cm:
+            MysteryTitle.objects.create(
+                title="Log Test Movie",
+                slug="log-test-movie",
+                release_year=2022,
+            )
+            # Verify the log message exists
+            self.assertTrue(
+                any("Movie created: Log Test Movie" in o for o in cm.output),
+            )
+
 
 class DirectorModelTests(TestCase):
     def setUp(self) -> None:
