@@ -167,3 +167,33 @@ AUTH_USER_MODEL = "users.CustomUser"
 # Login and Logout Redirect URLs
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/"
+
+# Logging Configuration
+# Log to a file named 'django.log' in the base directory
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "file": {
+            "level": "INFO",
+            "class": "logging.FileHandler",
+            "filename": BASE_DIR / "django.log",
+        },
+    },
+    "root": {
+        "handlers": ["file"],
+        "level": "WARNING",
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["file"],
+            "level": "INFO",
+            "propagate": False,
+        },
+        "movies": {
+            "handlers": ["file"],
+            "level": "INFO",
+            "propagate": True,
+        },
+    },
+}
