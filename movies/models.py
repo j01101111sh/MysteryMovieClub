@@ -50,6 +50,7 @@ class Series(models.Model):
 class Tag(models.Model):
     name = models.CharField(max_length=50, unique=True)
     slug = models.SlugField(unique=True)
+    description = models.CharField(max_length=255)
 
     class Meta:
         ordering = ["name"]
