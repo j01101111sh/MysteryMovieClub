@@ -14,7 +14,6 @@ repos:
       - id: check-executables-have-shebangs # verifies non-binary executables have shebang
       # general files
       - id: end-of-file-fixer # makes sure files end in a newline and only a newline.
-        exclude: 'docs\/source\/examples\/metabase_token'
       - id: trailing-whitespace # trims trailing whitespace.
       - id: check-case-conflict # check for files that would conflict on a case-insensitive filesystem
       - id: detect-private-key # checks for the existence of private keys
@@ -23,7 +22,6 @@ repos:
       # python checks
       - id: name-tests-test # verifies that test files are named correctly
         args: ["--pytest-test-first"]
-        exclude: 'tests\/(helpers|setup_metabase).py'
       - id: check-docstring-first # checks for code before the docstring
       - id: debug-statements # check for debugger imports and breakpoint calls in python source
       # git checks
