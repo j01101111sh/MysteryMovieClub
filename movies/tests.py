@@ -161,6 +161,19 @@ class SeriesModelTests(TestCase):
         with self.assertRaises(IntegrityError):
             Series.objects.create(name="Benoit Blanc", slug="blanc")
 
+    def test_series_creation_logging(self) -> None:
+        """Test that creating a series triggers a log message."""
+        with self.assertLogs("movies.models", level="INFO") as cm:
+            Series.objects.create(
+                name="Log Test Series",
+                slug="log-test-series",
+            )
+
+            # Verify the log message exists
+            self.assertTrue(
+                any("Series created: log-test-series" in o for o in cm.output),
+            )
+
 
 class BaseTemplateTests(TestCase):
     def test_favicon_present(self) -> None:

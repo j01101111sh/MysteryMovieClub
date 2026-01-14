@@ -219,3 +219,15 @@ def log_director_creation(
     """Log a message whenever a new director is created."""
     if created:
         logger.info("Director created: %s", instance.slug)
+
+
+@receiver(post_save, sender=Series)
+def log_series_creation(
+    sender: type[Series],
+    instance: Series,
+    created: bool,
+    **kwargs: Any,
+) -> None:
+    """Log a message whenever a new series is created."""
+    if created:
+        logger.info("Series created: %s", instance.slug)
