@@ -207,6 +207,11 @@ LOGGING = {
             "level": "WARNING",  # Logs 4xx as WARNING, 5xx as ERROR
             "propagate": False,
         },
+        "django.security": {
+            "handlers": ["file"],
+            "level": "INFO",
+            "propagate": False,
+        },
         "config": {
             "handlers": ["file"],
             "level": "INFO",
