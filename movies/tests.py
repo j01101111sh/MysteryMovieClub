@@ -80,7 +80,7 @@ class MysteryTitleModelTests(TestCase):
     def test_movie_creation_logging(self) -> None:
         """Test that creating a movie triggers a log message."""
         # Use assertLogs to catch logs from the movies.models logger
-        with self.assertLogs("movies.models", level="INFO") as cm:
+        with self.assertLogs("movies.signals", level="INFO") as cm:
             MysteryTitle.objects.create(
                 title="Log Test Movie",
                 slug="log-test-movie",
@@ -123,7 +123,7 @@ class DirectorModelTests(TestCase):
 
     def test_director_creation_logging(self) -> None:
         """Test that creating a director triggers a log message."""
-        with self.assertLogs("movies.models", level="INFO") as cm:
+        with self.assertLogs("movies.signals", level="INFO") as cm:
             Director.objects.create(
                 name="Log Test Director",
                 slug="log-test-director",
@@ -163,7 +163,7 @@ class SeriesModelTests(TestCase):
 
     def test_series_creation_logging(self) -> None:
         """Test that creating a series triggers a log message."""
-        with self.assertLogs("movies.models", level="INFO") as cm:
+        with self.assertLogs("movies.signals", level="INFO") as cm:
             Series.objects.create(
                 name="Log Test Series",
                 slug="log-test-series",
@@ -590,7 +590,7 @@ class ReviewTests(TestCase):
 
     def test_review_creation_logging(self) -> None:
         """Test that creating a review triggers a log message."""
-        with self.assertLogs("movies.models", level="INFO") as cm:
+        with self.assertLogs("movies.signals", level="INFO") as cm:
             Review.objects.create(
                 movie=self.movie,
                 user=self.user,
@@ -678,7 +678,7 @@ class TagVoteTests(TestCase):
         self.client.login(username="tagvoter", password=self.upass)
 
         # Test voting (adding)
-        with self.assertLogs("movies.models", level="INFO") as cm:
+        with self.assertLogs("movies.signals", level="INFO") as cm:
             self.client.post(self.url, {"tag_id": self.tag.id})
             self.assertTrue(
                 any(
@@ -689,7 +689,7 @@ class TagVoteTests(TestCase):
             )
 
         # Test unvoting (removing)
-        with self.assertLogs("movies.models", level="INFO") as cm:
+        with self.assertLogs("movies.signals", level="INFO") as cm:
             self.client.post(self.url, {"tag_id": self.tag.id})
             self.assertTrue(
                 any(
