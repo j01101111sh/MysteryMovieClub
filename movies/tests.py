@@ -6,7 +6,7 @@ from django.db.utils import IntegrityError
 from django.test import TestCase
 from django.urls import reverse
 
-from movies.models import Director, MysteryTitle, Review, Series, Tag
+from movies.models import Director, MysteryTitle, Review, Series, Tag, TagVote
 
 
 class MysteryTitleModelTests(TestCase):
@@ -639,6 +639,25 @@ class ReviewListViewTests(TestCase):
         self.assertEqual(response.context["movie"], self.movie)
 
 
+class TagModelTests(TestCase):
+    def setUp(self) -> None:
+        self.tag = Tag.objects.create(name="Whodunnit", slug="whodunnit")
+
+    def test_string_representation(self) -> None:
+        """Test that the tag's string representation is its name."""
+        self.assertEqual(str(self.tag), "Whodunnit")
+
+    def test_name_uniqueness(self) -> None:
+        """Test that duplicate tag names raise an IntegrityError."""
+        with self.assertRaises(IntegrityError):
+            Tag.objects.create(name="Whodunnit", slug="other")
+
+    def test_slug_uniqueness(self) -> None:
+        """Test that duplicate tag slugs raise an IntegrityError."""
+        with self.assertRaises(IntegrityError):
+            Tag.objects.create(name="Other", slug="whodunnit")
+
+
 class TagVoteTests(TestCase):
     def setUp(self) -> None:
         self.upass = secrets.token_urlsafe(16)
@@ -678,6 +697,20 @@ class TagVoteTests(TestCase):
                     in o
                     for o in cm.output
                 ),
+            )
+
+    def test_uniqueness_constraint(self) -> None:
+        """Test that a user cannot vote for the same tag on the same movie twice."""
+        with self.assertRaises(IntegrityError):
+            TagVote.objects.create(
+                movie=self.movie,
+                tag=self.tag,
+                user=self.user,
+            )
+            TagVote.objects.create(
+                movie=self.movie,
+                tag=self.tag,
+                user=self.user,
             )
 
 
