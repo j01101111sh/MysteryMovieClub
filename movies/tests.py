@@ -77,6 +77,20 @@ class MysteryTitleModelTests(TestCase):
         self.assertEqual(self.movie.series, self.series)
         self.assertIn(self.movie, self.series.movies.all())
 
+    def test_movie_creation_logging(self) -> None:
+        """Test that creating a movie triggers a log message."""
+        # Use assertLogs to catch logs from the movies.models logger
+        with self.assertLogs("movies.models", level="INFO") as cm:
+            MysteryTitle.objects.create(
+                title="Log Test Movie",
+                slug="log-test-movie",
+                release_year=2022,
+            )
+            # Verify the log message exists
+            self.assertTrue(
+                any("Movie created: log-test-movie" in o for o in cm.output),
+            )
+
 
 class DirectorModelTests(TestCase):
     def setUp(self) -> None:
@@ -107,6 +121,19 @@ class DirectorModelTests(TestCase):
         with self.assertRaises(IntegrityError):
             Director.objects.create(name="Alfred Hitchcock", slug="hitchcock")
 
+    def test_director_creation_logging(self) -> None:
+        """Test that creating a director triggers a log message."""
+        with self.assertLogs("movies.models", level="INFO") as cm:
+            Director.objects.create(
+                name="Log Test Director",
+                slug="log-test-director",
+            )
+
+            # Verify the log message exists
+            self.assertTrue(
+                any("Director created: log-test-director" in o for o in cm.output),
+            )
+
 
 class SeriesModelTests(TestCase):
     def setUp(self) -> None:
@@ -133,6 +160,19 @@ class SeriesModelTests(TestCase):
         """Test that duplicate names for series raise an IntegrityError."""
         with self.assertRaises(IntegrityError):
             Series.objects.create(name="Benoit Blanc", slug="blanc")
+
+    def test_series_creation_logging(self) -> None:
+        """Test that creating a series triggers a log message."""
+        with self.assertLogs("movies.models", level="INFO") as cm:
+            Series.objects.create(
+                name="Log Test Series",
+                slug="log-test-series",
+            )
+
+            # Verify the log message exists
+            self.assertTrue(
+                any("Series created: log-test-series" in o for o in cm.output),
+            )
 
 
 class BaseTemplateTests(TestCase):
@@ -270,6 +310,17 @@ class MysteryViewTests(TestCase):
             response.context["paginator"].per_page,
         )
         self.assertGreater(response.context["paginator"].num_pages, 1)
+
+    def test_search_logging(self) -> None:
+        """Test that searching triggers an INFO log message."""
+        # assertLogs acts as a context manager to capture logs
+        with self.assertLogs("movies.views", level="INFO") as cm:
+            self.client.get(reverse("home"), {"q": "Knives"})
+
+            # Verify that our specific message appears in the captured output
+            self.assertTrue(
+                any("Search query received: Knives" in o for o in cm.output),
+            )
 
 
 class DirectorViewTests(TestCase):
@@ -536,6 +587,22 @@ class ReviewTests(TestCase):
         )
         response = self.client.get(detail_url)
         self.assertTrue(response.context["has_reviewed"])
+
+    def test_review_creation_logging(self) -> None:
+        """Test that creating a review triggers a log message."""
+        with self.assertLogs("movies.models", level="INFO") as cm:
+            Review.objects.create(
+                movie=self.movie,
+                user=self.user,
+                quality=5,
+                difficulty=3,
+                is_fair_play=True,
+                comment="Log Test Review",
+            )
+
+            # Verify the log message exists and contains the string representation
+            expected_msg = f"Review created: {self.user} for {self.movie.slug}"
+            self.assertTrue(any(expected_msg in o for o in cm.output))
 
 
 class ReviewListViewTests(TestCase):

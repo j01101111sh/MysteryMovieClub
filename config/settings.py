@@ -161,13 +161,71 @@ STORAGES = {
     },
 }
 
-# Login and Logout Redirect URLs
-
-# Login and Logout Redirect URLs
-
 # Custom User Model
 AUTH_USER_MODEL = "users.CustomUser"
 
 # Login and Logout Redirect URLs
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/"
+
+# Logging Configuration
+# Log to a file named 'django.log' in the base directory
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "format": "{asctime} [{levelname}] {name}: {message}",
+            "style": "{",
+        },
+    },
+    "handlers": {
+        "file": {
+            "level": "DEBUG",
+            "class": "logging.FileHandler",
+            "filename": BASE_DIR / "django.log",
+            "formatter": "verbose",
+        },
+    },
+    "root": {
+        "handlers": ["file"],
+        "level": "WARNING",
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["file"],
+            "level": "INFO",
+            "propagate": False,
+        },
+        "django.db.backends": {
+            "handlers": ["file"],
+            "level": "DEBUG",  # Only logs SQL if DEBUG=True in settings
+            "propagate": False,
+        },
+        "django.request": {
+            "handlers": ["file"],
+            "level": "WARNING",  # Logs 4xx as WARNING, 5xx as ERROR
+            "propagate": False,
+        },
+        "django.security": {
+            "handlers": ["file"],
+            "level": "INFO",
+            "propagate": False,
+        },
+        "config": {
+            "handlers": ["file"],
+            "level": "INFO",
+            "propagate": False,
+        },
+        "movies": {
+            "handlers": ["file"],
+            "level": "INFO",
+            "propagate": False,
+        },
+        "users": {
+            "handlers": ["file"],
+            "level": "INFO",
+            "propagate": False,
+        },
+    },
+}

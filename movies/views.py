@@ -1,3 +1,4 @@
+import logging
 from typing import Any
 
 from django.contrib import messages
@@ -12,6 +13,8 @@ from .forms import ReviewForm
 from .models import Director, MysteryTitle, Review, Series
 
 DEFAULT_PAGE_SIZE = 15
+
+logger = logging.getLogger(__name__)
 
 
 class MysteryDetailView(DetailView):
@@ -45,6 +48,9 @@ class MysteryListView(ListView):
         self.query = self.request.GET.get("q")
 
         if self.query:
+            # Log the search action
+            logger.info("Search query received: %s", self.query)
+
             # Filter by title, description, or director name
             # We use Q objects to perform OR lookups
             queryset = queryset.filter(

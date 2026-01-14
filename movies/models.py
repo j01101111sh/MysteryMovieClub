@@ -1,3 +1,4 @@
+import logging
 from typing import TYPE_CHECKING, Any
 
 from django.conf import settings
@@ -6,6 +7,8 @@ from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
+
+logger = logging.getLogger(__name__)
 
 
 class Director(models.Model):
@@ -179,3 +182,52 @@ class Review(models.Model):
 @receiver(post_delete, sender=Review)
 def update_movie_stats(sender: type[Review], instance: Review, **kwargs: Any) -> None:
     instance.movie.update_stats()
+
+
+@receiver(post_save, sender=MysteryTitle)
+def log_movie_creation(
+    sender: type[MysteryTitle],
+    instance: MysteryTitle,
+    created: bool,
+    **kwargs: Any,
+) -> None:
+    """Log a message whenever a new movie is created."""
+    if created:
+        logger.info("Movie created: %s", instance.slug)
+
+
+@receiver(post_save, sender=Review)
+def log_review_creation(
+    sender: type[Review],
+    instance: Review,
+    created: bool,
+    **kwargs: Any,
+) -> None:
+    """Log a message whenever a new review is created."""
+    if created:
+        # Uses the Review's __str__ method: "{user}'s review of {movie}"
+        logger.info("Review created: %s for %s", instance.user, instance.movie.slug)
+
+
+@receiver(post_save, sender=Director)
+def log_director_creation(
+    sender: type[Director],
+    instance: Director,
+    created: bool,
+    **kwargs: Any,
+) -> None:
+    """Log a message whenever a new director is created."""
+    if created:
+        logger.info("Director created: %s", instance.slug)
+
+
+@receiver(post_save, sender=Series)
+def log_series_creation(
+    sender: type[Series],
+    instance: Series,
+    created: bool,
+    **kwargs: Any,
+) -> None:
+    """Log a message whenever a new series is created."""
+    if created:
+        logger.info("Series created: %s", instance.slug)
