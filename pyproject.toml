@@ -57,8 +57,28 @@ line-length = 88
 indent-width = 4
 
 [tool.ruff.lint]
-select = ["E", "F", "DJ", "I", "UP", "B", "SIM", "C4", "COM", "LOG", "G", "Q", "RET", "PTH", "N", "W"]
-ignore = ["E501"]
+select = [
+    "E",    # pycodestyle errors: Standard PEP 8 style violations (e.g., formatting issues)
+    "W",    # pycodestyle warnings: Less severe PEP 8 warnings
+    "F",    # Pyflakes: logical errors (e.g., unused imports, undefined variables)
+    "DJ",   # flake8-django: Django-specific best practices and idiomatic code checks
+    "I",    # isort: Sorts and groups imports automatically
+    "UP",   # pyupgrade: Upgrades outdated syntax (e.g., rewriting type hints or super() calls)
+    "B",    # flake8-bugbear: Finds likely bugs and design problems
+    "SIM",  # flake8-simplify: Suggests ways to rewrite code so it's simpler/more readable
+    "C4",   # flake8-comprehensions: Encourages better list/set/dict comprehensions
+    "COM",  # flake8-commas: Checks for trailing commas (often used with Black/Ruff formatter)
+    "LOG",  # flake8-logging: Validates logging setup and usage patterns
+    "G",    # flake8-logging-format: Validates logging string formatting (e.g., avoid f-strings in logs)
+    "Q",    # flake8-quotes: Enforces consistent string quoting (single vs double)
+    "RET",  # flake8-return: Checks for unnecessary return statements (e.g., unnecessary else after return)
+    "PTH",  # flake8-use-pathlib: Enforces using pathlib over os.path
+    "N",    # pep8-naming: Enforces standard PEP 8 naming conventions (e.g., class names, function names)
+]
+
+ignore = [
+    "E501", # Ignore line length violations (let the formatter handle splitting lines automatically)
+]
 
 # Allow fix for all enabled rules (when `--fix`) is provided.
 fixable = ["ALL"]
