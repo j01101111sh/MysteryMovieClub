@@ -77,11 +77,13 @@ class SignUpViewTests(TestCase):
     def test_signup(self) -> None:
         """Test that a user can be created by posting to the signup page."""
         User = get_user_model()
+        upass = secrets.token_urlsafe(16)
         self.assertEqual(User.objects.count(), 0)
         response = self.client.post(
             reverse("signup"),
-            {"username": "newuser", "password": secrets.token_urlsafe(16)},
+            {"username": "newuser", "password1": upass, "password2": upass},
         )
+        self.assertEqual(response.status_code, 302)
         self.assertEqual(User.objects.count(), 1)
         self.assertRedirects(response, reverse("login"))
 
@@ -89,10 +91,11 @@ class SignUpViewTests(TestCase):
         """Test that the signup page enforces CSRF protection."""
         # Create a client that enforces CSRF checks
         csrf_client = Client(enforce_csrf_checks=True)
+        upass = secrets.token_urlsafe(16)
 
         response = csrf_client.post(
             reverse("signup"),
-            {"username": "csrf_test_user", "password": secrets.token_urlsafe(16)},
+            {"username": "csrf_test_user", "password1": upass, "password2": upass},
         )
 
         # Expect a 403 Forbidden response due to missing CSRF token
