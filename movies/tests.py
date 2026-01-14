@@ -88,7 +88,7 @@ class MysteryTitleModelTests(TestCase):
             )
             # Verify the log message exists
             self.assertTrue(
-                any("Movie created: Log Test Movie" in o for o in cm.output),
+                any("Movie created: log-test-movie" in o for o in cm.output),
             )
 
 
@@ -131,7 +131,7 @@ class DirectorModelTests(TestCase):
 
             # Verify the log message exists
             self.assertTrue(
-                any("Director created: Log Test Director" in o for o in cm.output),
+                any("Director created: log-test-director" in o for o in cm.output),
             )
 
 
@@ -588,7 +588,7 @@ class ReviewTests(TestCase):
             )
 
             # Verify the log message exists and contains the string representation
-            expected_msg = f"Review created: {self.user}'s review of {self.movie}"
+            expected_msg = f"Review created: {self.user} for {self.movie.slug}"
             self.assertTrue(any(expected_msg in o for o in cm.output))
 
 
