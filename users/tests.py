@@ -4,6 +4,7 @@ from django.contrib.auth import get_user_model
 from django.test import Client, TestCase
 from django.urls import reverse
 
+from movies.models import MysteryTitle, Review
 from users.forms import CustomUserCreationForm
 
 
@@ -78,3 +79,98 @@ class SignUpViewTests(TestCase):
 
         # Expect a 403 Forbidden response due to missing CSRF token
         self.assertEqual(response.status_code, 403)
+
+
+class UserProfileTests(TestCase):
+    def setUp(self) -> None:
+        self.User = get_user_model()
+        self.upass = secrets.token_urlsafe(16)
+        self.user = self.User.objects.create_user(
+            username="profileuser", password=self.upass
+        )
+        self.movie = MysteryTitle.objects.create(
+            title="Test Mystery",
+            slug="test-mystery",
+            release_year=2023,
+            description="A test mystery description.",
+        )
+
+    def test_profile_view_status_code(self) -> None:
+        """Test that the profile page returns a 200 status code."""
+        url = reverse("profile", kwargs={"username": self.user.username})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+
+    def test_profile_view_template(self) -> None:
+        """Test that the correct template is used for the profile page."""
+        url = reverse("profile", kwargs={"username": self.user.username})
+        response = self.client.get(url)
+        self.assertTemplateUsed(response, "users/user_detail.html")
+
+    def test_profile_displays_user_details(self) -> None:
+        """Test that the profile page displays the user's information."""
+        url = reverse("profile", kwargs={"username": self.user.username})
+        response = self.client.get(url)
+        self.assertContains(response, self.user.username)
+        self.assertContains(response, "Member since")
+
+    def test_profile_displays_reviews(self) -> None:
+        """Test that the profile page displays the user's reviews."""
+        Review.objects.create(
+            movie=self.movie,
+            user=self.user,
+            quality=5,
+            difficulty=4,
+            is_fair_play=True,
+            comment="This is a test review comment.",
+        )
+
+        url = reverse("profile", kwargs={"username": self.user.username})
+        response = self.client.get(url)
+
+        self.assertContains(response, self.movie.title)
+        self.assertContains(response, "This is a test review comment")
+        self.assertContains(response, "Fair Play")
+        self.assertEqual(len(response.context["reviews"]), 1)
+
+    def test_profile_does_not_display_others_reviews(self) -> None:
+        """Test that the profile page only shows the specific user's reviews."""
+        other_user = self.User.objects.create_user(
+            username="otheruser", password=secrets.token_urlsafe(16)
+        )
+        Review.objects.create(
+            movie=self.movie,
+            user=other_user,
+            quality=1,
+            difficulty=1,
+            is_fair_play=False,
+            comment="Other user review",
+        )
+
+        url = reverse("profile", kwargs={"username": self.user.username})
+        response = self.client.get(url)
+
+        self.assertNotContains(response, "Other user review")
+        self.assertEqual(len(response.context["reviews"]), 0)
+
+    def test_profile_empty_state(self) -> None:
+        """Test the profile page when the user has no reviews."""
+        url = reverse("profile", kwargs={"username": self.user.username})
+        response = self.client.get(url)
+        self.assertContains(response, "No reviews yet.")
+        self.assertEqual(len(response.context["reviews"]), 0)
+
+    def test_navigation_profile_link_authenticated(self) -> None:
+        """Test that the 'My Profile' link appears for logged-in users."""
+        self.client.login(username="profileuser", password=self.upass)
+        url = reverse("profile", kwargs={"username": self.user.username})
+        response = self.client.get(url)
+
+        profile_url = reverse("profile", kwargs={"username": self.user.username})
+        self.assertContains(response, f'href="{profile_url}">My Profile</a>')
+
+    def test_navigation_profile_link_anonymous(self) -> None:
+        """Test that the 'My Profile' link does not appear for anonymous users."""
+        url = reverse("signup")
+        response = self.client.get(url)
+        self.assertNotContains(response, "My Profile")
