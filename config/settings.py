@@ -202,6 +202,11 @@ LOGGING = {
             "level": "DEBUG",  # Only logs SQL if DEBUG=True in settings
             "propagate": False,
         },
+        "django.request": {
+            "handlers": ["file"],
+            "level": "WARNING",  # Logs 4xx as WARNING, 5xx as ERROR
+            "propagate": False,
+        },
         "config": {
             "handlers": ["file"],
             "level": "INFO",
