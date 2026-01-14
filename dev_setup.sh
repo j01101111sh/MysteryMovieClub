@@ -8,10 +8,10 @@ SU_NAME="admin"
 SU_EMAIL="admin@example.com"
 SU_PASSWORD="admin"
 
-# 0. Delete existing dev database
+# 0. Delete existing dev files
 if [ -f "db.sqlite3" ]; then
-    echo "Deleting existing dev database..."
-    rm "db.sqlite3"
+    echo "Deleting existing dev files..."
+    rm "db.sqlite3" "django.log"
 fi
 
 # 1. Sync Dependencies (uv)
