@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any
 
 import django
+from django.utils.text import slugify
 
 # Setup Django environment
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -16,17 +17,60 @@ django.setup()
 
 from django.contrib.auth import get_user_model  # noqa: E402
 
-from movies.models import MysteryTitle, Review  # noqa: E402
+from movies.models import MysteryTitle, Review, Tag, TagVote  # noqa: E402
 
 User = get_user_model()
 
+gen = secrets.SystemRandom()
+
 
 def main() -> None:
-    print("Seeding reviews...")
+    print("Seeding reviews and tags...")
 
-    # 1. Create Sample Users
+    # 1. Create/Ensure Tags Exist
+    tag_names = [
+        # Sub-genres
+        "Whodunit",
+        "Howcatchem",
+        "Locked Room",
+        "Cozy Mystery",
+        "Noir",
+        "Neo-Noir",
+        "Police Procedural",
+        "Hardboiled",
+        "Giallo",
+        "Historical Mystery",
+        # Tropes & Plot Elements
+        "Unreliable Narrator",
+        "Plot Twist",
+        "Red Herring",
+        "Cold Case",
+        "Serial Killer",
+        "Amateur Sleuth",
+        "Private Investigator",
+        "Courtroom Drama",
+        "Supernatural Elements",
+        "Heist",
+        # Tone & Style
+        "Dark",
+        "Humorous",
+        "Campy",
+        "Tense",
+        "Slow Burn",
+        "Fast-Paced",
+        "Atmospheric",
+        "Brain Burner",
+    ]
+
+    print(f"Ensuring {len(tag_names)} tags exist...")
+    all_tags = []
+    for name in tag_names:
+        slug = slugify(name)
+        tag, _ = Tag.objects.get_or_create(slug=slug, defaults={"name": name})
+        all_tags.append(tag)
+
+    # 2. Create Sample Users
     num_reviews = 10
-
     reviewers: list[dict[str, str]] = [
         {
             "username": (uname := f"user_{secrets.token_hex(8)}"),
@@ -45,20 +89,18 @@ def main() -> None:
         if created:
             user.set_password(reviewer["password"])
             user.save()
-            print(f"Created user: {user.username}")
-        else:
-            print(f"User already exists: {user.username}")
         user_objects.append(user)
 
-    # 2. Fetch Movies
+    print(f"Verified {len(user_objects)} users.")
+
+    # 3. Fetch Movies
     movies = MysteryTitle.objects.all()
     if not movies:
-        print("No movies found. Please run seed_imdb_mysteries.py first.")
+        print("No movies found. Please run seed_movies.py first.")
         return
-    print(f"Found {len(movies)}.")
+    print(f"Found {len(movies)} movies.")
 
-    # 3. Generate Reviews
-    # Comments to pick from randomly
+    # 4. Generate Reviews and Tag Votes
     comments: list[str] = [
         "A classic whodunit structure!",
         "I figured it out halfway through.",
@@ -70,10 +112,11 @@ def main() -> None:
     ]
 
     reviews_created = 0
+    tag_votes_created = 0
 
     for movie in movies:
         for user in user_objects:
-            # Check if review already exists to avoid unique constraint error
+            # Create Review
             if not Review.objects.filter(movie=movie, user=user).exists():
                 _ = Review.objects.create(
                     movie=movie,
@@ -86,7 +129,22 @@ def main() -> None:
                 )
                 reviews_created += 1
 
-    print(f"Done! Created {reviews_created} new reviews.")
+            # Create Tag Votes
+            # Randomly assign 1 to 4 tags per user per movie to simulate activity
+            # Use random.sample to pick unique tags from the list
+            num_tags = secrets.randbelow(4) + 1  # 1 to 4 tags
+            chosen_tags = secrets.SystemRandom.sample(gen, all_tags, num_tags)
+
+            for tag in chosen_tags:
+                _, created = TagVote.objects.get_or_create(
+                    movie=movie,
+                    user=user,
+                    tag=tag,
+                )
+                if created:
+                    tag_votes_created += 1
+
+    print(f"Done! Created {reviews_created} reviews and {tag_votes_created} tag votes.")
 
 
 if __name__ == "__main__":
