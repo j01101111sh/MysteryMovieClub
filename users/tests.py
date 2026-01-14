@@ -90,7 +90,8 @@ class UserProfileTests(TestCase):
         self.User = get_user_model()
         self.upass = secrets.token_urlsafe(16)
         self.user = self.User.objects.create_user(
-            username="profileuser", password=self.upass
+            username="profileuser",
+            password=self.upass,
         )
         self.movie = MysteryTitle.objects.create(
             title="Test Mystery",
@@ -140,7 +141,8 @@ class UserProfileTests(TestCase):
     def test_profile_does_not_display_others_reviews(self) -> None:
         """Test that the profile page only shows the specific user's reviews."""
         other_user = self.User.objects.create_user(
-            username="otheruser", password=secrets.token_urlsafe(16)
+            username="otheruser",
+            password=secrets.token_urlsafe(16),
         )
         Review.objects.create(
             movie=self.movie,

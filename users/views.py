@@ -25,6 +25,6 @@ class UserDetailView(DetailView):
     def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
         context["reviews"] = self.object.review_set.select_related("movie").order_by(
-            "-created_at"
+            "-created_at",
         )
         return context
