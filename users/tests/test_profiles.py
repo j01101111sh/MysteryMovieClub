@@ -14,6 +14,9 @@ class UserProfileTests(TestCase):
         self.user = self.User.objects.create_user(
             username="profileuser",
             password=self.upass,
+            bio="My mystery bio",
+            location="Omaha, NE",
+            website="https://mysite.com",
         )
         self.movie = MysteryTitle.objects.create(
             title="Test Mystery",
@@ -35,11 +38,14 @@ class UserProfileTests(TestCase):
         self.assertTemplateUsed(response, "users/user_detail.html")
 
     def test_profile_displays_user_details(self) -> None:
-        """Test that the profile page displays the user's information."""
+        """Test that the profile page displays the user's information including new fields."""
         url = reverse("profile", kwargs={"username": self.user.username})
         response = self.client.get(url)
         self.assertContains(response, self.user.username)
         self.assertContains(response, "Member since")
+        self.assertContains(response, "My mystery bio")
+        self.assertContains(response, "Omaha, NE")
+        self.assertContains(response, "https://mysite.com")
 
     def test_profile_displays_reviews(self) -> None:
         """Test that the profile page displays the user's reviews."""

@@ -33,6 +33,20 @@ class CustomUserModelTests(TestCase):
         self.assertTrue(admin_user.is_staff)
         self.assertTrue(admin_user.is_superuser)
 
+    def test_profile_fields(self) -> None:
+        """Test that custom profile fields can be saved."""
+        User = get_user_model()
+        user = User.objects.create_user(
+            username="profiletest",
+            password=secrets.token_urlsafe(16),
+            bio="I love mystery movies.",
+            location="Baker Street",
+            website="https://example.com",
+        )
+        self.assertEqual(user.bio, "I love mystery movies.")
+        self.assertEqual(user.location, "Baker Street")
+        self.assertEqual(user.website, "https://example.com")
+
     def test_string_representation(self) -> None:
         """Test the model's string representation uses the username."""
         User = get_user_model()

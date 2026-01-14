@@ -1,10 +1,30 @@
 import logging
 
 from django.contrib.auth.models import AbstractUser
+from django.db import models
 
 logger = logging.getLogger(__name__)
 
 
 class CustomUser(AbstractUser):
-    # Add any additional fields here if needed
-    pass
+    """
+    Custom user model for Mystery Movie Club.
+    Includes additional profile fields for public display.
+    """
+
+    bio = models.TextField(
+        blank=True,
+        help_text="A short bio about yourself.",
+    )
+    location = models.CharField(
+        max_length=100,
+        blank=True,
+        help_text="Where you are from.",
+    )
+    website = models.URLField(
+        blank=True,
+        help_text="A link to your personal website or blog.",
+    )
+
+    def __str__(self) -> str:
+        return self.username
