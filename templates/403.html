@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Access Denied (403) | Mystery Movie Club
+{% endblock title %}
+{% block content %}
+    <div class="container py-5 text-center">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <h1 class="display-1 fw-bold text-warning">403</h1>
+                <h2 class="mb-4">Restricted Area</h2>
+                <p class="lead mb-4">
+                    You don't have the clearance to enter this room.
+                    This area is strictly for authorized personnel only.
+                </p>
+                <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+                    <a href="{% url 'home' %}" class="btn btn-primary btn-lg px-4 gap-3">Return Home</a>
+                    <a href="{% url 'login' %}"
+                       class="btn btn-outline-secondary btn-lg px-4">Log In with Different ID</a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
