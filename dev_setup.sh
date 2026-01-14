@@ -8,6 +8,10 @@ SU_NAME="admin"
 SU_EMAIL="admin@example.com"
 SU_PASSWORD="admin"
 
+DEV_NAME="dev"
+DEV_EMAIL="dev@dev.com"
+DEV_PASSWORD="dev"
+
 # 0. Delete existing dev files
 if [ -f "db.sqlite3" ]; then
     echo "Deleting existing dev files..."
@@ -49,6 +53,18 @@ if not User.objects.filter(username='$SU_NAME').exists():
     print('Superuser created successfully.');
 else:
     print('Superuser already exists. Skipping creation.');
+"
+
+# 5b. Create Dev User (Idempotent)
+echo "Checking for dev user..."
+uv run python manage.py shell -c "
+from django.contrib.auth import get_user_model;
+User = get_user_model();
+if not User.objects.filter(username='$DEV_NAME').exists():
+    User.objects.create_user('$DEV_NAME', '$DEV_EMAIL', '$DEV_PASSWORD');
+    print('Dev user created successfully.');
+else:
+    print('Dev user already exists. Skipping creation.');
 "
 
 # 6. Seed movie database
