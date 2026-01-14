@@ -4,25 +4,48 @@
     {{ profile_user.username }}'s Profile
 {% endblock title %}
 {% block content %}
-    <h1>{{ profile_user.username }}</h1>
-    <p class="text-muted">Member since: {{ profile_user.date_joined|date:"F j, Y" }}</p>
-    <h2 class="mt-4">Reviews ({{ reviews|length }})</h2>
-    <div class="list-group">
-        {% for review in reviews %}
-            <a href="{{ review.movie.get_absolute_url }}"
-               class="list-group-item list-group-item-action flex-column align-items-start">
-                <div class="d-flex w-100 justify-content-between">
-                    <h5 class="mb-1">{{ review.movie.title }}</h5>
-                    <small>{{ review.created_at|timesince }} ago</small>
-                </div>
-                <div class="mb-1">
-                    <small class="text-muted">Quality: {{ review.quality }}/5 | Difficulty: {{ review.difficulty }}/5</small>
-                    {% if review.is_fair_play %}<span class="badge bg-success ms-1">Fair Play</span>{% endif %}
-                </div>
-                {% if review.comment %}<p class="mb-1 mt-2">{{ review.comment|truncatewords:30 }}</p>{% endif %}
-            </a>
-        {% empty %}
-            <p>No reviews yet.</p>
-        {% endfor %}
+    <div class="row">
+        <div class="col-md-4">
+            <h1>{{ profile_user.username }}</h1>
+            <p class="text-muted">Member since: {{ profile_user.date_joined|date:"F j, Y" }}</p>
+            {% if profile_user.location %}
+                <p>
+                    <strong>Location:</strong> {{ profile_user.location }}
+                </p>
+            {% endif %}
+            {% if profile_user.website %}
+                <p>
+                    <strong>Website:</strong> <a href="{{ profile_user.website }}"
+    target="_blank"
+    rel="noopener noreferrer">{{ profile_user.website }}</a>
+                </p>
+            {% endif %}
+            {% if profile_user.bio %}
+                <hr />
+                <h5>About</h5>
+                <p>{{ profile_user.bio|linebreaks }}</p>
+            {% endif %}
+        </div>
+        <div class="col-md-8">
+            <h2 class="mt-4 mt-md-0">Reviews ({{ reviews|length }})</h2>
+            <div class="list-group">
+                {% for review in reviews %}
+                    <a href="{{ review.movie.get_absolute_url }}"
+                       class="list-group-item list-group-item-action flex-column align-items-start">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h5 class="mb-1">{{ review.movie.title }}</h5>
+                            <small>{{ review.created_at|timesince }} ago</small>
+                        </div>
+                        <div class="mb-1">
+                            <small class="text-muted">Quality: {{ review.quality }}/5 | Difficulty: {{ review.difficulty }}/5</small>
+                            {% if review.is_fair_play %}<span class="badge bg-success ms-1">Fair Play</span>{% endif %}
+                        </div>
+                        {% if review.comment %}<p class="mb-1 mt-2">{{ review.comment|truncatewords:30 }}</p>{% endif %}
+                    </a>
+                {% empty %}
+                    <p>No reviews yet.</p>
+                {% endfor %}
+            </div>
+        </div>
     </div>
 {% endblock content %}

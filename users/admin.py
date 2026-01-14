@@ -13,4 +13,6 @@ class CustomUserAdmin(UserAdmin):
     list_display = [
         "email",
         "username",
+        "location",
+        "is_staff",
     ]
