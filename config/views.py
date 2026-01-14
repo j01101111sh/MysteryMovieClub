@@ -3,7 +3,6 @@ import logging
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
 
-# Get logger for this module
 logger = logging.getLogger(__name__)
 
 

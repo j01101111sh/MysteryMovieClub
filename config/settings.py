@@ -197,15 +197,20 @@ LOGGING = {
             "level": "INFO",
             "propagate": False,
         },
+        "config": {
+            "handlers": ["file"],
+            "level": "INFO",
+            "propagate": False,
+        },
         "movies": {
             "handlers": ["file"],
             "level": "INFO",
-            "propagate": False,  # Fix: Stop bubbling up to root
+            "propagate": False,
         },
         "users": {
             "handlers": ["file"],
             "level": "INFO",
-            "propagate": False,  # Fix: Stop bubbling up to root
+            "propagate": False,
         },
     },
 }
