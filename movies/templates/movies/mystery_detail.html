@@ -90,6 +90,41 @@
                 </div>
             </div>
         </div>
+        <section class="mt-4">
+            <h3>Community Tags</h3>
+            <div class="d-flex flex-wrap gap-2 mb-3">
+                {% for tag in tags_with_counts %}
+                    <form action="{% url 'movies:vote_tag' movie.slug %}"
+                          method="post"
+                          class="d-inline">
+                        {% csrf_token %}
+                        <input type="hidden" name="tag_id" value="{{ tag.id }}" />
+                        <button type="submit"
+                                class="btn btn-sm {% if tag.id in user_voted_tag_ids %}btn-primary{% else %}btn-outline-primary{% endif %}"
+                                title="{% if tag.id in user_voted_tag_ids %}Remove vote{% else %}Upvote{% endif %}">
+                            {{ tag.name }} <span class="badge bg-light text-dark ms-1">{{ tag.vote_count }}</span>
+                        </button>
+                    </form>
+                {% empty %}
+                    <p class="text-muted">No tags yet.</p>
+                {% endfor %}
+            </div>
+            {% if user.is_authenticated %}
+                <form action="{% url 'movies:vote_tag' movie.slug %}"
+                      method="post"
+                      class="row g-2 align-items-center">
+                    {% csrf_token %}
+                    <div class="col-auto">{{ tag_form.tag }}</div>
+                    <div class="col-auto">
+                        <button type="submit" class="btn btn-sm btn-secondary">Add Tag</button>
+                    </div>
+                </form>
+            {% else %}
+                <p>
+                    <a href="{% url 'login' %}?next={{ request.path }}">Log in</a> to vote on tags.
+                </p>
+            {% endif %}
+        </section>
         <div class="mt-5">
             <h3>Reviews</h3>
             {% if recent_reviews %}
