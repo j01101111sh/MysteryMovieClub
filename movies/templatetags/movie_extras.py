@@ -29,7 +29,7 @@ def get_review_heatmap(movie: MysteryTitle) -> dict[str, Any]:
                     "difficulty": difficulty,
                     "count": count,
                     "intensity": intensity,
-                }
+                },
             )
         rows.append({"difficulty": difficulty, "cells": cells})
 

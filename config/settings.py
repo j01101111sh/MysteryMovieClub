@@ -101,7 +101,7 @@ DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": BASE_DIR / "db.sqlite3",
-    }
+    },
 }
 
 
@@ -157,7 +157,7 @@ STORAGES = {
             "django.contrib.staticfiles.storage.StaticFilesStorage"
             if DEBUG
             else "whitenoise.storage.CompressedManifestStaticFilesStorage"
-        )
+        ),
     },
 }
 

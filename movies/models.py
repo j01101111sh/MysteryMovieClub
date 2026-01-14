@@ -11,7 +11,8 @@ from django.utils.translation import gettext_lazy as _
 class Director(models.Model):
     name = models.CharField(max_length=255, unique=True)
     slug = models.SlugField(
-        unique=True, help_text="URL friendly name (e.g. rian-johnson)"
+        unique=True,
+        help_text="URL friendly name (e.g. rian-johnson)",
     )
 
     class Meta:
@@ -27,7 +28,8 @@ class Director(models.Model):
 class Series(models.Model):
     name = models.CharField(max_length=255, unique=True)
     slug = models.SlugField(
-        unique=True, help_text="URL friendly name (e.g. benoit-blanc)"
+        unique=True,
+        help_text="URL friendly name (e.g. benoit-blanc)",
     )
 
     if TYPE_CHECKING:
@@ -53,7 +55,8 @@ class MysteryTitle(models.Model):
     # Core Metadata
     title = models.CharField(max_length=255)
     slug = models.SlugField(
-        unique=True, help_text="URL friendly title (e.g. knives-out)"
+        unique=True,
+        help_text="URL friendly title (e.g. knives-out)",
     )
     media_type = models.CharField(
         max_length=2,
@@ -82,7 +85,8 @@ class MysteryTitle(models.Model):
         reviews: models.QuerySet[Review]
 
     is_fair_play_candidate = models.BooleanField(
-        default=True, help_text="Is this title applicable for Fair Play analysis?"
+        default=True,
+        help_text="Is this title applicable for Fair Play analysis?",
     )
 
     # Aggregates (Denormalized fields for caching/performance)
@@ -119,7 +123,7 @@ class MysteryTitle(models.Model):
                     models.When(is_fair_play=True, then=100.0),
                     default=0.0,
                     output_field=models.FloatField(),
-                )
+                ),
             ),
         )
         self.avg_quality = stats["avg_quality"] or 0.0
@@ -127,20 +131,24 @@ class MysteryTitle(models.Model):
         self.fair_play_consensus = stats["fair_play_consensus"] or 0.0
 
         self.save(
-            update_fields=["avg_quality", "avg_difficulty", "fair_play_consensus"]
+            update_fields=["avg_quality", "avg_difficulty", "fair_play_consensus"],
         )
 
 
 class Review(models.Model):
     movie = models.ForeignKey(
-        MysteryTitle, on_delete=models.CASCADE, related_name="reviews"
+        MysteryTitle,
+        on_delete=models.CASCADE,
+        related_name="reviews",
     )
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     quality = models.PositiveIntegerField(
-        choices=[(i, str(i)) for i in range(1, 6)], verbose_name="Quality (1-5)"
+        choices=[(i, str(i)) for i in range(1, 6)],
+        verbose_name="Quality (1-5)",
     )
     difficulty = models.PositiveIntegerField(
-        choices=[(i, str(i)) for i in range(1, 6)], verbose_name="Difficulty (1-5)"
+        choices=[(i, str(i)) for i in range(1, 6)],
+        verbose_name="Difficulty (1-5)",
     )
     is_fair_play = models.BooleanField(
         verbose_name="Fair Play?",
@@ -158,8 +166,9 @@ class Review(models.Model):
         ordering = ["-created_at"]
         constraints = [
             models.UniqueConstraint(
-                fields=["movie", "user"], name="unique_review_per_user"
-            )
+                fields=["movie", "user"],
+                name="unique_review_per_user",
+            ),
         ]
 
     def __str__(self) -> str:

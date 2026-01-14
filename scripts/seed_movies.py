@@ -22,7 +22,8 @@ from movies.models import Director, MysteryTitle, Series  # noqa: E402
 def get_create_director(name: str) -> Director:
     d_slug = slugify(name)
     director_obj, _ = Director.objects.get_or_create(
-        slug=d_slug, defaults={"name": name}
+        slug=d_slug,
+        defaults={"name": name},
     )
     return director_obj
 
@@ -668,7 +669,8 @@ def main() -> None:
         if director_name:
             d_slug = slugify(str(director_name))
             director_obj, _ = Director.objects.get_or_create(
-                slug=d_slug, defaults={"name": director_name}
+                slug=d_slug,
+                defaults={"name": director_name},
             )
             obj.director = director_obj
             obj.save()
@@ -678,7 +680,8 @@ def main() -> None:
         if series_name:
             series_slug = slugify(str(series_name))
             series, _ = Series.objects.get_or_create(
-                slug=series_slug, defaults={"name": series_name}
+                slug=series_slug,
+                defaults={"name": series_name},
             )
             obj.series = series
         else:

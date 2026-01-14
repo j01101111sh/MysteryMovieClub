@@ -39,7 +39,8 @@ def main() -> None:
     user_objects: list[Any] = []
     for reviewer in reviewers:
         user, created = User.objects.get_or_create(
-            username=reviewer["username"], defaults={"email": reviewer["email"]}
+            username=reviewer["username"],
+            defaults={"email": reviewer["email"]},
         )
         if created:
             user.set_password(reviewer["password"])
