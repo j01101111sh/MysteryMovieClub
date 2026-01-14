@@ -50,6 +50,21 @@ class SignUpViewTests(TestCase):
         response = self.client.get(reverse("signup"))
         self.assertEqual(response.status_code, 200)
 
+    def test_get_or_create_logging(self) -> None:
+        """Test that get_or_create triggers a log message via signals."""
+        User = get_user_model()
+        # assertLogs captures logs from the 'users.models' logger
+        with self.assertLogs("users.models", level="INFO") as cm:
+            User.objects.get_or_create(
+                username="signal_test_user",
+                defaults={"password": secrets.token_urlsafe(16)},
+            )
+
+            # Verify the log message was captured
+            self.assertTrue(
+                any("User created (signal): signal_test_user" in o for o in cm.output),
+            )
+
     def test_signup_page_template(self) -> None:
         """Test that the correct template is used for the signup page."""
         response = self.client.get(reverse("signup"))

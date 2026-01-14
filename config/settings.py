@@ -205,5 +205,10 @@ LOGGING = {
             "level": "INFO",
             "propagate": True,
         },
+        "users": {
+            "handlers": ["file"],
+            "level": "INFO",
+            "propagate": True,
+        },
     },
 }
