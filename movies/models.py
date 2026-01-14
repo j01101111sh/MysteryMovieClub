@@ -264,3 +264,47 @@ def log_series_creation(
     """Log a message whenever a new series is created."""
     if created:
         logger.info("Series created: %s", instance.slug)
+
+
+@receiver(post_save, sender=Tag)
+def log_tag_creation(
+    sender: type[Tag],
+    instance: Tag,
+    created: bool,
+    **kwargs: Any,
+) -> None:
+    """Log a message whenever a new tag is created."""
+    if created:
+        logger.info("Tag created: %s", instance.slug)
+
+
+@receiver(post_save, sender=TagVote)
+def log_tag_vote_creation(
+    sender: type[TagVote],
+    instance: TagVote,
+    created: bool,
+    **kwargs: Any,
+) -> None:
+    """Log a message whenever a new tag vote is created."""
+    if created:
+        logger.info(
+            "Tag vote created: %s voted for %s on %s",
+            instance.user,
+            instance.tag.slug,
+            instance.movie.slug,
+        )
+
+
+@receiver(post_delete, sender=TagVote)
+def log_tag_vote_deletion(
+    sender: type[TagVote],
+    instance: TagVote,
+    **kwargs: Any,
+) -> None:
+    """Log a message whenever a tag vote is deleted."""
+    logger.info(
+        "Tag vote removed: %s voted for %s on %s",
+        instance.user,
+        instance.tag.slug,
+        instance.movie.slug,
+    )
