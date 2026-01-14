@@ -229,3 +229,5 @@ LOGGING = {
         },
     },
 }
+
+ADMIN_URL = os.getenv("ADMIN_URL")

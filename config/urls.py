@@ -15,6 +15,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 
+from django.conf import settings
 from django.contrib import admin
 from django.urls import include, path
 
@@ -24,7 +25,7 @@ from movies.views import MysteryListView
 urlpatterns = [
     path("accounts/", include("django.contrib.auth.urls")),
     path("users/", include("users.urls")),
-    path("admin/", admin.site.urls),
+    path(settings.ADMIN_URL or "admin/", admin.site.urls),
     path("movies/", include("movies.urls")),
     path("", MysteryListView.as_view(), name="home"),
 ]

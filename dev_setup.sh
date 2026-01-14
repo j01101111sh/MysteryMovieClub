@@ -29,6 +29,7 @@ if [ ! -f .env ]; then
     echo "Setting DEBUG to True for dev environments..."
     echo "DEBUG=True" >> .env
     echo "CSRF_TRUSTED_ORIGINS=https://localhost:8000,https://*.github.dev,https://*.app.github.dev" >> .env
+    echo "ADMIN_URL=admin/" >> .env
     echo "Done: .env created."
 else
     echo ".env file already exists. Skipping generation."
