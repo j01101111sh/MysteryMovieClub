@@ -82,8 +82,8 @@ class SignUpViewTests(TestCase):
             reverse("signup"),
             {"username": "newuser", "password": secrets.token_urlsafe(16)},
         )
-        # Follow the redirect to the login page
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(User.objects.count(), 1)
+        self.assertRedirects(response, reverse("login"))
 
     def test_signup_csrf_error(self) -> None:
         """Test that the signup page enforces CSRF protection."""
