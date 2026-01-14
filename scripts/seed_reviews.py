@@ -53,6 +53,9 @@ def main() -> None:
         if created:
             user.set_password(reviewer["password"])
             user.save()
+            print(f"Created user: {user.username}")
+        else:
+            print(f"User already exists: {user.username}")
         user_objects.append(user)
 
     print(f"Verified {len(user_objects)} users.")
