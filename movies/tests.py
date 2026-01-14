@@ -562,6 +562,22 @@ class ReviewTests(TestCase):
         response = self.client.get(detail_url)
         self.assertTrue(response.context["has_reviewed"])
 
+    def test_review_creation_logging(self) -> None:
+        """Test that creating a review triggers a log message."""
+        with self.assertLogs("movies.models", level="INFO") as cm:
+            Review.objects.create(
+                movie=self.movie,
+                user=self.user,
+                quality=5,
+                difficulty=3,
+                is_fair_play=True,
+                comment="Log Test Review",
+            )
+
+            # Verify the log message exists and contains the string representation
+            expected_msg = f"Review created: {self.user}'s review of {self.movie}"
+            self.assertTrue(any(expected_msg in o for o in cm.output))
+
 
 class ReviewListViewTests(TestCase):
     def setUp(self) -> None:

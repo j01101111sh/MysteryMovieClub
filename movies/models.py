@@ -194,3 +194,16 @@ def log_movie_creation(
     """Log a message whenever a new movie is created."""
     if created:
         logger.info("Movie created: %s", instance.slug)
+
+
+@receiver(post_save, sender=Review)
+def log_review_creation(
+    sender: type[Review],
+    instance: Review,
+    created: bool,
+    **kwargs: Any,
+) -> None:
+    """Log a message whenever a new review is created."""
+    if created:
+        # Uses the Review's __str__ method: "{user}'s review of {movie}"
+        logger.info("Review created: %s for %s", instance.user, instance.movie.slug)
