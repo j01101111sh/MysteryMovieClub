@@ -173,10 +173,8 @@ LOGOUT_REDIRECT_URL = "/"
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
-    # 1. Define Formatters
     "formatters": {
         "verbose": {
-            # Includes timestamp, log level, logger name, and the message
             "format": "{asctime} [{levelname}] {name}: {message}",
             "style": "{",
         },
@@ -186,7 +184,6 @@ LOGGING = {
             "level": "INFO",
             "class": "logging.FileHandler",
             "filename": BASE_DIR / "django.log",
-            # 2. Apply the formatter to the file handler
             "formatter": "verbose",
         },
     },
@@ -203,12 +200,12 @@ LOGGING = {
         "movies": {
             "handlers": ["file"],
             "level": "INFO",
-            "propagate": True,
+            "propagate": False,  # Fix: Stop bubbling up to root
         },
         "users": {
             "handlers": ["file"],
             "level": "INFO",
-            "propagate": True,
+            "propagate": False,  # Fix: Stop bubbling up to root
         },
     },
 }
