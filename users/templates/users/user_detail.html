@@ -6,7 +6,7 @@
 {% block content %}
     <h1>{{ profile_user.username }}</h1>
     <p class="text-muted">Member since: {{ profile_user.date_joined|date:"F j, Y" }}</p>
-    <h2 class="mt-4">Reviews ({{ reviews.count }})</h2>
+    <h2 class="mt-4">Reviews ({{ reviews|length }})</h2>
     <div class="list-group">
         {% for review in reviews %}
             <a href="{{ review.movie.get_absolute_url }}"
