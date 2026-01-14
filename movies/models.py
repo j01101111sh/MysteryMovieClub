@@ -49,6 +49,17 @@ class Series(models.Model):
         return reverse("movies:series_detail", kwargs={"slug": self.slug})
 
 
+class Tag(models.Model):
+    name = models.CharField(max_length=50, unique=True)
+    slug = models.SlugField(unique=True)
+
+    class Meta:
+        ordering = ["name"]
+
+    def __str__(self) -> str:
+        return self.name
+
+
 class MysteryTitle(models.Model):
     class MediaType(models.TextChoices):
         MOVIE = "MV", _("Movie")
@@ -86,6 +97,7 @@ class MysteryTitle(models.Model):
 
     if TYPE_CHECKING:
         reviews: models.QuerySet[Review]
+        tag_votes: models.QuerySet[TagVote]
 
     is_fair_play_candidate = models.BooleanField(
         default=True,
@@ -178,6 +190,27 @@ class Review(models.Model):
         return f"{self.user}'s review of {self.movie}"
 
 
+class TagVote(models.Model):
+    movie = models.ForeignKey(
+        MysteryTitle,
+        on_delete=models.CASCADE,
+        related_name="tag_votes",
+    )
+    tag = models.ForeignKey(Tag, on_delete=models.CASCADE, related_name="votes")
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["movie", "tag", "user"],
+                name="unique_tag_vote",
+            ),
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.user} voted for {self.tag} on {self.movie}"
+
+
 @receiver(post_save, sender=Review)
 @receiver(post_delete, sender=Review)
 def update_movie_stats(sender: type[Review], instance: Review, **kwargs: Any) -> None:
@@ -231,3 +264,47 @@ def log_series_creation(
     """Log a message whenever a new series is created."""
     if created:
         logger.info("Series created: %s", instance.slug)
+
+
+@receiver(post_save, sender=Tag)
+def log_tag_creation(
+    sender: type[Tag],
+    instance: Tag,
+    created: bool,
+    **kwargs: Any,
+) -> None:
+    """Log a message whenever a new tag is created."""
+    if created:
+        logger.info("Tag created: %s", instance.slug)
+
+
+@receiver(post_save, sender=TagVote)
+def log_tag_vote_creation(
+    sender: type[TagVote],
+    instance: TagVote,
+    created: bool,
+    **kwargs: Any,
+) -> None:
+    """Log a message whenever a new tag vote is created."""
+    if created:
+        logger.info(
+            "Tag vote created: %s voted for %s on %s",
+            instance.user,
+            instance.tag.slug,
+            instance.movie.slug,
+        )
+
+
+@receiver(post_delete, sender=TagVote)
+def log_tag_vote_deletion(
+    sender: type[TagVote],
+    instance: TagVote,
+    **kwargs: Any,
+) -> None:
+    """Log a message whenever a tag vote is deleted."""
+    logger.info(
+        "Tag vote removed: %s voted for %s on %s",
+        instance.user,
+        instance.tag.slug,
+        instance.movie.slug,
+    )

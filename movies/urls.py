@@ -9,6 +9,7 @@ from .views import (
     ReviewListView,
     SeriesDetailView,
     SeriesListView,
+    TagVoteView,
 )
 
 app_name = "movies"
@@ -24,6 +25,7 @@ urlpatterns = [
     path("series/<slug:slug>/", SeriesDetailView.as_view(), name="series_detail"),
     path("<slug:slug>/review/", ReviewCreateView.as_view(), name="add_review"),
     path("<slug:slug>/reviews/", ReviewListView.as_view(), name="review_list"),
+    path("<slug:slug>/vote-tag/", TagVoteView.as_view(), name="vote_tag"),
     path("<slug:slug>/", MysteryDetailView.as_view(), name="detail"),
     path("", MysteryListView.as_view(), name="list"),
 ]

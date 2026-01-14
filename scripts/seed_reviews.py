@@ -16,17 +16,25 @@ django.setup()
 
 from django.contrib.auth import get_user_model  # noqa: E402
 
-from movies.models import MysteryTitle, Review  # noqa: E402
+from movies.models import MysteryTitle, Review, Tag, TagVote  # noqa: E402
 
 User = get_user_model()
 
+gen = secrets.SystemRandom()
+
 
 def main() -> None:
-    print("Seeding reviews...")
+    print("Seeding reviews and tags...")
 
-    # 1. Create Sample Users
+    # 1. Create/Ensure Tags Exist
+    all_tags = list(Tag.objects.all())
+    if not all_tags:
+        print("No tags found in the database. Please run seed_tags.py first.")
+        return
+    print(f"Found {len(all_tags)} tags to use for voting.")
+
+    # 2. Create Sample Users
     num_reviews = 10
-
     reviewers: list[dict[str, str]] = [
         {
             "username": (uname := f"user_{secrets.token_hex(8)}"),
@@ -50,15 +58,16 @@ def main() -> None:
             print(f"User already exists: {user.username}")
         user_objects.append(user)
 
-    # 2. Fetch Movies
+    print(f"Verified {len(user_objects)} users.")
+
+    # 3. Fetch Movies
     movies = MysteryTitle.objects.all()
     if not movies:
-        print("No movies found. Please run seed_imdb_mysteries.py first.")
+        print("No movies found. Please run seed_movies.py first.")
         return
-    print(f"Found {len(movies)}.")
+    print(f"Found {len(movies)} movies.")
 
-    # 3. Generate Reviews
-    # Comments to pick from randomly
+    # 4. Generate Reviews and Tag Votes
     comments: list[str] = [
         "A classic whodunit structure!",
         "I figured it out halfway through.",
@@ -70,10 +79,11 @@ def main() -> None:
     ]
 
     reviews_created = 0
+    tag_votes_created = 0
 
     for movie in movies:
         for user in user_objects:
-            # Check if review already exists to avoid unique constraint error
+            # Create Review
             if not Review.objects.filter(movie=movie, user=user).exists():
                 _ = Review.objects.create(
                     movie=movie,
@@ -86,7 +96,22 @@ def main() -> None:
                 )
                 reviews_created += 1
 
-    print(f"Done! Created {reviews_created} new reviews.")
+            # Create Tag Votes
+            # Randomly assign 1 to 4 tags per user per movie to simulate activity
+            # Use random.sample to pick unique tags from the list
+            num_tags = secrets.randbelow(4) + 1  # 1 to 4 tags
+            chosen_tags = gen.sample(all_tags, num_tags)
+
+            for tag in chosen_tags:
+                _, created = TagVote.objects.get_or_create(
+                    movie=movie,
+                    user=user,
+                    tag=tag,
+                )
+                if created:
+                    tag_votes_created += 1
+
+    print(f"Done! Created {reviews_created} reviews and {tag_votes_created} tag votes.")
 
 
 if __name__ == "__main__":
