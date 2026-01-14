@@ -161,10 +161,6 @@ STORAGES = {
     },
 }
 
-# Login and Logout Redirect URLs
-
-# Login and Logout Redirect URLs
-
 # Custom User Model
 AUTH_USER_MODEL = "users.CustomUser"
 
