@@ -100,7 +100,7 @@ def main() -> None:
             # Randomly assign 1 to 4 tags per user per movie to simulate activity
             # Use random.sample to pick unique tags from the list
             num_tags = secrets.randbelow(4) + 1  # 1 to 4 tags
-            chosen_tags = secrets.SystemRandom.sample(gen, all_tags, num_tags)
+            chosen_tags = gen.sample(all_tags, num_tags)
 
             for tag in chosen_tags:
                 _, created = TagVote.objects.get_or_create(
