@@ -160,6 +160,12 @@ class UserProfileTests(TestCase):
         self.assertContains(response, "No reviews yet.")
         self.assertEqual(len(response.context["reviews"]), 0)
 
+    def test_profile_view_404_for_non_existent_user(self) -> None:
+        """Test that accessing a non-existent user profile returns a 404."""
+        url = reverse("profile", kwargs={"username": "nonexistentuser"})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 404)
+
     def test_navigation_profile_link_authenticated(self) -> None:
         """Test that the 'My Profile' link appears for logged-in users."""
         self.client.login(username="profileuser", password=self.upass)
