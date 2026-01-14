@@ -4,8 +4,6 @@ from django.views.generic import DetailView, ListView
 
 from movies.models import Director, Series
 
-DEFAULT_PAGE_SIZE = 15
-
 logger = logging.getLogger(__name__)
 
 
