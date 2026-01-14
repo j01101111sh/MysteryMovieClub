@@ -11,8 +11,6 @@ from django.views.generic.detail import SingleObjectMixin
 from movies.forms import TagVoteForm
 from movies.models import MysteryTitle, Tag, TagVote
 
-DEFAULT_PAGE_SIZE = 15
-
 logger = logging.getLogger(__name__)
 
 
