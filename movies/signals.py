@@ -5,7 +5,16 @@ from typing import Any
 from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
 
-from movies.models import Director, MysteryTitle, Review, Series, Tag, TagVote
+# Added WatchListEntry to imports
+from movies.models import (
+    Director,
+    MysteryTitle,
+    Review,
+    Series,
+    Tag,
+    TagVote,
+    WatchListEntry,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -109,5 +118,35 @@ def log_tag_vote_deletion(
         "Tag vote removed: %s voted for %s on %s",
         instance.user,
         instance.tag.slug,
+        instance.movie.slug,
+    )
+
+
+@receiver(post_save, sender=WatchListEntry)
+def log_watchlist_entry_creation(
+    sender: type[WatchListEntry],
+    instance: WatchListEntry,
+    created: bool,
+    **kwargs: Any,
+) -> None:
+    """Log a message whenever a new watchlist entry is created."""
+    if created:
+        logger.info(
+            "Watchlist entry created: %s added %s to watchlist",
+            instance.user,
+            instance.movie.slug,
+        )
+
+
+@receiver(post_delete, sender=WatchListEntry)
+def log_watchlist_entry_deletion(
+    sender: type[WatchListEntry],
+    instance: WatchListEntry,
+    **kwargs: Any,
+) -> None:
+    """Log a message whenever a watchlist entry is deleted."""
+    logger.info(
+        "Watchlist entry removed: %s removed %s from watchlist",
+        instance.user,
         instance.movie.slug,
     )

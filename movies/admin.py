@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Director, MysteryTitle, Review, Series, Tag, TagVote
+from .models import Director, MysteryTitle, Review, Series, Tag, TagVote, WatchListEntry
 
 
 @admin.register(Director)
@@ -50,3 +50,10 @@ class TagAdmin(admin.ModelAdmin):
 class TagVoteAdmin(admin.ModelAdmin):
     list_display = ["movie", "tag", "user"]
     list_filter = ["tag", "movie"]
+
+
+@admin.register(WatchListEntry)
+class WatchListEntryAdmin(admin.ModelAdmin):
+    list_display = ["user", "movie", "added_at"]
+    list_filter = ["user", "added_at"]
+    search_fields = ["user__username", "movie__title"]

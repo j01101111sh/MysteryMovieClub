@@ -7,6 +7,7 @@ from .taxonomy import (
     SeriesListView,
 )
 from .titles import MysteryDetailView, MysteryListView
+from .watchlist import WatchListToggleView, WatchListView
 
 __all__ = [
     "DirectorDetailView",
@@ -18,4 +19,6 @@ __all__ = [
     "SeriesDetailView",
     "SeriesListView",
     "TagVoteView",
+    "WatchListToggleView",
+    "WatchListView",
 ]
