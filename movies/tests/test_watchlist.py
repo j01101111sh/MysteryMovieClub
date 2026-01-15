@@ -38,7 +38,7 @@ class WatchListTests(TestCase):
         self.assertFalse(
             WatchListEntry.objects.filter(user=self.user, movie=self.movie).exists(),
         )
-        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, self.movie.get_absolute_url())
 
     def test_watchlist_view(self) -> None:
         WatchListEntry.objects.create(user=self.user, movie=self.movie)
