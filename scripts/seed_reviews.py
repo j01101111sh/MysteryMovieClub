@@ -16,7 +16,13 @@ django.setup()
 
 from django.contrib.auth import get_user_model  # noqa: E402
 
-from movies.models import MysteryTitle, Review, Tag, TagVote  # noqa: E402
+from movies.models import (  # noqa: E402
+    MysteryTitle,
+    Review,
+    Tag,
+    TagVote,
+    WatchListEntry,
+)
 
 User = get_user_model()
 
@@ -80,6 +86,7 @@ def main() -> None:
 
     reviews_created = 0
     tag_votes_created = 0
+    watchlist_entries_created = 0
 
     for movie in movies:
         for user in user_objects:
@@ -111,7 +118,20 @@ def main() -> None:
                 if created:
                     tag_votes_created += 1
 
-    print(f"Done! Created {reviews_created} reviews and {tag_votes_created} tag votes.")
+            # Create Watchlist Entry
+            # Randomly decide to add to watchlist (30% chance)
+            if secrets.randbelow(10) < 3:
+                _, created = WatchListEntry.objects.get_or_create(
+                    user=user,
+                    movie=movie,
+                )
+                if created:
+                    watchlist_entries_created += 1
+
+    print(
+        f"Done! Created {reviews_created} reviews, {tag_votes_created} tag votes, "
+        f"and {watchlist_entries_created} watchlist entries.",
+    )
 
 
 if __name__ == "__main__":
