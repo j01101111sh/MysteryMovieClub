@@ -32,6 +32,18 @@
                     <span class="badge text-bg-warning">⚠️ Contested Fairness ({{ movie.fair_play_consensus }}%)</span>
                 {% endif %}
             {% endif %}
+            <div class="d-flex justify-content-between align-items-start">
+                {% if user.is_authenticated %}
+                    <form action="{% url 'movies:watchlist_toggle' movie.slug %}" method="post">
+                        {% csrf_token %}
+                        {% if in_watchlist %}
+                            <button type="submit" class="btn btn-outline-danger">Remove from Watchlist</button>
+                        {% else %}
+                            <button type="submit" class="btn btn-primary">Add to Watchlist</button>
+                        {% endif %}
+                    </form>
+                {% endif %}
+            </div>
         </div>
         <div class="movie-grid">
             <div class="info-column">

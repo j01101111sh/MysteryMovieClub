@@ -97,6 +97,7 @@ class MysteryTitle(models.Model):
     if TYPE_CHECKING:
         reviews: models.QuerySet[Review]
         tag_votes: models.QuerySet[TagVote]
+        watchlist_entries: models.QuerySet[WatchListEntry]
 
     is_fair_play_candidate = models.BooleanField(
         default=True,
@@ -208,3 +209,30 @@ class TagVote(models.Model):
 
     def __str__(self) -> str:
         return f"{self.user} voted for {self.tag} on {self.movie}"
+
+
+class WatchListEntry(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="watchlist",
+    )
+    movie = models.ForeignKey(
+        MysteryTitle,
+        on_delete=models.CASCADE,
+        related_name="watchlist_entries",
+    )
+    added_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["user", "movie"],
+                name="unique_watchlist_entry",
+            ),
+        ]
+        ordering = ["-added_at"]
+        verbose_name_plural = "Watchlist entries"
+
+    def __str__(self) -> str:
+        return f"{self.user} wants to watch {self.movie}"
