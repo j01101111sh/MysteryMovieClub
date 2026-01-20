@@ -69,11 +69,13 @@ def main() -> None:
     parser.add_argument(
         "--all",
         action="store_true",
-        help="Run all seed scripts (Tags -> Movies -> Reviews)",
+        help="Run all seed scripts (Tags -> Movies -> Reviews -> Tag Votes -> Collections)",
     )
     parser.add_argument("--tags", action="store_true", help="Seed tags")
     parser.add_argument("--movies", action="store_true", help="Seed movies")
     parser.add_argument("--reviews", action="store_true", help="Seed reviews/users")
+    parser.add_argument("--tag-votes", action="store_true", help="Seed tag votes")
+    parser.add_argument("--collections", action="store_true", help="Seed collections")
     parser.add_argument(
         "--log-file",
         type=str,
@@ -83,7 +85,16 @@ def main() -> None:
     args = parser.parse_args()
 
     # If no seed arguments provided, print help and exit early
-    if not any([args.all, args.tags, args.movies, args.reviews]):
+    if not any(
+        [
+            args.all,
+            args.tags,
+            args.movies,
+            args.reviews,
+            args.tag_votes,
+            args.collections,
+        ],
+    ):
         parser.print_help()
         return
 
@@ -115,11 +126,16 @@ def main() -> None:
     logger = logging.getLogger(__name__)
 
     # 3. Import seed modules
-    # Try/Except handles running this script from root (python -m scripts.seed_db)
-    # vs running from inside scripts/ directory directly.
-    from scripts import seed_movies, seed_reviews, seed_tags
+    from scripts import (
+        seed_collections,
+        seed_movies,
+        seed_reviews,
+        seed_tag_votes,
+        seed_tags,
+    )
 
     # 4. Execute Logic
+    # Order matters: Tags/Movies -> Reviews (creates Users) -> Collections/Tag Votes
     if args.all or args.tags:
         logger.info(">>> Starting Tag Seed")
         seed_tags.create_tags()
@@ -129,8 +145,16 @@ def main() -> None:
         seed_movies.create_movies()
 
     if args.all or args.reviews:
-        logger.info(">>> Starting Review Seed")
+        logger.info(">>> Starting Review Seed (includes Users)")
         seed_reviews.create_reviews()
+
+    if args.all or args.tag_votes:
+        logger.info(">>> Starting Tag Votes Seed")
+        seed_tag_votes.create_tag_votes()
+
+    if args.all or args.collections:
+        logger.info(">>> Starting Collections Seed")
+        seed_collections.create_collections()
 
     logger.info(">>> Seeding Complete")
 

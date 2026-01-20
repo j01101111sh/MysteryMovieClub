@@ -1,63 +1,44 @@
 import logging
-import os
 import secrets
-import sys
-from pathlib import Path
 from typing import Any
 
-import django
 from django.contrib.auth import get_user_model
+
+# Local imports
+from movies.models import MysteryTitle, Review, WatchListEntry
 
 logger = logging.getLogger(__name__)
 
 
 def create_reviews() -> None:
     """
-    Seeds the database with users, reviews, tag votes, watchlists, and collections.
-    Requires Movies and Tags to be seeded first.
+    Seeds the database with users, reviews, and watchlists.
+    Requires Movies to be seeded first.
     """
-    # Import models locally
-    from movies.models import (
-        Collection,
-        CollectionItem,
-        MysteryTitle,
-        Review,
-        Tag,
-        TagVote,
-        WatchListEntry,
-    )
-
     User = get_user_model()
-    gen = secrets.SystemRandom()
 
-    logger.info("Seeding reviews and tags...")
+    logger.info("Seeding users, reviews, and watchlists...")
 
-    # 1. Create/Ensure Tags Exist
-    all_tags = list(Tag.objects.all())
-    if not all_tags:
-        logger.error("No tags found in the database. Please run seed_tags.py first.")
-        return
-    logger.info("Found %s tags to use for voting.", len(all_tags))
-
-    # 2. Create Sample Users
-    num_reviews = 10
-    reviewers: list[dict[str, str]] = [
+    # 1. Create Sample Users
+    # We create users here so they are available for reviews, collections, and tag votes.
+    num_users = 10
+    user_data: list[dict[str, str]] = [
         {
             "username": (uname := f"user_{secrets.token_hex(8)}"),
             "email": f"{uname}@example.com",
             "password": secrets.token_urlsafe(16),
         }
-        for _ in range(num_reviews)
+        for _ in range(num_users)
     ]
 
     user_objects: list[Any] = []
-    for reviewer in reviewers:
+    for data in user_data:
         user, created = User.objects.get_or_create(
-            username=reviewer["username"],
-            defaults={"email": reviewer["email"]},
+            username=data["username"],
+            defaults={"email": data["email"]},
         )
         if created:
-            user.set_password(reviewer["password"])
+            user.set_password(data["password"])
             user.save()
             logger.info("Created user: %s", user.username)
         else:
@@ -66,15 +47,14 @@ def create_reviews() -> None:
 
     logger.info("Verified %s users.", len(user_objects))
 
-    # 3. Fetch Movies
-    # Convert to list for random sampling later
-    movies = list(MysteryTitle.objects.all())
+    # 2. Fetch Movies
+    movies: list[MysteryTitle] = list(MysteryTitle.objects.all())
     if not movies:
         logger.error("No movies found. Please run seed_movies.py first.")
         return
     logger.info("Found %s movies.", len(movies))
 
-    # 4. Generate Reviews and Tag Votes
+    # 3. Generate Reviews and Watchlist Entries
     comments: list[str] = [
         "A classic whodunit structure!",
         "I figured it out halfway through.",
@@ -86,14 +66,13 @@ def create_reviews() -> None:
     ]
 
     reviews_created = 0
-    tag_votes_created = 0
     watchlist_entries_created = 0
 
     for movie in movies:
         for user in user_objects:
             # Create Review
             if not Review.objects.filter(movie=movie, user=user).exists():
-                _ = Review.objects.create(
+                Review.objects.create(
                     movie=movie,
                     user=user,
                     quality=secrets.randbelow(3) + 3,  # Bias towards good movies
@@ -103,21 +82,6 @@ def create_reviews() -> None:
                     comment=secrets.choice(comments),
                 )
                 reviews_created += 1
-
-            # Create Tag Votes
-            # Randomly assign 1 to 4 tags per user per movie to simulate activity
-            # Use random.sample to pick unique tags from the list
-            num_tags = secrets.randbelow(4) + 1  # 1 to 4 tags
-            chosen_tags = gen.sample(all_tags, num_tags)
-
-            for tag in chosen_tags:
-                _, created = TagVote.objects.get_or_create(
-                    movie=movie,
-                    user=user,
-                    tag=tag,
-                )
-                if created:
-                    tag_votes_created += 1
 
             # Create Watchlist Entry
             # Randomly decide to add to watchlist (30% chance)
@@ -129,69 +93,8 @@ def create_reviews() -> None:
                 if created:
                     watchlist_entries_created += 1
 
-    # 5. Generate Collections
-    logger.info("Seeding collections...")
-    collections_created = 0
-    collection_items_created = 0
-
-    collection_templates = [
-        ("Essentials", "Must watch mystery movies."),
-        ("Mind Benders", "Movies that will twist your brain."),
-        ("Cozy Mysteries", "Perfect for a rainy Sunday."),
-        ("Noir Nights", "Dark, gritty, and cynical."),
-        ("Whodunits", "Can you guess the killer?"),
-        ("Hidden Gems", "Underrated mysteries you might have missed."),
-    ]
-
-    for user in user_objects:
-        # Create 2-4 collections per user
-        num_collections = secrets.randbelow(3) + 2
-
-        chosen_templates = gen.sample(collection_templates, num_collections)
-
-        for title, description in chosen_templates:
-            collection, created = Collection.objects.get_or_create(
-                user=user,
-                name=title,
-                defaults={
-                    "description": description,
-                    "is_public": secrets.choice([True, True, False]),
-                },
-            )
-
-            if created:
-                collections_created += 1
-
-                # Add 3-10 random movies to the collection
-                num_items = secrets.randbelow(8) + 3
-                chosen_movies = gen.sample(movies, min(num_items, len(movies)))
-
-                for idx, movie in enumerate(chosen_movies):
-                    CollectionItem.objects.create(
-                        collection=collection,
-                        movie=movie,
-                        order=idx,
-                        note=secrets.choice(
-                            ["", "Highly recommended.", "Great plot.", "A classic."],
-                        ),
-                    )
-                    collection_items_created += 1
-
     logger.info(
-        "Done! Created %s reviews, %s tag votes, %s watchlist entries,%s collections, and %s collection items.",
+        "Done! Created %s reviews and %s watchlist entries.",
         reviews_created,
-        tag_votes_created,
         watchlist_entries_created,
-        collections_created,
-        collection_items_created,
     )
-
-
-if __name__ == "__main__":
-    BASE_DIR = Path(__file__).resolve().parent.parent
-    sys.path.append(str(BASE_DIR))
-    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
-    django.setup()
-
-    logging.basicConfig(level=logging.INFO)
-    create_reviews()
