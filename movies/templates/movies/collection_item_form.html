@@ -14,8 +14,6 @@
                     <div class="card-body">
                         <form method="post">
                             {% csrf_token %}
-                            {% include "includes/form_errors.html" with form=form %}
-
                             <div class="mb-3">
                                 <label for="{{ form.note.id_for_label }}" class="form-label">Note</label>
                                 {{ form.note }}
