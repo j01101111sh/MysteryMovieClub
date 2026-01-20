@@ -148,8 +148,6 @@ def main() -> None:
     for user in user_objects:
         # Create 2-4 collections per user
         num_collections = secrets.randbelow(2) + 2
-        if num_collections == 0:
-            continue
 
         chosen_templates = gen.sample(collection_templates, num_collections)
 
