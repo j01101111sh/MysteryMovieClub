@@ -164,7 +164,7 @@ class CollectionTests(TestCase):
 
         # Check that both collections are present
         self.assertContains(response, "My Favorites")
-        self.assertContains(response, "Other's Favorites")
+        self.assertContains(response, "Community Collections")
 
         # Verify context separation
         self.assertIn("my_collections", response.context)
