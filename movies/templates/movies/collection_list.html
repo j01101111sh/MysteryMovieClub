@@ -11,26 +11,30 @@
                 <a href="{% url 'movies:collection_create' %}" class="btn btn-primary">Create Collection</a>
             {% endif %}
         </div>
+        {% if user.is_authenticated %}
+            <h2 class="h4 mb-3">My Collections</h2>
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 mb-5">
+                {% for collection in my_collections %}
+                    {% include "movies/includes/collection_card.html" %}
+
+                {% empty %}
+                    <div class="col-12">
+                        <div class="alert alert-secondary">
+                            You haven't created any collections yet.
+                            <a href="{% url 'movies:collection_create' %}">Create one now!</a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            <h2 class="h4 mb-3">Community Collections</h2>
+        {% endif %}
         <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
             {% for collection in collections %}
-                <div class="col">
-                    <div class="card h-100">
-                        <div class="card-body">
-                            <h5 class="card-title">
-                                <a href="{{ collection.get_absolute_url }}" class="text-decoration-none">{{ collection.name }}</a>
-                            </h5>
-                            <h6 class="card-subtitle mb-2 text-muted">
-                                By {{ collection.user.username }}
-                                {% if not collection.is_public %}🔒{% endif %}
-                            </h6>
-                            <p class="card-text">{{ collection.description|truncatewords:20 }}</p>
-                        </div>
-                        <div class="card-footer text-muted small">Updated {{ collection.updated_at|date }}</div>
-                    </div>
-                </div>
+                {% include "movies/includes/collection_card.html" %}
+
             {% empty %}
                 <div class="col-12">
-                    <div class="alert alert-info">No collections found yet.</div>
+                    <div class="alert alert-info">No community collections found.</div>
                 </div>
             {% endfor %}
         </div>

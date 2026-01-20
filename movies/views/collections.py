@@ -31,15 +31,22 @@ class CollectionListView(ListView):
     def get_queryset(self) -> QuerySet[Collection]:
         base_queryset = Collection.objects.select_related("user")
         if self.request.user.is_authenticated:
-            from django.db.models import Q
-
-            # Authenticated users see public collections and their own private ones.
-            queryset = base_queryset.filter(
-                Q(is_public=True) | Q(user=self.request.user),
+            # Authenticated users see public collections from others.
+            # Their own collections are handled in get_context_data.
+            queryset = base_queryset.filter(is_public=True).exclude(
+                user=self.request.user,
             )
         else:
             queryset = base_queryset.filter(is_public=True)
         return queryset
+
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        if self.request.user.is_authenticated:
+            context["my_collections"] = Collection.objects.filter(
+                user=self.request.user,
+            ).order_by("-updated_at")
+        return context
 
 
 class CollectionDetailView(DetailView):

@@ -145,3 +145,32 @@ class CollectionTests(TestCase):
         # UserPassesTestMixin returns 403 Forbidden
         self.assertEqual(response.status_code, 403)
         self.assertTrue(CollectionItem.objects.filter(pk=item.pk).exists())
+
+    def test_my_collections_separation(self) -> None:
+        """Test that the user's collections are separated from others."""
+        # Create another user's public collection
+        other_user = get_user_model().objects.create_user(  # type: ignore
+            username="other_user",
+            password=secrets.token_urlsafe(16),
+        )
+        Collection.objects.create(
+            name="Other's Favorites",
+            user=other_user,
+            is_public=True,
+        )
+
+        self.client.login(username=self.uname, password=self.upass)
+        response = self.client.get(reverse("movies:collection_list"))
+
+        # Check that both collections are present
+        self.assertContains(response, "My Favorites")
+        self.assertContains(response, "Other's Favorites")
+
+        # Verify context separation
+        self.assertIn("my_collections", response.context)
+        self.assertEqual(response.context["my_collections"].count(), 1)
+        self.assertEqual(response.context["my_collections"][0], self.collection)
+
+        # The main 'collections' list should NOT contain the user's collection
+        self.assertNotIn(self.collection, response.context["collections"])
+        self.assertEqual(response.context["collections"].count(), 1)
