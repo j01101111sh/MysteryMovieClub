@@ -27,9 +27,9 @@
             {% endif %}
             {% if movie.is_fair_play_candidate %}
                 {% if movie.fair_play_consensus >= 75 %}
-                    <span class="badge text-bg-success">⚖️ Certified Fair Play ({{ movie.fair_play_consensus }}%)</span>
+                    <span class="badge text-bg-success">⚖️ Certified Fair Play ({{ movie.fair_play_consensus|floatformat:0 }}%)</span>
                 {% else %}
-                    <span class="badge text-bg-warning">⚠️ Contested Fairness ({{ movie.fair_play_consensus }}%)</span>
+                    <span class="badge text-bg-warning">⚠️ Contested Fairness ({{ movie.fair_play_consensus|floatformat:0 }}%)</span>
                 {% endif %}
             {% endif %}
             <div class="d-flex justify-content-between align-items-start">
