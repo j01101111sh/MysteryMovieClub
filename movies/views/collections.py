@@ -108,7 +108,16 @@ class CollectionAddItemView(LoginRequiredMixin, View):
         if CollectionItem.objects.filter(collection=collection, movie=movie).exists():
             messages.warning(request, f"{movie.title} is already in {collection.name}.")
         else:
-            CollectionItem.objects.create(collection=collection, movie=movie)
+            from django.db.models import Max
+
+            next_order = (
+                collection.items.aggregate(max_order=Max("order"))["max_order"] or -1
+            ) + 1
+            CollectionItem.objects.create(
+                collection=collection,
+                movie=movie,
+                order=next_order,
+            )
             messages.success(request, f"Added {movie.title} to {collection.name}.")
 
         return redirect(movie.get_absolute_url())
