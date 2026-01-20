@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Exit immediately if a command exits with a non-zero status
-set -ex
+set -e
 
 # Configuration
 SU_NAME="admin"
@@ -67,19 +67,11 @@ else:
     print('Dev user already exists. Skipping creation.');
 "
 
-# 6. Seed movie database
-echo "Seeding movie database..."
-uv run python scripts/seed_movies.py
+# 6. Seed database
+echo "Seeding database..."
+uv run python scripts/seed_db.py --all
 
-# 7. Seed tags
-echo "Seeding tags..."
-uv run python scripts/seed_tags.py
-
-# 8. Seed reviews
-echo "Seeding reviews..."
-uv run python scripts/seed_reviews.py
-
-# 9. Verify Setup
+# 7. Verify Setup
 echo "Verifying setup..."
 uv run python manage.py check
 

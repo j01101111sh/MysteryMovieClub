@@ -1,34 +1,21 @@
+import logging
 import os
 import sys
 from pathlib import Path
 from typing import Any, cast
 
 import django
+from django.utils.text import slugify
 
-# Setup Django environment
-# This script is located in /scripts/, so we need to add the parent directory to sys.path
-BASE_DIR = Path(__file__).resolve().parent.parent
-sys.path.append(str(BASE_DIR))
-
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
-django.setup()
-
-from django.utils.text import slugify  # noqa: E402
-
-from movies.models import Director, MysteryTitle, Series  # noqa: E402
+logger = logging.getLogger(__name__)
 
 
-# Helper function to get/create director
-def get_create_director(name: str) -> Director:
-    d_slug = slugify(name)
-    director_obj, _ = Director.objects.get_or_create(
-        slug=d_slug,
-        defaults={"name": name},
-    )
-    return director_obj
+def create_movies() -> None:
+    """
+    Seeds the database with a curated list of mystery movies, directors, and series.
+    """
+    from movies.models import Director, MysteryTitle, Series
 
-
-def main() -> None:
     movies: list[dict[str, Any]] = [
         # --- Existing Seeds ---
         {
@@ -692,13 +679,23 @@ def main() -> None:
 
         if created:
             created_count += 1
-            print(f"Created: {obj}")
+            logger.info("Created: %s", {obj})
         else:
             updated_count += 1
-            print(f"Updated: {obj}")
+            logger.info("Updated: %s", obj)
 
-    print(f"\nDone! Created {created_count} movies, updated {updated_count} movies.")
+    logger.info(
+        "\nDone! Created %s movies, updated %s movies.",
+        created_count,
+        updated_count,
+    )
 
 
 if __name__ == "__main__":
-    main()
+    BASE_DIR = Path(__file__).resolve().parent.parent
+    sys.path.append(str(BASE_DIR))
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
+    django.setup()
+
+    logging.basicConfig(level=logging.INFO)
+    create_movies()

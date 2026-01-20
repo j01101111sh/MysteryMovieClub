@@ -1,4 +1,4 @@
-# scripts/seed_reviews.py
+import logging
 import os
 import secrets
 import sys
@@ -6,40 +6,38 @@ from pathlib import Path
 from typing import Any
 
 import django
+from django.contrib.auth import get_user_model
 
-# Setup Django environment
-BASE_DIR = Path(__file__).resolve().parent.parent
-sys.path.append(str(BASE_DIR))
-
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
-django.setup()
-
-from django.contrib.auth import get_user_model  # noqa: E402
-
-from movies.models import (  # noqa: E402
-    Collection,
-    CollectionItem,
-    MysteryTitle,
-    Review,
-    Tag,
-    TagVote,
-    WatchListEntry,
-)
-
-User = get_user_model()
-
-gen = secrets.SystemRandom()
+logger = logging.getLogger(__name__)
 
 
-def main() -> None:
-    print("Seeding reviews and tags...")
+def create_reviews() -> None:
+    """
+    Seeds the database with users, reviews, tag votes, watchlists, and collections.
+    Requires Movies and Tags to be seeded first.
+    """
+    # Import models locally
+    from movies.models import (
+        Collection,
+        CollectionItem,
+        MysteryTitle,
+        Review,
+        Tag,
+        TagVote,
+        WatchListEntry,
+    )
+
+    User = get_user_model()
+    gen = secrets.SystemRandom()
+
+    logger.info("Seeding reviews and tags...")
 
     # 1. Create/Ensure Tags Exist
     all_tags = list(Tag.objects.all())
     if not all_tags:
-        print("No tags found in the database. Please run seed_tags.py first.")
+        logger.error("No tags found in the database. Please run seed_tags.py first.")
         return
-    print(f"Found {len(all_tags)} tags to use for voting.")
+    logger.info("Found %s tags to use for voting.", len(all_tags))
 
     # 2. Create Sample Users
     num_reviews = 10
@@ -61,20 +59,20 @@ def main() -> None:
         if created:
             user.set_password(reviewer["password"])
             user.save()
-            print(f"Created user: {user.username}")
+            logger.info("Created user: %s", user.username)
         else:
-            print(f"User already exists: {user.username}")
+            logger.info("User already exists: %s", user.username)
         user_objects.append(user)
 
-    print(f"Verified {len(user_objects)} users.")
+    logger.info("Verified %s users.", len(user_objects))
 
     # 3. Fetch Movies
     # Convert to list for random sampling later
     movies = list(MysteryTitle.objects.all())
     if not movies:
-        print("No movies found. Please run seed_movies.py first.")
+        logger.error("No movies found. Please run seed_movies.py first.")
         return
-    print(f"Found {len(movies)} movies.")
+    logger.info("Found %s movies.", len(movies))
 
     # 4. Generate Reviews and Tag Votes
     comments: list[str] = [
@@ -132,7 +130,7 @@ def main() -> None:
                     watchlist_entries_created += 1
 
     # 5. Generate Collections
-    print("Seeding collections...")
+    logger.info("Seeding collections...")
     collections_created = 0
     collection_items_created = 0
 
@@ -147,7 +145,7 @@ def main() -> None:
 
     for user in user_objects:
         # Create 2-4 collections per user
-        num_collections = secrets.randbelow(2) + 2
+        num_collections = secrets.randbelow(3) + 2
 
         chosen_templates = gen.sample(collection_templates, num_collections)
 
@@ -179,12 +177,21 @@ def main() -> None:
                     )
                     collection_items_created += 1
 
-    print(
-        f"Done! Created {reviews_created} reviews, {tag_votes_created} tag votes, "
-        f"{watchlist_entries_created} watchlist entries, "
-        f"{collections_created} collections, and {collection_items_created} collection items.",
+    logger.info(
+        "Done! Created %s reviews, %s tag votes, %s watchlist entries,%s collections, and %s collection items.",
+        reviews_created,
+        tag_votes_created,
+        watchlist_entries_created,
+        collections_created,
+        collection_items_created,
     )
 
 
 if __name__ == "__main__":
-    main()
+    BASE_DIR = Path(__file__).resolve().parent.parent
+    sys.path.append(str(BASE_DIR))
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
+    django.setup()
+
+    logging.basicConfig(level=logging.INFO)
+    create_reviews()
