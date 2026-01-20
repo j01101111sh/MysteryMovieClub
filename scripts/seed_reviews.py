@@ -5,22 +5,21 @@ from typing import Any
 from django.contrib.auth import get_user_model
 
 # Local imports
-from movies.models import MysteryTitle, Review, WatchListEntry
+from movies.models import MysteryTitle, Review
 
 logger = logging.getLogger(__name__)
 
 
 def create_reviews() -> None:
     """
-    Seeds the database with users, reviews, and watchlists.
+    Seeds the database with users and reviews.
     Requires Movies to be seeded first.
     """
     User = get_user_model()
 
-    logger.info("Seeding users, reviews, and watchlists...")
+    logger.info("Seeding users and reviews...")
 
     # 1. Create Sample Users
-    # We create users here so they are available for reviews, collections, and tag votes.
     num_users = 10
     user_data: list[dict[str, str]] = [
         {
@@ -48,13 +47,13 @@ def create_reviews() -> None:
     logger.info("Verified %s users.", len(user_objects))
 
     # 2. Fetch Movies
-    movies: list[MysteryTitle] = list(MysteryTitle.objects.all())
+    movies = list(MysteryTitle.objects.all())
     if not movies:
         logger.error("No movies found. Please run seed_movies.py first.")
         return
     logger.info("Found %s movies.", len(movies))
 
-    # 3. Generate Reviews and Watchlist Entries
+    # 3. Generate Reviews
     comments: list[str] = [
         "A classic whodunit structure!",
         "I figured it out halfway through.",
@@ -66,7 +65,6 @@ def create_reviews() -> None:
     ]
 
     reviews_created = 0
-    watchlist_entries_created = 0
 
     for movie in movies:
         for user in user_objects:
@@ -83,18 +81,4 @@ def create_reviews() -> None:
                 )
                 reviews_created += 1
 
-            # Create Watchlist Entry
-            # Randomly decide to add to watchlist (30% chance)
-            if secrets.randbelow(10) < 3:
-                _, created = WatchListEntry.objects.get_or_create(
-                    user=user,
-                    movie=movie,
-                )
-                if created:
-                    watchlist_entries_created += 1
-
-    logger.info(
-        "Done! Created %s reviews and %s watchlist entries.",
-        reviews_created,
-        watchlist_entries_created,
-    )
+    logger.info("Done! Created %s reviews.", reviews_created)
