@@ -6,6 +6,8 @@ from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
+from movies.managers import CollectionQuerySet, MysteryTitleQuerySet
+
 logger = logging.getLogger(__name__)
 
 
@@ -113,6 +115,8 @@ class MysteryTitle(models.Model):
         verbose_name="Fair Play %",
         help_text="Percentage of users who voted 'Fair'",
     )
+
+    objects = MysteryTitleQuerySet.as_manager()
 
     class Meta:
         ordering = ["-release_year", "title"]
@@ -256,6 +260,8 @@ class Collection(models.Model):
 
     if TYPE_CHECKING:
         items: models.QuerySet[CollectionItem]
+
+    objects = CollectionQuerySet.as_manager()
 
     class Meta:
         ordering = ["-updated_at"]

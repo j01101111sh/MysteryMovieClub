@@ -218,7 +218,7 @@ class MysteryViewTests(TestCase):
     def test_search_logging(self) -> None:
         """Test that searching triggers an INFO log message."""
         # assertLogs acts as a context manager to capture logs
-        with self.assertLogs("movies.views", level="INFO") as cm:
+        with self.assertLogs("movies.managers", level="INFO") as cm:
             self.client.get(reverse("home"), {"q": "Knives"})
 
             # Verify that our specific message appears in the captured output

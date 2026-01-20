@@ -1,7 +1,7 @@
 import logging
 from typing import Any
 
-from django.db.models import Count, Q, QuerySet
+from django.db.models import Count, QuerySet
 from django.views.generic import DetailView, ListView
 
 from movies.forms import TagVoteForm
@@ -78,25 +78,13 @@ class MysteryListView(ListView):
     context_object_name = "movies"
     paginate_by = DEFAULT_PAGE_SIZE
 
+    query: str | None = None
+
     def get_queryset(self) -> QuerySet[MysteryTitle]:
-        # Start with the default queryset (ordered by release year)
-        queryset = super().get_queryset()
+        query = self.request.GET.get("q")
 
-        # Get the search query from the URL parameters
-        self.query = self.request.GET.get("q")
-
-        if self.query:
-            # Log the search action
-            logger.info("Search query received: %s", self.query)
-
-            # Filter by title, description, or director name
-            queryset = queryset.filter(
-                Q(title__icontains=self.query)
-                | Q(description__icontains=self.query)
-                | Q(director__name__icontains=self.query),
-            )
-
-        return queryset
+        # The logic is now: Get all objects -> search if applicable -> order
+        return MysteryTitle.objects.search(query).order_by("-release_year")
 
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
