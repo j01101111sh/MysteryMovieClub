@@ -36,6 +36,9 @@
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'movies:series_list' %}">Series</a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'movies:collection_list' %}">Collections</a>
+                </li>
                 {% if user.is_authenticated %}
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'profile' user.username %}">My Profile</a>

@@ -1,6 +1,16 @@
 from django.contrib import admin
 
-from .models import Director, MysteryTitle, Review, Series, Tag, TagVote, WatchListEntry
+from .models import (
+    Collection,
+    CollectionItem,
+    Director,
+    MysteryTitle,
+    Review,
+    Series,
+    Tag,
+    TagVote,
+    WatchListEntry,
+)
 
 
 @admin.register(Director)
@@ -57,3 +67,17 @@ class WatchListEntryAdmin(admin.ModelAdmin):
     list_display = ["user", "movie", "added_at"]
     list_filter = ["user", "added_at"]
     search_fields = ["user__username", "movie__title"]
+
+
+class CollectionItemInline(admin.TabularInline):
+    model = CollectionItem
+    extra = 1
+    autocomplete_fields = ["movie"]
+
+
+@admin.register(Collection)
+class CollectionAdmin(admin.ModelAdmin):
+    list_display = ["name", "user", "is_public", "updated_at"]
+    list_filter = ["is_public", "created_at"]
+    search_fields = ["name", "description", "user__username"]
+    inlines = [CollectionItemInline]

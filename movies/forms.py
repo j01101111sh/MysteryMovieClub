@@ -1,6 +1,6 @@
 from django import forms
 
-from .models import Review, Tag
+from .models import Collection, CollectionItem, Review, Tag
 
 
 class ReviewForm(forms.ModelForm):
@@ -18,3 +18,23 @@ class TagVoteForm(forms.Form):
         empty_label="Select a tag...",
         widget=forms.Select(attrs={"class": "form-select"}),
     )
+
+
+class CollectionForm(forms.ModelForm):
+    class Meta:
+        model = Collection
+        fields = ["name", "description", "is_public"]
+        widgets = {
+            "description": forms.Textarea(attrs={"rows": 3}),
+        }
+
+
+class CollectionAddItemForm(forms.ModelForm):
+    class Meta:
+        model = CollectionItem
+        fields = ["note"]
+        widgets = {
+            "note": forms.Textarea(
+                attrs={"rows": 2, "placeholder": "Optional note..."},
+            ),
+        }
