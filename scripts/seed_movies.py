@@ -679,7 +679,7 @@ def create_movies() -> None:
 
         if created:
             created_count += 1
-            logger.info("Created: %s", {obj})
+            logger.info("Created: %s", obj)
         else:
             updated_count += 1
             logger.info("Updated: %s", obj)
