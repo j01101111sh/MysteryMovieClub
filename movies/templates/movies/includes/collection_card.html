@@ -1,0 +1,15 @@
+<div class="col">
+    <div class="card h-100">
+        <div class="card-body">
+            <h5 class="card-title">
+                <a href="{{ collection.get_absolute_url }}" class="text-decoration-none">{{ collection.name }}</a>
+            </h5>
+            <h6 class="card-subtitle mb-2 text-muted">
+                By {{ collection.user.username }}
+                {% if not collection.is_public %}🔒{% endif %}
+            </h6>
+            <p class="card-text">{{ collection.description|truncatewords:20 }}</p>
+        </div>
+        <div class="card-footer text-muted small">Updated {{ collection.updated_at|date }}</div>
+    </div>
+</div>

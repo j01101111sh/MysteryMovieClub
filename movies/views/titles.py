@@ -5,7 +5,7 @@ from django.db.models import Count, Q, QuerySet
 from django.views.generic import DetailView, ListView
 
 from movies.forms import TagVoteForm
-from movies.models import MysteryTitle, Tag, WatchListEntry
+from movies.models import Collection, MysteryTitle, Tag, WatchListEntry
 
 DEFAULT_PAGE_SIZE = 15
 
@@ -60,6 +60,14 @@ class MysteryDetailView(DetailView):
             ).exists()
         else:
             context["in_watchlist"] = False
+
+        # User's Collections (Add this block)
+        if self.request.user.is_authenticated:
+            context["user_collections"] = Collection.objects.filter(
+                user=self.request.user,
+            ).order_by("-updated_at")
+        else:
+            context["user_collections"] = []
 
         return context
 

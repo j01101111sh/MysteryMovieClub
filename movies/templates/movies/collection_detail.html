@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {{ collection.name }} | Mystery Movie Club
+{% endblock title %}
+{% block content %}
+    <div class="container py-4">
+        <div class="row mb-4">
+            <div class="col-md-8">
+                <h1>{{ collection.name }}</h1>
+                <p class="lead text-muted">
+                    Curated by <a href="{% url 'profile' collection.user.username %}">{{ collection.user.username }}</a>
+                </p>
+                <p>{{ collection.description }}</p>
+            </div>
+            <div class="col-md-4 text-md-end">
+                {% if user == collection.user %}
+                    <div class="btn-group">
+                        <a href="{% url 'movies:collection_update' collection.pk %}"
+                           class="btn btn-outline-secondary">Edit Details</a>
+                        <a href="{% url 'movies:collection_delete' collection.pk %}"
+                           class="btn btn-outline-danger">Delete</a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="list-group">
+            {% for item in items %}
+                <div class="list-group-item d-flex justify-content-between align-items-center">
+                    <div class="ms-2 me-auto">
+                        <div class="fw-bold">
+                            <span class="text-muted me-2">#{{ forloop.counter }}</span>
+                            <a href="{{ item.movie.get_absolute_url }}" class="text-decoration-none">{{ item.movie.title }}</a>
+                            <small class="text-muted">({{ item.movie.release_year }})</small>
+                        </div>
+                        {% if item.note %}<small class="text-muted d-block fst-italic">"{{ item.note }}"</small>{% endif %}
+                    </div>
+                    {% if user == collection.user %}
+                        <div class="d-flex align-items-center gap-2">
+                            <a href="{% url 'movies:collection_item_edit' item.pk %}"
+                               class="btn btn-sm btn-outline-secondary">Edit Note</a>
+                            <form action="{% url 'movies:collection_remove_item' item.pk %}"
+                                  method="post"
+                                  class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Remove">×</button>
+                            </form>
+                        </div>
+                    {% endif %}
+                </div>
+            {% empty %}
+                <div class="list-group-item">This collection is empty.</div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock content %}

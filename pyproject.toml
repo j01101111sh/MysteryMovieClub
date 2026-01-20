@@ -13,6 +13,7 @@ dependencies = [
 [dependency-groups]
 dev = [
     "bandit>=1.9.2",
+    "django-crispy-forms>=2.5",
     "django-stubs[compatible-mypy]>=5.2.8",
     "mypy>=1.19.1",
     "pre-commit>=4.5.1",
