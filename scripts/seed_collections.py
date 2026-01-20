@@ -3,7 +3,6 @@ import secrets
 
 from django.contrib.auth import get_user_model
 
-# Local imports
 from movies.models import Collection, CollectionItem, MysteryTitle
 
 logger = logging.getLogger(__name__)
@@ -27,13 +26,11 @@ def create_collections() -> None:
 
     users = list(User.objects.filter(is_superuser=False))
     if not users:
-        logger.warning(
-            "No standard users found. Run seed_reviews.py to generate users.",
-        )
+        logger.warning("No standard users found. Run seed_users.py to generate users.")
         users = list(User.objects.all())
 
     if not users:
-        logger.error("No users found. Please run seed_reviews.py first.")
+        logger.error("No users found. Please run seed_users.py first.")
         return
 
     # 2. Generate Collections

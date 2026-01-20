@@ -33,13 +33,12 @@ def create_tag_votes() -> None:
     users = list(User.objects.filter(is_superuser=False))
     if not users:
         logger.warning(
-            "No standard users found. Creating votes might be limited. Run seed_reviews.py to generate users.",
+            "No standard users found. Creating votes might be limited. Run seed_users.py to generate users.",
         )
-        # Fallback to all users if no standard users exist
         users = list(User.objects.all())
 
     if not users:
-        logger.error("No users found at all. Please run seed_reviews.py first.")
+        logger.error("No users found at all. Please run seed_users.py first.")
         return
 
     logger.info(

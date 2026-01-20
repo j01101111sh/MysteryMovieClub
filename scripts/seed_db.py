@@ -73,7 +73,8 @@ def main() -> None:
     )
     parser.add_argument("--tags", action="store_true", help="Seed tags")
     parser.add_argument("--movies", action="store_true", help="Seed movies")
-    parser.add_argument("--reviews", action="store_true", help="Seed reviews/users")
+    parser.add_argument("--users", action="store_true", help="Seed users")
+    parser.add_argument("--reviews", action="store_true", help="Seed reviews")
     parser.add_argument("--watchlist", action="store_true", help="Seed watchlist")
     parser.add_argument("--tag-votes", action="store_true", help="Seed tag votes")
     parser.add_argument("--collections", action="store_true", help="Seed collections")
@@ -91,6 +92,7 @@ def main() -> None:
             args.all,
             args.tags,
             args.movies,
+            args.users,
             args.reviews,
             args.watchlist,
             args.tag_votes,
@@ -134,11 +136,12 @@ def main() -> None:
         seed_reviews,
         seed_tag_votes,
         seed_tags,
+        seed_users,
         seed_watchlist,
     )
 
     # 4. Execute Logic
-    # Order matters: Tags/Movies -> Reviews (creates Users) -> Watchlist/Tag Votes/Collections
+    # Order matters: Tags/Movies -> Users -> Reviews/Watchlist/Tag Votes/Collections
     if args.all or args.tags:
         logger.info(">>> Starting Tag Seed")
         seed_tags.create_tags()
@@ -147,8 +150,12 @@ def main() -> None:
         logger.info(">>> Starting Movie Seed")
         seed_movies.create_movies()
 
+    if args.all or args.users:
+        logger.info(">>> Starting User Seed")
+        seed_users.create_users()
+
     if args.all or args.reviews:
-        logger.info(">>> Starting Review Seed (includes Users)")
+        logger.info(">>> Starting Review Seed")
         seed_reviews.create_reviews()
 
     if args.all or args.watchlist:
