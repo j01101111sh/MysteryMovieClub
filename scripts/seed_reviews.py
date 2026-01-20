@@ -17,6 +17,8 @@ django.setup()
 from django.contrib.auth import get_user_model  # noqa: E402
 
 from movies.models import (  # noqa: E402
+    Collection,
+    CollectionItem,
     MysteryTitle,
     Review,
     Tag,
@@ -67,7 +69,8 @@ def main() -> None:
     print(f"Verified {len(user_objects)} users.")
 
     # 3. Fetch Movies
-    movies = MysteryTitle.objects.all()
+    # Convert to list for random sampling later
+    movies = list(MysteryTitle.objects.all())
     if not movies:
         print("No movies found. Please run seed_movies.py first.")
         return
@@ -128,9 +131,60 @@ def main() -> None:
                 if created:
                     watchlist_entries_created += 1
 
+    # 5. Generate Collections
+    print("Seeding collections...")
+    collections_created = 0
+    collection_items_created = 0
+
+    collection_templates = [
+        ("Essentials", "Must watch mystery movies."),
+        ("Mind Benders", "Movies that will twist your brain."),
+        ("Cozy Mysteries", "Perfect for a rainy Sunday."),
+        ("Noir Nights", "Dark, gritty, and cynical."),
+        ("Whodunits", "Can you guess the killer?"),
+        ("Hidden Gems", "Underrated mysteries you might have missed."),
+    ]
+
+    for user in user_objects:
+        # Create 2-4 collections per user
+        num_collections = secrets.randbelow(2) + 2
+        if num_collections == 0:
+            continue
+
+        chosen_templates = gen.sample(collection_templates, num_collections)
+
+        for title, description in chosen_templates:
+            collection, created = Collection.objects.get_or_create(
+                user=user,
+                name=title,
+                defaults={
+                    "description": description,
+                    "is_public": secrets.choice([True, True, False]),
+                },
+            )
+
+            if created:
+                collections_created += 1
+
+                # Add 3-10 random movies to the collection
+                num_items = secrets.randbelow(8) + 3
+                chosen_movies = gen.sample(movies, min(num_items, len(movies)))
+
+                for idx, movie in enumerate(chosen_movies):
+                    CollectionItem.objects.create(
+                        collection=collection,
+                        movie=movie,
+                        order=idx,
+                        note=secrets.choice(
+                            ["", "Highly recommended.", "Great plot.", "A classic."],
+                        ),
+                    )
+                    collection_items_created += 1
+
     print(
         f"Done! Created {reviews_created} reviews, {tag_votes_created} tag votes, "
-        f"and {watchlist_entries_created} watchlist entries.",
+        f"{watchlist_entries_created} watchlist entries, "
+        f"{collections_created} collections, and {collection_items_created} collection items.",
     )
 
 
