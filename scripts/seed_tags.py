@@ -1,3 +1,4 @@
+import logging
 import os
 import sys
 from pathlib import Path
@@ -5,16 +6,11 @@ from pathlib import Path
 import django
 from django.utils.text import slugify
 
-# Setup Django environment
-BASE_DIR = Path(__file__).resolve().parent.parent
-sys.path.append(str(BASE_DIR))
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
-django.setup()
-
-from movies.models import Tag  # noqa: E402
+# Logger setup
+logger = logging.getLogger(__name__)
 
 # List of tags to create
-seed_tags = [
+SEED_TAGS: list[str] = [
     # Sub-genres
     "Whodunit",
     "Howcatchem",
@@ -49,15 +45,19 @@ seed_tags = [
 ]
 
 
-def run() -> None:
-    """Populate the database with a standard set of mystery tags."""
+def create_tags() -> None:
+    """
+    Populate the database with a standard set of mystery tags.
+    """
+    # Import models here to avoid AppRegistryNotReady errors if imported at module level before setup
+    from movies.models import Tag
 
-    print(f"Checking {len(seed_tags)} tags...")
+    logger.info("Checking %s tags...", len(SEED_TAGS))
 
     created_count = 0
     existing_count = 0
 
-    for name in seed_tags:
+    for name in SEED_TAGS:
         slug = slugify(name)
         tag, created = Tag.objects.get_or_create(
             slug=slug,
@@ -66,18 +66,29 @@ def run() -> None:
 
         if created:
             created_count += 1
-            print(f"  [+] Created tag: {name}")
+            logger.info("  [+] Created tag: %s", name)
         else:
             existing_count += 1
             # Optional: Update name formatting if it matches slug but differs in case
             if tag.name != name:
                 tag.name = name
                 tag.save()
-                print(f"  [~] Updated capitalization for: {name}")
+                logger.info("  [~] Updated capitalization for: %s", name)
 
-    print("-" * 30)
-    print(f"Finished! Created: {created_count} | Existing: {existing_count}")
+    logger.info("-" * 30)
+    logger.info(
+        "Finished tags! Created: %s | Existing: %s",
+        created_count,
+        existing_count,
+    )
 
 
 if __name__ == "__main__":
-    run()
+    # Setup Django environment for standalone execution
+    BASE_DIR = Path(__file__).resolve().parent.parent
+    sys.path.append(str(BASE_DIR))
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
+    django.setup()
+
+    logging.basicConfig(level=logging.INFO)
+    create_tags()
