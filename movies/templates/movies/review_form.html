@@ -1,10 +1,12 @@
 {% extends "base.html" %}
 
+{% load crispy_forms_tags %}
+
 {% block content %}
     <h2>Write a Review for {{ movie.title }}</h2>
     <form method="post">
         {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Submit Review</button>
+        {{ form|crispy }}
+        <button type="submit" class="btn btn-primary">Submit Review</button>
     </form>
 {% endblock content %}
