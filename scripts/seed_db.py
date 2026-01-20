@@ -7,6 +7,50 @@ from pathlib import Path
 import django
 
 
+class ColoredFormatter(logging.Formatter):
+    """
+    Custom formatter to add colors to log output based on level and message content.
+    """
+
+    # ANSI Escape Codes
+    RESET = "\033[0m"
+    BOLD = "\033[1m"
+    RED = "\033[31m"
+    GREEN = "\033[32m"
+    YELLOW = "\033[33m"
+    BLUE = "\033[34m"
+    MAGENTA = "\033[35m"
+    CYAN = "\033[36m"
+    WHITE = "\033[37m"
+
+    def format(self, record: logging.LogRecord) -> str:
+        # Default color based on level
+        color = self.WHITE
+        if record.levelno >= logging.ERROR:
+            color = self.RED
+        elif record.levelno >= logging.WARNING:
+            color = self.YELLOW
+        elif record.levelno == logging.INFO:
+            # Semantic coloring for seed script specific messages
+            msg_str = str(record.msg)
+            if ">>>" in msg_str:
+                color = self.MAGENTA + self.BOLD
+            elif "Created" in msg_str:
+                color = self.GREEN
+            elif "Updated" in msg_str:
+                color = self.BLUE
+            elif "Seeding" in msg_str:
+                color = self.CYAN
+            else:
+                color = self.RESET
+
+        # Format the timestamp and level
+        # We manually format to inject color into the message part or the whole line
+        # Here we color the whole line for simplicity and readability
+        formatted_message = super().format(record)
+        return f"{color}{formatted_message}{self.RESET}"
+
+
 def setup_django() -> None:
     """
     Initialize the Django environment.
@@ -47,13 +91,27 @@ def main() -> None:
     setup_django()
 
     # 2. Configure Logging
-    # We use force=True to override any logging config applied by django.setup()
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
-        force=True,
-        filename=args.log_file if args.log_file else None,
-    )
+    # We define the format string
+    log_format = "%(asctime)s [%(levelname)s] %(name)s: %(message)s"
+
+    # Get the root logger
+    root_logger = logging.getLogger()
+    root_logger.setLevel(logging.INFO)
+
+    # Remove existing handlers (e.g. from Django setup) to avoid duplicates
+    root_logger.handlers = []
+
+    if args.log_file:
+        # File output: No colors
+        file_handler = logging.FileHandler(args.log_file)
+        file_handler.setFormatter(logging.Formatter(log_format))
+        root_logger.addHandler(file_handler)
+    else:
+        # Console output: Use ColoredFormatter
+        console_handler = logging.StreamHandler(sys.stdout)
+        console_handler.setFormatter(ColoredFormatter(log_format))
+        root_logger.addHandler(console_handler)
+
     logger = logging.getLogger(__name__)
 
     # 3. Import seed modules
