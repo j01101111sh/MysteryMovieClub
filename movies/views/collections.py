@@ -29,18 +29,16 @@ class CollectionListView(ListView):
     paginate_by = 12
 
     def get_queryset(self) -> QuerySet[Collection]:
-        queryset = Collection.objects.select_related("user").filter(is_public=True)
+        base_queryset = Collection.objects.select_related("user")
         if self.request.user.is_authenticated:
-            # Show public collections OR user's own collections
-            # We can't easily combine distinct queries in a simple list view without Q objects
-            # but for simplicity, let's show all public ones.
-            # Users can see their own in a separate profile tab or filter.
-            # Let's actually show both: public + own private ones.
             from django.db.models import Q
 
-            queryset = Collection.objects.select_related("user").filter(
+            # Authenticated users see public collections and their own private ones.
+            queryset = base_queryset.filter(
                 Q(is_public=True) | Q(user=self.request.user),
             )
+        else:
+            queryset = base_queryset.filter(is_public=True)
         return queryset
 
 
