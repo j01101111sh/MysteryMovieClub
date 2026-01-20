@@ -5,6 +5,7 @@ from .views import (
     CollectionCreateView,
     CollectionDeleteView,
     CollectionDetailView,
+    CollectionItemUpdateView,
     CollectionListView,
     CollectionRemoveItemView,
     CollectionUpdateView,
@@ -56,24 +57,34 @@ urlpatterns = [
         CollectionRemoveItemView.as_view(),
         name="collection_remove_item",
     ),
-    # ... [Existing URLs] ...
+    path(
+        "collections/item/<int:pk>/edit/",
+        CollectionItemUpdateView.as_view(),
+        name="collection_item_edit",
+    ),
+    # Directors
     path("directors/", DirectorListView.as_view(), name="director_list"),
     path(
         "directors/<slug:slug>/",
         DirectorDetailView.as_view(),
         name="director_detail",
     ),
+    # Series
     path("series/", SeriesListView.as_view(), name="series_list"),
     path("series/<slug:slug>/", SeriesDetailView.as_view(), name="series_detail"),
+    # Watchlist
     path("watchlist/", WatchListView.as_view(), name="watchlist"),
     path(
         "<slug:slug>/watchlist/toggle/",
         WatchListToggleView.as_view(),
         name="watchlist_toggle",
     ),
+    # Reviews
     path("<slug:slug>/review/", ReviewCreateView.as_view(), name="add_review"),
     path("<slug:slug>/reviews/", ReviewListView.as_view(), name="review_list"),
+    # Tags
     path("<slug:slug>/vote-tag/", TagVoteView.as_view(), name="vote_tag"),
+    # Movies
     path("<slug:slug>/", MysteryDetailView.as_view(), name="detail"),
     path("", MysteryListView.as_view(), name="list"),
 ]

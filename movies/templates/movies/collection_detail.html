@@ -36,12 +36,16 @@
                         {% if item.note %}<small class="text-muted d-block fst-italic">"{{ item.note }}"</small>{% endif %}
                     </div>
                     {% if user == collection.user %}
-                        <form action="{% url 'movies:collection_remove_item' item.pk %}"
-                              method="post"
-                              class="d-inline">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Remove">×</button>
-                        </form>
+                        <div class="d-flex align-items-center gap-2">
+                            <a href="{% url 'movies:collection_item_edit' item.pk %}"
+                               class="btn btn-sm btn-outline-secondary">Edit Note</a>
+                            <form action="{% url 'movies:collection_remove_item' item.pk %}"
+                                  method="post"
+                                  class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Remove">×</button>
+                            </form>
+                        </div>
                     {% endif %}
                 </div>
             {% empty %}

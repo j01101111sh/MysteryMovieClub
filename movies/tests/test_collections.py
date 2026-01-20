@@ -174,3 +174,48 @@ class CollectionTests(TestCase):
         # The main 'collections' list should NOT contain the user's collection
         self.assertNotIn(self.collection, response.context["collections"])
         self.assertEqual(response.context["collections"].count(), 1)
+
+    def test_edit_collection_item_note(self) -> None:
+        """Test that the owner can edit the note on a collection item."""
+        item = CollectionItem.objects.create(
+            collection=self.collection,
+            movie=self.movie,
+            note="Original note",
+        )
+        self.client.login(username=self.uname, password=self.upass)
+
+        # Access the edit page
+        url = reverse("movies:collection_item_edit", kwargs={"pk": item.pk})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+
+        # Submit the change
+        response = self.client.post(url, {"note": "Updated note"})
+        self.assertRedirects(response, self.collection.get_absolute_url())
+
+        # Verify the change
+        item.refresh_from_db()
+        self.assertEqual(item.note, "Updated note")
+
+    def test_edit_item_permission(self) -> None:
+        """Test that a non-owner cannot edit a collection item."""
+        item = CollectionItem.objects.create(
+            collection=self.collection,
+            movie=self.movie,
+        )
+
+        # Create another user
+        other_uname = f"user_{secrets.token_hex(4)}"
+        other_upass = secrets.token_urlsafe(16)
+        get_user_model().objects.create_user(
+            username=other_uname,
+            password=other_upass,
+        )
+        self.client.login(username=other_uname, password=other_upass)
+
+        url = reverse("movies:collection_item_edit", kwargs={"pk": item.pk})
+        response = self.client.post(url, {"note": "Hacked note"})
+
+        self.assertEqual(response.status_code, 403)
+        item.refresh_from_db()
+        self.assertNotEqual(item.note, "Hacked note")

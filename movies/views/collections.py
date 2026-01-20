@@ -16,7 +16,7 @@ from django.views.generic import (
     View,
 )
 
-from movies.forms import CollectionForm
+from movies.forms import CollectionAddItemForm, CollectionForm
 from movies.models import Collection, CollectionItem, MysteryTitle
 
 logger = logging.getLogger(__name__)
@@ -141,3 +141,21 @@ class CollectionRemoveItemView(LoginRequiredMixin, UserPassesTestMixin, View):
         item.delete()
         messages.success(request, "Item removed from collection.")
         return redirect(collection_url)
+
+
+class CollectionItemUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    model = CollectionItem
+    form_class = CollectionAddItemForm
+    template_name = "movies/collection_item_form.html"
+
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        context["title"] = f"Edit Note: {self.object.movie.title}"
+        return context
+
+    def get_success_url(self) -> str:
+        return str(self.object.collection.get_absolute_url())
+
+    def test_func(self) -> bool:
+        # Ensure only the owner of the collection can edit items
+        return bool(self.get_object().collection.user == self.request.user)
