@@ -256,7 +256,7 @@ class ReviewHelpfulVote(models.Model):
 
     def __str__(self) -> str:
         vote_type = "helpful" if self.is_helpful else "not helpful"
-        return f"{self.user} voted {vote_type} on review by {self.review.user}"
+        return f"{self.user} voted {vote_type} on review #{self.review_id}"
 
 
 class TagVote(models.Model):
