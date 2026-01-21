@@ -2,6 +2,7 @@ import logging
 from typing import TYPE_CHECKING, Any
 
 from django.db import models
+from django.db.models import Q
 from django.views.generic import DetailView, ListView
 
 from movies.models import Director, MysteryTitle, Series
@@ -26,7 +27,13 @@ class DirectorDetailView(DetailView):
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
         # Get all movies for this director
-        movies = self.object.movies.all()
+        movies = (
+            self.object.movies.all()
+            .filter(
+                Q(avg_difficulty__gt=0) | Q(avg_quality__gt=0),
+            )
+            .only("title", "slug", "avg_difficulty", "avg_quality")
+        )
 
         # Prepare data for the scatter plot
         plot_data = [
@@ -37,7 +44,6 @@ class DirectorDetailView(DetailView):
                 "url": movie.get_absolute_url(),
             }
             for movie in movies
-            if movie.avg_difficulty > 0 or movie.avg_quality > 0
         ]
 
         # Calculate averages for the lines
