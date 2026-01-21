@@ -5,7 +5,13 @@ from django.db.models import Count, QuerySet
 from django.views.generic import DetailView, ListView
 
 from movies.forms import TagVoteForm
-from movies.models import Collection, MysteryTitle, Tag, WatchListEntry
+from movies.models import (
+    Collection,
+    MysteryTitle,
+    ReviewHelpfulVote,
+    Tag,
+    WatchListEntry,
+)
 from movies.views.mixins import ElidedPaginationMixin  # Import the new mixin
 
 DEFAULT_PAGE_SIZE = 15
@@ -53,6 +59,18 @@ class MysteryDetailView(DetailView):
         else:
             context["user_voted_tag_ids"] = set()
 
+        # Add user's helpful votes for vote button highlighting
+        if self.request.user.is_authenticated:
+            votes = ReviewHelpfulVote.objects.filter(
+                user=self.request.user,
+                review__movie=self.object,
+            ).select_related("review")
+
+            # Map review.pk to vote object for efficient template lookup
+            context["user_voted_helpful"] = {vote.review.pk: vote for vote in votes}
+        else:
+            context["user_voted_helpful"] = {}
+
         # Watchlist status
         if self.request.user.is_authenticated:
             context["in_watchlist"] = WatchListEntry.objects.filter(
@@ -62,7 +80,7 @@ class MysteryDetailView(DetailView):
         else:
             context["in_watchlist"] = False
 
-        # User's Collections (Add this block)
+        # User's Collections
         if self.request.user.is_authenticated:
             context["user_collections"] = Collection.objects.filter(
                 user=self.request.user,
@@ -90,4 +108,5 @@ class MysteryListView(ElidedPaginationMixin, ListView):
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
         context["search_query"] = self.query
+        return context
         return context

@@ -37,6 +37,19 @@ class ReviewListView(ElidedPaginationMixin, ListView):
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
         context["movie"] = self.movie
+
+        # Add user's helpful votes for vote button highlighting
+        if self.request.user.is_authenticated:
+            votes = ReviewHelpfulVote.objects.filter(
+                user=self.request.user,
+                review__movie=self.movie,
+            ).select_related("review")
+
+            # Map review.pk to vote object for efficient template lookup
+            context["user_voted_helpful"] = {vote.review.pk: vote for vote in votes}
+        else:
+            context["user_voted_helpful"] = {}
+
         return context
 
 
