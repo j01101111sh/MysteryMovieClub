@@ -97,3 +97,42 @@ class SeriesViewTests(TestCase):
         self.assertContains(response, "Knives Out")
         self.assertEqual(response.context["series"], self.series1)
         self.assertIn(movie, response.context["series"].movies.all())
+
+    def test_series_detail_stats(self) -> None:
+        """Test that the series detail page displays correct aggregate statistics."""
+        # Create movies with specific stats
+        MysteryTitle.objects.create(
+            title="Glass Onion",
+            slug="glass-onion",
+            release_year=2022,
+            series=self.series1,
+            avg_quality=4.0,
+            avg_difficulty=3.0,
+        )
+        MysteryTitle.objects.create(
+            title="Knives Out",
+            slug="knives-out",
+            release_year=2019,
+            series=self.series1,
+            avg_quality=5.0,
+            avg_difficulty=4.0,
+        )
+        # Create a movie with no stats (should be ignored in average)
+        MysteryTitle.objects.create(
+            title="Wake Up Dead Man",
+            slug="wake-up-dead-man",
+            release_year=2025,
+            series=self.series1,
+            avg_quality=0.0,
+            avg_difficulty=0.0,
+        )
+
+        url = reverse("movies:series_detail", kwargs={"slug": self.series1.slug})
+        response = self.client.get(url)
+
+        # Average Quality: (4.0 + 5.0) / 2 = 4.5
+        # Average Difficulty: (3.0 + 4.0) / 2 = 3.5
+        self.assertEqual(response.context["avg_quality"], 4.5)
+        self.assertEqual(response.context["avg_difficulty"], 3.5)
+        self.assertContains(response, "4.5")
+        self.assertContains(response, "3.5")

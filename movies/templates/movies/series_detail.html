@@ -5,12 +5,37 @@
 {% endblock title %}
 {% block content %}
     <h1>{{ series.name }}</h1>
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title text-muted">Average Quality</h5>
+                    <p class="card-text display-4">{{ avg_quality|floatformat:1 }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title text-muted">Average Difficulty</h5>
+                    <p class="card-text display-4">{{ avg_difficulty|floatformat:1 }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="card">
         <div class="card-header">Movies in this Series</div>
         <ul class="list-group list-group-flush">
             {% for movie in series.movies.all %}
-                <li class="list-group-item">
-                    <a href="{{ movie.get_absolute_url }}">{{ movie.title }}</a> ({{ movie.release_year }})
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span>
+                        <a href="{{ movie.get_absolute_url }}">{{ movie.title }}</a> ({{ movie.release_year }})
+                    </span>
+                    {% if movie.avg_quality > 0 or movie.avg_difficulty > 0 %}
+                        <span class="badge bg-secondary rounded-pill" title="Quality | Difficulty">
+                            Q: {{ movie.avg_quality|floatformat:1 }} | D: {{ movie.avg_difficulty|floatformat:1 }}
+                        </span>
+                    {% endif %}
                 </li>
             {% empty %}
                 <li class="list-group-item">No movies found in this series.</li>

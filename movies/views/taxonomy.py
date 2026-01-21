@@ -68,3 +68,17 @@ class SeriesDetailView(DetailView):
     model = Series
     template_name = "movies/series_detail.html"
     context_object_name = "series"
+
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        # Calculate stats only for movies that have been rated
+        movies_with_stats = self.object.movies.filter(
+            Q(avg_difficulty__gt=0) | Q(avg_quality__gt=0),
+        )
+        stats = movies_with_stats.aggregate(
+            avg_quality=models.Avg("avg_quality"),
+            avg_difficulty=models.Avg("avg_difficulty"),
+        )
+        context["avg_quality"] = stats["avg_quality"] or 0.0
+        context["avg_difficulty"] = stats["avg_difficulty"] or 0.0
+        return context
