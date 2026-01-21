@@ -2,6 +2,7 @@ import logging
 import secrets
 
 from django.contrib.auth import get_user_model
+from django.db.models import Q
 
 from movies.models import MysteryTitle, Review, ReviewHelpfulVote
 
@@ -119,14 +120,9 @@ def create_reviews() -> None:
     logger.info("Done! Created %s helpful votes.", helpful_votes_created)
 
     # 5. Log summary statistics
-    reviews_with_votes = (
-        Review.objects.filter(
-            helpful_count__gt=0,
-        ).count()
-        + Review.objects.filter(
-            not_helpful_count__gt=0,
-        ).count()
-    )
+    reviews_with_votes = Review.objects.filter(
+        Q(helpful_count__gt=0) | Q(not_helpful_count__gt=0),
+    ).count()
 
     avg_votes_per_review = (
         helpful_votes_created / reviews_created if reviews_created > 0 else 0
