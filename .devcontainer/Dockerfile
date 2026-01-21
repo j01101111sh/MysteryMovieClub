@@ -5,7 +5,7 @@ FROM ghcr.io/astral-sh/uv:python3.14-bookworm
 # - libpq-dev: for PostgreSQL (psycopg)
 # - gettext: for Django translation commands
 # - git: for version control in the container
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     gettext \
     git \
     libpq-dev \
