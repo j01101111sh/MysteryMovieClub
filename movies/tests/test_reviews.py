@@ -344,7 +344,7 @@ class ReviewHelpfulVoteModelTests(TestCase):
             is_helpful=True,
         )
 
-        expected = f"{self.user2} voted helpful on review by {self.user1}"
+        expected = f"{self.user2} voted helpful on review #{self.review.pk}"
         self.assertEqual(str(vote), expected)
 
     def test_unique_constraint(self) -> None:
