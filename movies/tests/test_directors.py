@@ -101,3 +101,29 @@ class DirectorViewTests(TestCase):
         response = self.client.get(url)
         self.assertContains(response, "Rian Johnson")
         self.assertContains(response, "Knives Out")
+
+    def test_director_detail_page_context_plot_data(self) -> None:
+        """Test that the director detail page context contains the plot data."""
+        # Create a movie with stats associated with director1
+        MysteryTitle.objects.create(
+            title="Knives Out",
+            slug="knives-out",
+            release_year=2019,
+            director=self.director1,
+            avg_quality=4.5,
+            avg_difficulty=3.0,
+        )
+
+        url = reverse("movies:director_detail", kwargs={"slug": self.director1.slug})
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("plot_data", response.context)
+
+        # plot_data should be a list, not a string
+        plot_data = response.context["plot_data"]
+        self.assertIsInstance(plot_data, list)
+        self.assertEqual(len(plot_data), 1)
+        self.assertEqual(plot_data[0]["title"], "Knives Out")
+        self.assertEqual(plot_data[0]["x"], 3.0)
+        self.assertEqual(plot_data[0]["y"], 4.5)
