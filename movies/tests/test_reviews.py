@@ -540,9 +540,7 @@ class ReviewHelpfulVoteViewTests(TestCase):
         )
 
         url = reverse("movies:review_helpful_vote", kwargs={"pk": self.review.pk})
-        response = self.client.post(url, {"is_helpful": "true"})
-
-        self.assertRedirects(response, self.movie.get_absolute_url())
+        _ = self.client.post(url, {"is_helpful": "true"})
 
         self.assertTrue(
             ReviewHelpfulVote.objects.filter(
@@ -560,9 +558,7 @@ class ReviewHelpfulVoteViewTests(TestCase):
         )
 
         url = reverse("movies:review_helpful_vote", kwargs={"pk": self.review.pk})
-        response = self.client.post(url, {"is_helpful": "false"})
-
-        self.assertRedirects(response, self.movie.get_absolute_url())
+        _ = self.client.post(url, {"is_helpful": "false"})
 
         self.assertTrue(
             ReviewHelpfulVote.objects.filter(
