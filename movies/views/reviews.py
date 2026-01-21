@@ -6,7 +6,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import redirect_to_login
 from django.db import IntegrityError, transaction
 from django.db.models import QuerySet
-from django.http import HttpRequest, HttpResponse, JsonResponse
+from django.http import HttpRequest, HttpResponse, HttpResponseBadRequest, JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.views import View
@@ -110,8 +110,10 @@ class ReviewHelpfulVoteView(LoginRequiredMixin, View):
             return self._get_response(request, review)
 
         # Get the vote type from POST data
-        is_helpful_str = request.POST.get("is_helpful", "true")
-        is_helpful = is_helpful_str.lower() == "true"
+        is_helpful_str = request.POST.get("is_helpful")
+        if is_helpful_str not in ("true", "false"):
+            return HttpResponseBadRequest("Missing or invalid 'is_helpful' parameter.")
+        is_helpful = is_helpful_str == "true"
 
         # Check if user has already voted
         existing_vote = ReviewHelpfulVote.objects.filter(
