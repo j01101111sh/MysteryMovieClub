@@ -2,6 +2,8 @@
 import logging
 from typing import Any
 
+from django.core.cache import cache
+from django.core.cache.utils import make_template_fragment_key
 from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
 
@@ -23,10 +25,17 @@ logger = logging.getLogger(__name__)
 @receiver(post_delete, sender=Review)
 def update_movie_stats(sender: type[Review], instance: Review, **kwargs: Any) -> None:
     """
-    Update aggregate statistics on the associated MysteryTitle whenever a Review
-    is saved or deleted.
+    Update aggregate statistics and invalidate heatmap cache.
     """
+    # 1. Update DB Aggregates
     instance.movie.update_stats()
+
+    # 2. Invalidate Heatmap Cache
+    # Key must match the arguments used in the template: 'heatmap' and [movie.pk]
+    key = make_template_fragment_key("heatmap", [instance.movie.pk])
+    cache.delete(key)
+
+    logger.info("Invalidated heatmap cache for movie: %s", instance.movie.slug)
 
 
 @receiver(post_save, sender=MysteryTitle)
