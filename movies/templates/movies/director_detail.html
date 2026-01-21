@@ -53,7 +53,9 @@
     </div>
 {% endblock content %}
 {% block extra_js %}
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"
+            integrity="jb8JQMbMoBUzgWatfe6COACi2ljcDdZQ2OxczGA3bGNeWe+6DChMTBJemed7ZnvJ"
+            crossorigin="anonymous"></script>
     {{ plot_data|json_script:"plot-data" }}
     {{ avg_difficulty|json_script:"avg-difficulty" }}
     {{ avg_quality|json_script:"avg-quality" }}
