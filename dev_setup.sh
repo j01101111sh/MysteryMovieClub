@@ -73,11 +73,15 @@ else:
     print('\033[0;32mDev user already exists. Skipping creation.\033[0m');
 "
 
-# 6. Seed database
+# 6. Set up cache table
+echo -e "${CYAN}Creating cache table...${NC}"
+uv run python manage.py createcachetable
+
+# 7. Seed database
 echo -e "${CYAN}Seeding database...${NC}"
 uv run python scripts/seed_db.py --all
 
-# 7. Verify Setup
+# 8. Verify Setup
 echo -e "${CYAN}Verifying setup...${NC}"
 uv run python manage.py check
 

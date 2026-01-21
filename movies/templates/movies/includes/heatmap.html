@@ -1,5 +1,7 @@
 {% load movie_extras %}
+{% load cache %}
 
+{% cache 900 heatmap movie.pk %}
 {% get_review_heatmap movie as heatmap %}
 {% if heatmap.max_count > 0 %}
     <div class="card mt-3 border-0 bg-body-tertiary">
@@ -35,3 +37,4 @@
         </div>
     </div>
 {% endif %}
+{% endcache %}

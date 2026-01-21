@@ -1,8 +1,10 @@
 import secrets
 
 from django.contrib.auth import get_user_model
+from django.core.cache import cache
+from django.core.cache.utils import make_template_fragment_key
 from django.db.utils import IntegrityError
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import reverse
 
 from movies.models import MysteryTitle, Review
@@ -213,3 +215,73 @@ class ReviewListViewTests(TestCase):
         response = self.client.get(self.url)
         self.assertIn(self.review, response.context["reviews"])
         self.assertEqual(response.context["movie"], self.movie)
+
+
+@override_settings(
+    CACHES={
+        "default": {
+            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        },
+    },
+)
+class ReviewCacheTests(TestCase):
+    def setUp(self) -> None:
+        self.uname = f"user_{secrets.token_hex(4)}"
+        self.upass = secrets.token_urlsafe(16)
+
+        self.user = get_user_model().objects.create_user(  # type: ignore
+            username=self.uname,
+            password=self.upass,
+        )
+        self.movie = MysteryTitle.objects.create(
+            title="Glass Onion",
+            slug="glass-onion",
+            release_year=2022,
+            media_type=MysteryTitle.MediaType.MOVIE,
+        )
+        # Reconstruct the key used in the template: {% cache 900 heatmap movie.pk %}
+        self.cache_key = make_template_fragment_key("heatmap", [self.movie.pk])
+
+    def tearDown(self) -> None:  # noqa
+        # Clear cache after every test to ensure isolation
+        cache.clear()
+
+    def test_heatmap_cache_invalidation_on_create(self) -> None:
+        """Test that creating a review invalidates the heatmap cache."""
+        # 1. Simulate the cache being populated (as if the template just rendered)
+        cache.set(self.cache_key, "<div>Cached Heatmap HTML</div>")
+
+        # Verify it exists
+        self.assertIsNotNone(cache.get(self.cache_key))
+
+        # 2. Create a review (triggers the post_save signal)
+        Review.objects.create(
+            movie=self.movie,
+            user=self.user,
+            quality=5,
+            difficulty=3,
+            is_fair_play=True,
+        )
+
+        # 3. Verify the cache key is now gone
+        self.assertIsNone(cache.get(self.cache_key))
+
+    def test_heatmap_cache_invalidation_on_delete(self) -> None:
+        """Test that deleting a review invalidates the heatmap cache."""
+        review = Review.objects.create(
+            movie=self.movie,
+            user=self.user,
+            quality=5,
+            difficulty=3,
+            is_fair_play=True,
+        )
+
+        # 1. Populate cache
+        cache.set(self.cache_key, "<div>Cached Heatmap HTML</div>")
+        self.assertIsNotNone(cache.get(self.cache_key))
+
+        # 2. Delete the review (triggers the post_delete signal)
+        review.delete()
+
+        # 3. Verify the cache key is now gone
+        self.assertIsNone(cache.get(self.cache_key))
