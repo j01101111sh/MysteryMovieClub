@@ -6,11 +6,19 @@ FROM ghcr.io/astral-sh/uv:python3.14-bookworm
 # - gettext: for Django translation commands
 # - git: for version control in the container
 RUN apt-get update && apt-get install -y \
-    libpq-dev \
     gettext \
     git \
+    libpq-dev \
+    locales \
     vim \
+    && echo "en_US.UTF-8 UTF-8" > /etc/locale.gen \
+    && locale-gen \
     && rm -rf /var/lib/apt/lists/*
+
+# Set the locale
+ENV LANG=en_US.UTF-8 \
+    LANGUAGE=en_US:en \
+    LC_ALL=en_US.UTF-8
 
 # Add alias to the system-wide bashrc so it's available for all users
 COPY .devcontainer/bash_aliases.sh /tmp/bash_aliases.sh
