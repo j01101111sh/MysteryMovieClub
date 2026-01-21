@@ -8,7 +8,7 @@
         font-size: 0.8rem;
         text-transform: uppercase;
         letter-spacing: 0.5px;
-        color: #6c757d;
+        color: var(--bs-secondary-color);
       }
 
       .badge-tag {
