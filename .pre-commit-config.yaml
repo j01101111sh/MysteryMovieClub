@@ -12,6 +12,8 @@ repos:
         args: ["--autofix", "--no-sort-keys"]
       - id: check-toml # verifies syntax of toml files
       - id: check-executables-have-shebangs # verifies non-binary executables have shebang
+        files: \.sh$
+
       # general files
       - id: end-of-file-fixer # makes sure files end in a newline and only a newline.
       - id: trailing-whitespace # trims trailing whitespace.
