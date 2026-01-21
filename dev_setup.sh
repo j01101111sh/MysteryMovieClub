@@ -77,7 +77,11 @@ else:
 echo -e "${CYAN}Seeding database...${NC}"
 uv run python scripts/seed_db.py --all
 
-# 7. Verify Setup
+# 7. Set up cache table
+echo -e "${CYAN}Creating cache table...${NC}"
+python manage.py createcachetable
+
+# 8. Verify Setup
 echo -e "${CYAN}Verifying setup...${NC}"
 uv run python manage.py check
 
