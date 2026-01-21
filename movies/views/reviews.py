@@ -1,17 +1,19 @@
 import logging
-from typing import Any
+from typing import Any, cast
 
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import IntegrityError, transaction
 from django.db.models import QuerySet
-from django.http import HttpResponse
+from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect
+from django.views import View
 from django.views.generic import CreateView, ListView
 
 from movies.forms import ReviewForm
-from movies.models import MysteryTitle, Review
+from movies.models import MysteryTitle, Review, ReviewHelpfulVote
 from movies.views.mixins import ElidedPaginationMixin
+from users.models import CustomUser
 
 logger = logging.getLogger(__name__)
 
@@ -60,3 +62,119 @@ class ReviewCreateView(LoginRequiredMixin, CreateView):
         context = super().get_context_data(**kwargs)
         context["movie"] = get_object_or_404(MysteryTitle, slug=self.kwargs["slug"])
         return context
+
+
+class ReviewHelpfulVoteView(LoginRequiredMixin, View):
+    """
+    Handle voting on whether a review was helpful or not.
+
+    POST parameters:
+    - is_helpful: "true" for helpful, "false" for not helpful
+
+    If the user has already voted the same way, the vote is removed.
+    If the user voted differently, the vote is updated.
+    """
+
+    def post(self, request: HttpRequest, pk: int) -> HttpResponse:
+        """
+        Process a helpful vote on a review.
+
+        Args:
+            request: The HTTP request
+            pk: The primary key of the review
+
+        Returns:
+            Redirect to the review's movie page or JSON response for AJAX
+        """
+        review = get_object_or_404(Review, pk=pk)
+        user = cast(CustomUser, request.user)
+
+        # Prevent users from voting on their own reviews
+        if review.user == user:
+            messages.warning(request, "You cannot vote on your own review.")
+            return self._get_response(request, review)
+
+        # Get the vote type from POST data
+        is_helpful_str = request.POST.get("is_helpful", "true")
+        is_helpful = is_helpful_str.lower() == "true"
+
+        # Check if user has already voted
+        existing_vote = ReviewHelpfulVote.objects.filter(
+            review=review,
+            user=user,
+        ).first()
+
+        if existing_vote:
+            if existing_vote.is_helpful == is_helpful:
+                # Same vote - remove it (toggle off)
+                existing_vote.delete()
+                vote_type = "helpful" if is_helpful else "not helpful"
+                messages.success(
+                    request,
+                    f"Removed your '{vote_type}' vote.",
+                )
+            else:
+                # Different vote - update it
+                existing_vote.is_helpful = is_helpful
+                existing_vote.save()
+                vote_type = "helpful" if is_helpful else "not helpful"
+                messages.success(
+                    request,
+                    f"Changed your vote to '{vote_type}'.",
+                )
+        else:
+            # New vote
+            ReviewHelpfulVote.objects.create(
+                review=review,
+                user=user,
+                is_helpful=is_helpful,
+            )
+            vote_type = "helpful" if is_helpful else "not helpful"
+            messages.success(
+                request,
+                f"Marked review as '{vote_type}'.",
+            )
+
+        return self._get_response(request, review)
+
+    def _get_response(self, request: HttpRequest, review: Review) -> HttpResponse:
+        """
+        Return appropriate response based on request type.
+
+        Args:
+            request: The HTTP request
+            review: The review that was voted on
+
+        Returns:
+            JSON response for AJAX requests, redirect for normal requests
+        """
+        # Check if this is an AJAX request
+        if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+            # Refresh review stats
+            review.refresh_from_db()
+
+            # Get user's current vote
+            user_vote = None
+            if request.user.is_authenticated:
+                vote = ReviewHelpfulVote.objects.filter(
+                    review=review,
+                    user=request.user,
+                ).first()
+                if vote:
+                    user_vote = vote.is_helpful
+
+            return JsonResponse(
+                {
+                    "success": True,
+                    "helpful_count": review.helpful_count,
+                    "not_helpful_count": review.not_helpful_count,
+                    "helpfulness_score": review.helpfulness_score,
+                    "user_vote": user_vote,
+                },
+            )
+
+        next_url = request.GET.get("next")
+        if next_url:
+            return redirect(next_url)
+
+        return redirect(review.movie.get_absolute_url())

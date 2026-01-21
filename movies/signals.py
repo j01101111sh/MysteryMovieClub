@@ -12,6 +12,7 @@ from movies.models import (
     Director,
     MysteryTitle,
     Review,
+    ReviewHelpfulVote,
     Series,
     Tag,
     TagVote,
@@ -61,6 +62,46 @@ def log_review_creation(
     if created:
         # Uses the Review's __str__ method: "{user}'s review of {movie}"
         logger.info("Review created: %s for %s", instance.user, instance.movie.slug)
+
+
+@receiver(post_save, sender=ReviewHelpfulVote)
+def update_review_helpful_stats_on_save(
+    sender: type[ReviewHelpfulVote],
+    instance: ReviewHelpfulVote,
+    created: bool,
+    **kwargs: Any,
+) -> None:
+    """
+    Update review helpful statistics when a vote is created or updated.
+    """
+    instance.review.update_helpful_stats()
+
+    if created:
+        vote_type = "helpful" if instance.is_helpful else "not helpful"
+        logger.info(
+            "Helpful vote created: %s voted %s on review by %s",
+            instance.user,
+            vote_type,
+            instance.review.user,
+        )
+
+
+@receiver(post_delete, sender=ReviewHelpfulVote)
+def update_review_helpful_stats_on_delete(
+    sender: type[ReviewHelpfulVote],
+    instance: ReviewHelpfulVote,
+    **kwargs: Any,
+) -> None:
+    """
+    Update review helpful statistics when a vote is deleted.
+    """
+    instance.review.update_helpful_stats()
+
+    logger.info(
+        "Helpful vote removed: %s removed vote from review by %s",
+        instance.user,
+        instance.review.user,
+    )
 
 
 @receiver(post_save, sender=Director)

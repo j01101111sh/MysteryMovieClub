@@ -8,7 +8,7 @@ from .collections import (
     CollectionRemoveItemView,
     CollectionUpdateView,
 )
-from .reviews import ReviewCreateView, ReviewListView
+from .reviews import ReviewCreateView, ReviewHelpfulVoteView, ReviewListView
 from .tags import TagVoteView
 from .taxonomy import (
     DirectorDetailView,
@@ -34,6 +34,7 @@ __all__ = [
     "MysteryListView",
     "ReviewCreateView",
     "ReviewListView",
+    "ReviewHelpfulVoteView",
     "SeriesDetailView",
     "SeriesListView",
     "TagVoteView",

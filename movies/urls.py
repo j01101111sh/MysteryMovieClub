@@ -14,6 +14,7 @@ from .views import (
     MysteryDetailView,
     MysteryListView,
     ReviewCreateView,
+    ReviewHelpfulVoteView,
     ReviewListView,
     SeriesDetailView,
     SeriesListView,
@@ -82,6 +83,11 @@ urlpatterns = [
     # Reviews
     path("<slug:slug>/review/", ReviewCreateView.as_view(), name="add_review"),
     path("<slug:slug>/reviews/", ReviewListView.as_view(), name="review_list"),
+    path(
+        "review/<int:pk>/helpful/",
+        ReviewHelpfulVoteView.as_view(),
+        name="review_helpful_vote",
+    ),
     # Tags
     path("<slug:slug>/vote-tag/", TagVoteView.as_view(), name="vote_tag"),
     # Movies

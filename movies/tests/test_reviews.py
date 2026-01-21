@@ -7,7 +7,7 @@ from django.db.utils import IntegrityError
 from django.test import TestCase, override_settings
 from django.urls import reverse
 
-from movies.models import MysteryTitle, Review
+from movies.models import MysteryTitle, Review, ReviewHelpfulVote
 
 
 class ReviewTests(TestCase):
@@ -285,3 +285,411 @@ class ReviewCacheTests(TestCase):
 
         # 3. Verify the cache key is now gone
         self.assertIsNone(cache.get(self.cache_key))
+
+
+class ReviewHelpfulVoteModelTests(TestCase):
+    """Unit tests for the ReviewHelpfulVote model."""
+
+    def setUp(self) -> None:
+        """Set up test data."""
+        self.user1 = get_user_model().objects.create_user(
+            username=f"user1_{secrets.token_hex(4)}",
+            password=secrets.token_urlsafe(16),
+        )
+        self.user2 = get_user_model().objects.create_user(
+            username=f"user2_{secrets.token_hex(4)}",
+            password=secrets.token_urlsafe(16),
+        )
+        self.movie = MysteryTitle.objects.create(
+            title="Test Movie",
+            slug="test-movie",
+            release_year=2023,
+        )
+        self.review = Review.objects.create(
+            movie=self.movie,
+            user=self.user1,
+            quality=4,
+            difficulty=3,
+            is_fair_play=True,
+            comment="Great mystery!",
+        )
+
+    def test_create_helpful_vote(self) -> None:
+        """Test creating a helpful vote."""
+        vote = ReviewHelpfulVote.objects.create(
+            review=self.review,
+            user=self.user2,
+            is_helpful=True,
+        )
+
+        self.assertEqual(vote.review, self.review)
+        self.assertEqual(vote.user, self.user2)
+        self.assertTrue(vote.is_helpful)
+
+    def test_create_not_helpful_vote(self) -> None:
+        """Test creating a not helpful vote."""
+        vote = ReviewHelpfulVote.objects.create(
+            review=self.review,
+            user=self.user2,
+            is_helpful=False,
+        )
+
+        self.assertFalse(vote.is_helpful)
+
+    def test_string_representation(self) -> None:
+        """Test the string representation of a helpful vote."""
+        vote = ReviewHelpfulVote.objects.create(
+            review=self.review,
+            user=self.user2,
+            is_helpful=True,
+        )
+
+        expected = f"{self.user2} voted helpful on review by {self.user1}"
+        self.assertEqual(str(vote), expected)
+
+    def test_unique_constraint(self) -> None:
+        """Test that a user cannot vote twice on the same review."""
+        ReviewHelpfulVote.objects.create(
+            review=self.review,
+            user=self.user2,
+            is_helpful=True,
+        )
+
+        from django.db.utils import IntegrityError
+
+        with self.assertRaises(IntegrityError):
+            ReviewHelpfulVote.objects.create(
+                review=self.review,
+                user=self.user2,
+                is_helpful=False,
+            )
+
+
+class ReviewHelpfulStatsTests(TestCase):
+    """Unit tests for review helpful statistics."""
+
+    def setUp(self) -> None:
+        """Set up test data."""
+        self.reviewer = get_user_model().objects.create_user(
+            username=f"reviewer_{secrets.token_hex(4)}",
+            password=secrets.token_urlsafe(16),
+        )
+        self.voter1 = get_user_model().objects.create_user(
+            username=f"voter1_{secrets.token_hex(4)}",
+            password=secrets.token_urlsafe(16),
+        )
+        self.voter2 = get_user_model().objects.create_user(
+            username=f"voter2_{secrets.token_hex(4)}",
+            password=secrets.token_urlsafe(16),
+        )
+        self.voter3 = get_user_model().objects.create_user(
+            username=f"voter3_{secrets.token_hex(4)}",
+            password=secrets.token_urlsafe(16),
+        )
+        self.movie = MysteryTitle.objects.create(
+            title="Test Movie",
+            slug="test-movie-stats",
+            release_year=2023,
+        )
+        self.review = Review.objects.create(
+            movie=self.movie,
+            user=self.reviewer,
+            quality=4,
+            difficulty=3,
+            is_fair_play=True,
+            comment="Test review",
+        )
+
+    def test_initial_counts_are_zero(self) -> None:
+        """Test that initial helpful counts are zero."""
+        self.assertEqual(self.review.helpful_count, 0)
+        self.assertEqual(self.review.not_helpful_count, 0)
+        self.assertEqual(self.review.helpfulness_score, 0.0)
+
+    def test_helpful_count_updates_on_vote(self) -> None:
+        """Test that helpful count updates when votes are created."""
+        ReviewHelpfulVote.objects.create(
+            review=self.review,
+            user=self.voter1,
+            is_helpful=True,
+        )
+
+        self.review.refresh_from_db()
+        self.assertEqual(self.review.helpful_count, 1)
+        self.assertEqual(self.review.not_helpful_count, 0)
+
+    def test_not_helpful_count_updates_on_vote(self) -> None:
+        """Test that not helpful count updates when votes are created."""
+        ReviewHelpfulVote.objects.create(
+            review=self.review,
+            user=self.voter1,
+            is_helpful=False,
+        )
+
+        self.review.refresh_from_db()
+        self.assertEqual(self.review.helpful_count, 0)
+        self.assertEqual(self.review.not_helpful_count, 1)
+
+    def test_helpfulness_score_calculation(self) -> None:
+        """Test the helpfulness score percentage calculation."""
+        # 2 helpful, 1 not helpful = 66.67%
+        ReviewHelpfulVote.objects.create(
+            review=self.review,
+            user=self.voter1,
+            is_helpful=True,
+        )
+        ReviewHelpfulVote.objects.create(
+            review=self.review,
+            user=self.voter2,
+            is_helpful=True,
+        )
+        ReviewHelpfulVote.objects.create(
+            review=self.review,
+            user=self.voter3,
+            is_helpful=False,
+        )
+
+        self.review.refresh_from_db()
+        self.assertEqual(self.review.helpful_count, 2)
+        self.assertEqual(self.review.not_helpful_count, 1)
+        self.assertAlmostEqual(self.review.helpfulness_score, 66.67, places=1)
+
+    def test_counts_update_on_vote_deletion(self) -> None:
+        """Test that counts update when a vote is deleted."""
+        vote = ReviewHelpfulVote.objects.create(
+            review=self.review,
+            user=self.voter1,
+            is_helpful=True,
+        )
+
+        self.review.refresh_from_db()
+        self.assertEqual(self.review.helpful_count, 1)
+
+        vote.delete()
+
+        self.review.refresh_from_db()
+        self.assertEqual(self.review.helpful_count, 0)
+
+    def test_counts_update_on_vote_change(self) -> None:
+        """Test that counts update when a vote is changed."""
+        vote = ReviewHelpfulVote.objects.create(
+            review=self.review,
+            user=self.voter1,
+            is_helpful=True,
+        )
+
+        self.review.refresh_from_db()
+        self.assertEqual(self.review.helpful_count, 1)
+        self.assertEqual(self.review.not_helpful_count, 0)
+
+        vote.is_helpful = False
+        vote.save()
+
+        self.review.refresh_from_db()
+        self.assertEqual(self.review.helpful_count, 0)
+        self.assertEqual(self.review.not_helpful_count, 1)
+
+
+class ReviewHelpfulVoteViewTests(TestCase):
+    """Unit tests for the review helpful voting views."""
+
+    def setUp(self) -> None:
+        """Set up test data."""
+        self.reviewer_username = f"voter_{secrets.token_hex(4)}"
+        self.reviewer_password = secrets.token_urlsafe(16)
+        self.reviewer = get_user_model().objects.create_user(
+            username=self.reviewer_username,
+            password=self.reviewer_password,
+        )
+        self.voter_username = f"voter_{secrets.token_hex(4)}"
+        self.voter_password = secrets.token_urlsafe(16)
+        self.voter = get_user_model().objects.create_user(
+            username=self.voter_username,
+            password=self.voter_password,
+        )
+        self.movie = MysteryTitle.objects.create(
+            title="Test Movie",
+            slug="test-movie-views",
+            release_year=2023,
+        )
+        self.review = Review.objects.create(
+            movie=self.movie,
+            user=self.reviewer,
+            quality=4,
+            difficulty=3,
+            is_fair_play=True,
+            comment="Test review",
+        )
+
+    def test_login_required(self) -> None:
+        """Test that voting requires authentication."""
+        url = reverse("movies:review_helpful_vote", kwargs={"pk": self.review.pk})
+        response = self.client.post(url, {"is_helpful": "true"})
+
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse("login"))
+
+    def test_vote_helpful(self) -> None:
+        """Test voting that a review is helpful."""
+        self.client.login(
+            username=self.voter_username,
+            password=self.voter_password,
+        )
+
+        url = reverse("movies:review_helpful_vote", kwargs={"pk": self.review.pk})
+        response = self.client.post(url, {"is_helpful": "true"})
+
+        self.assertRedirects(response, self.movie.get_absolute_url())
+
+        self.assertTrue(
+            ReviewHelpfulVote.objects.filter(
+                review=self.review,
+                user=self.voter,
+                is_helpful=True,
+            ).exists(),
+        )
+
+    def test_vote_not_helpful(self) -> None:
+        """Test voting that a review is not helpful."""
+        self.client.login(
+            username=self.voter_username,
+            password=self.voter_password,
+        )
+
+        url = reverse("movies:review_helpful_vote", kwargs={"pk": self.review.pk})
+        response = self.client.post(url, {"is_helpful": "false"})
+
+        self.assertRedirects(response, self.movie.get_absolute_url())
+
+        self.assertTrue(
+            ReviewHelpfulVote.objects.filter(
+                review=self.review,
+                user=self.voter,
+                is_helpful=False,
+            ).exists(),
+        )
+
+    def test_cannot_vote_on_own_review(self) -> None:
+        """Test that users cannot vote on their own reviews."""
+        self.client.login(
+            username=self.reviewer_username,
+            password=self.reviewer_password,  # Won't work but doesn't matter for this test
+        )
+        # Need to log in as the reviewer properly
+        self.client.force_login(self.reviewer)
+
+        url = reverse("movies:review_helpful_vote", kwargs={"pk": self.review.pk})
+        response = self.client.post(url, {"is_helpful": "true"}, follow=True)
+
+        messages = list(response.context["messages"])
+        self.assertEqual(len(messages), 1)
+        self.assertIn("cannot vote on your own", str(messages[0]))
+
+        self.assertFalse(
+            ReviewHelpfulVote.objects.filter(
+                review=self.review,
+                user=self.reviewer,
+            ).exists(),
+        )
+
+    def test_toggle_vote_off(self) -> None:
+        """Test that voting the same way twice removes the vote."""
+        self.client.login(
+            username=self.voter_username,
+            password=self.voter_password,
+        )
+
+        url = reverse("movies:review_helpful_vote", kwargs={"pk": self.review.pk})
+
+        # First vote
+        self.client.post(url, {"is_helpful": "true"})
+        self.assertEqual(ReviewHelpfulVote.objects.count(), 1)
+
+        # Second vote (same) - should remove
+        self.client.post(url, {"is_helpful": "true"})
+        self.assertEqual(ReviewHelpfulVote.objects.count(), 0)
+
+    def test_change_vote(self) -> None:
+        """Test that voting differently updates the existing vote."""
+        self.client.login(
+            username=self.voter_username,
+            password=self.voter_password,
+        )
+
+        url = reverse("movies:review_helpful_vote", kwargs={"pk": self.review.pk})
+
+        # Vote helpful
+        self.client.post(url, {"is_helpful": "true"})
+        vote = ReviewHelpfulVote.objects.get(review=self.review, user=self.voter)
+        self.assertTrue(vote.is_helpful)
+
+        # Change to not helpful
+        self.client.post(url, {"is_helpful": "false"})
+        vote.refresh_from_db()
+        self.assertFalse(vote.is_helpful)
+        self.assertEqual(ReviewHelpfulVote.objects.count(), 1)
+
+
+class ReviewHelpfulSignalTests(TestCase):
+    """Unit tests for review helpful voting signals."""
+
+    def setUp(self) -> None:
+        """Set up test data."""
+        self.reviewer = get_user_model().objects.create_user(
+            username=f"reviewer_{secrets.token_hex(4)}",
+            password=secrets.token_urlsafe(16),
+        )
+        self.voter = get_user_model().objects.create_user(
+            username=f"voter_{secrets.token_hex(4)}",
+            password=secrets.token_urlsafe(16),
+        )
+        self.movie = MysteryTitle.objects.create(
+            title="Signal Test Movie",
+            slug="signal-test-movie",
+            release_year=2023,
+        )
+        self.review = Review.objects.create(
+            movie=self.movie,
+            user=self.reviewer,
+            quality=4,
+            difficulty=3,
+            is_fair_play=True,
+        )
+
+    def test_vote_creation_logging(self) -> None:
+        """Test that creating a helpful vote triggers a log message."""
+        with self.assertLogs("movies.signals", level="INFO") as cm:
+            ReviewHelpfulVote.objects.create(
+                review=self.review,
+                user=self.voter,
+                is_helpful=True,
+            )
+
+            expected_msg = (
+                f"Helpful vote created: {self.voter} voted helpful "
+                f"on review by {self.reviewer}"
+            )
+            self.assertTrue(
+                any(expected_msg in o for o in cm.output),
+                f"Expected log message not found in {cm.output}",
+            )
+
+    def test_vote_deletion_logging(self) -> None:
+        """Test that deleting a helpful vote triggers a log message."""
+        vote = ReviewHelpfulVote.objects.create(
+            review=self.review,
+            user=self.voter,
+            is_helpful=True,
+        )
+
+        with self.assertLogs("movies.signals", level="INFO") as cm:
+            vote.delete()
+
+            expected_msg = (
+                f"Helpful vote removed: {self.voter} removed vote "
+                f"from review by {self.reviewer}"
+            )
+            self.assertTrue(
+                any(expected_msg in o for o in cm.output),
+                f"Expected log message not found in {cm.output}",
+            )
