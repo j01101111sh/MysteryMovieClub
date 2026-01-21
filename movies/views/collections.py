@@ -18,11 +18,12 @@ from django.views.generic import (
 
 from movies.forms import CollectionAddItemForm, CollectionForm
 from movies.models import Collection, CollectionItem, MysteryTitle
+from movies.views.mixins import ElidedPaginationMixin
 
 logger = logging.getLogger(__name__)
 
 
-class CollectionListView(ListView):
+class CollectionListView(ElidedPaginationMixin, ListView):
     model = Collection
     template_name = "movies/collection_list.html"
     context_object_name = "collections"

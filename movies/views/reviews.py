@@ -11,11 +11,12 @@ from django.views.generic import CreateView, ListView
 
 from movies.forms import ReviewForm
 from movies.models import MysteryTitle, Review
+from movies.views.mixins import ElidedPaginationMixin
 
 logger = logging.getLogger(__name__)
 
 
-class ReviewListView(ListView):
+class ReviewListView(ElidedPaginationMixin, ListView):
     model = Review
     template_name = "movies/review_list.html"
     context_object_name = "reviews"

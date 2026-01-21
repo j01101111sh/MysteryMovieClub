@@ -6,6 +6,7 @@ from django.views.generic import DetailView, ListView
 
 from movies.forms import TagVoteForm
 from movies.models import Collection, MysteryTitle, Tag, WatchListEntry
+from movies.views.mixins import ElidedPaginationMixin  # Import the new mixin
 
 DEFAULT_PAGE_SIZE = 15
 
@@ -72,7 +73,7 @@ class MysteryDetailView(DetailView):
         return context
 
 
-class MysteryListView(ListView):
+class MysteryListView(ElidedPaginationMixin, ListView):
     model = MysteryTitle
     template_name = "movies/movie_list.html"
     context_object_name = "movies"
@@ -81,18 +82,12 @@ class MysteryListView(ListView):
     query: str | None = None
 
     def get_queryset(self) -> QuerySet[MysteryTitle]:
-        query = self.request.GET.get("q")
+        self.query = self.request.GET.get("q")
 
-        # The logic is now: Get all objects -> search if applicable -> order
-        return MysteryTitle.objects.search(query).order_by("-release_year")
+        # Get all objects -> search if applicable -> order
+        return MysteryTitle.objects.search(self.query).order_by("-release_year")
 
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
-        if context.get("is_paginated"):
-            context["elided_page_range"] = context["paginator"].get_elided_page_range(
-                context["page_obj"].number,
-                on_each_side=2,
-                on_ends=1,
-            )
         context["search_query"] = self.query
         return context
