@@ -100,7 +100,7 @@ class SeriesViewTests(TestCase):
 
     def test_series_detail_stats(self) -> None:
         """Test that the series detail page displays correct aggregate statistics."""
-        # Create movies with specific stats
+        # Movie with both stats
         MysteryTitle.objects.create(
             title="Glass Onion",
             slug="glass-onion",
@@ -109,6 +109,7 @@ class SeriesViewTests(TestCase):
             avg_quality=4.0,
             avg_difficulty=3.0,
         )
+        # Movie with both stats
         MysteryTitle.objects.create(
             title="Knives Out",
             slug="knives-out",
@@ -117,7 +118,25 @@ class SeriesViewTests(TestCase):
             avg_quality=5.0,
             avg_difficulty=4.0,
         )
-        # Create a movie with no stats (should be ignored in average)
+        # Movie with only quality stat
+        MysteryTitle.objects.create(
+            title="Movie A",
+            slug="movie-a",
+            release_year=2020,
+            series=self.series1,
+            avg_quality=3.0,
+            avg_difficulty=0.0,
+        )
+        # Movie with only difficulty stat
+        MysteryTitle.objects.create(
+            title="Movie B",
+            slug="movie-b",
+            release_year=2021,
+            series=self.series1,
+            avg_quality=0.0,
+            avg_difficulty=5.0,
+        )
+        # Movie with no stats (should be ignored in average)
         MysteryTitle.objects.create(
             title="Wake Up Dead Man",
             slug="wake-up-dead-man",
@@ -130,9 +149,8 @@ class SeriesViewTests(TestCase):
         url = reverse("movies:series_detail", kwargs={"slug": self.series1.slug})
         response = self.client.get(url)
 
-        # Average Quality: (4.0 + 5.0) / 2 = 4.5
-        # Average Difficulty: (3.0 + 4.0) / 2 = 3.5
-        self.assertEqual(response.context["avg_quality"], 4.5)
-        self.assertEqual(response.context["avg_difficulty"], 3.5)
-        self.assertContains(response, "4.5")
-        self.assertContains(response, "3.5")
+        # Average Quality: (4.0 + 5.0 + 3.0) / 3 = 4.0
+        # Average Difficulty: (3.0 + 4.0 + 5.0) / 3 = 4.0
+        self.assertEqual(response.context["avg_quality"], 4.0)
+        self.assertEqual(response.context["avg_difficulty"], 4.0)
+        self.assertContains(response, "4.0")
