@@ -47,6 +47,24 @@ class CustomUserModelTests(TestCase):
         self.assertEqual(user.location, "Baker Street")
         self.assertEqual(user.website, "https://example.com")
 
+    def test_test_user_flag(self) -> None:
+        """Test the is_test_user flag."""
+        User = get_user_model()
+        # Test default is False
+        user_normal = User.objects.create_user(
+            username="normal_user",
+            password=secrets.token_urlsafe(16),
+        )
+        self.assertFalse(user_normal.is_test_user)
+
+        # Test setting to True
+        user_test = User.objects.create_user(
+            username="test_user",
+            password=secrets.token_urlsafe(16),
+            is_test_user=True,
+        )
+        self.assertTrue(user_test.is_test_user)
+
     def test_string_representation(self) -> None:
         """Test the model's string representation uses the username."""
         User = get_user_model()
