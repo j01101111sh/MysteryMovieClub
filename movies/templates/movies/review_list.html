@@ -33,6 +33,8 @@
                     <p class="mb-1">{{ review.comment }}</p>
                     <small class="text-muted">By <a href="{% url 'profile' review.user.username %}"
     class="text-decoration-none">{{ review.user.username }}</a></small>
+                    {% include "movies/includes/review_helpful_votes.html" with review=review %}
+
                 </div>
             {% empty %}
                 <p>No reviews found for this movie.</p>

@@ -1,4 +1,6 @@
 from django.contrib import admin
+from django.db.models import QuerySet
+from django.http import HttpRequest
 
 from .models import (
     Collection,
@@ -6,6 +8,7 @@ from .models import (
     Director,
     MysteryTitle,
     Review,
+    ReviewHelpfulVote,
     Series,
     Tag,
     TagVote,
@@ -48,6 +51,37 @@ class MysteryTitleAdmin(admin.ModelAdmin):
 class ReviewAdmin(admin.ModelAdmin):
     list_display = ["movie", "user", "quality", "difficulty", "created_at"]
     list_filter = ["quality", "is_fair_play", "solved"]
+
+
+@admin.register(ReviewHelpfulVote)
+class ReviewHelpfulVoteAdmin(admin.ModelAdmin):
+    """Admin interface for review helpful votes."""
+
+    list_display = [
+        "review",
+        "user",
+        "is_helpful",
+        "created_at",
+    ]
+    list_filter = [
+        "is_helpful",
+        "created_at",
+    ]
+    search_fields = [
+        "user__username",
+        "review__movie__title",
+        "review__user__username",
+    ]
+    readonly_fields = [
+        "created_at",
+        "updated_at",
+    ]
+    date_hierarchy = "created_at"
+
+    def get_queryset(self, request: HttpRequest) -> QuerySet[ReviewHelpfulVote]:
+        """Optimize queryset with select_related."""
+        qs = super().get_queryset(request)
+        return qs.select_related("user", "review", "review__user", "review__movie")
 
 
 @admin.register(Tag)

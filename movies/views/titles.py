@@ -5,7 +5,13 @@ from django.db.models import Count, QuerySet
 from django.views.generic import DetailView, ListView
 
 from movies.forms import TagVoteForm
-from movies.models import Collection, MysteryTitle, Tag, WatchListEntry
+from movies.models import (
+    Collection,
+    MysteryTitle,
+    ReviewHelpfulVote,
+    Tag,
+    WatchListEntry,
+)
 from movies.views.mixins import ElidedPaginationMixin  # Import the new mixin
 
 DEFAULT_PAGE_SIZE = 15
@@ -23,8 +29,12 @@ class MysteryDetailView(DetailView):
 
         # Review data
         reviews = self.object.reviews.select_related("user").order_by("-created_at")
-        context["recent_reviews"] = reviews[:3]
+
+        # Convert to list to allow attaching attributes
+        recent_reviews = list(reviews[:3])
+        context["recent_reviews"] = recent_reviews
         context["total_reviews_count"] = reviews.count()
+
         if self.request.user.is_authenticated:
             context["has_reviewed"] = self.object.reviews.filter(
                 user=self.request.user,
@@ -53,6 +63,21 @@ class MysteryDetailView(DetailView):
         else:
             context["user_voted_tag_ids"] = set()
 
+        # Add user's helpful votes for vote button highlighting
+        if self.request.user.is_authenticated:
+            # Fetch votes for the specific reviews being displayed
+            votes = ReviewHelpfulVote.objects.filter(
+                user=self.request.user,
+                review__in=recent_reviews,
+            ).select_related("review")
+
+            # Map review.pk to vote object
+            vote_map = {vote.review_id: vote for vote in votes}
+
+            # Attach vote to review objects
+            for review in recent_reviews:
+                review.user_vote = vote_map.get(review.pk)
+
         # Watchlist status
         if self.request.user.is_authenticated:
             context["in_watchlist"] = WatchListEntry.objects.filter(
@@ -62,7 +87,7 @@ class MysteryDetailView(DetailView):
         else:
             context["in_watchlist"] = False
 
-        # User's Collections (Add this block)
+        # User's Collections
         if self.request.user.is_authenticated:
             context["user_collections"] = Collection.objects.filter(
                 user=self.request.user,

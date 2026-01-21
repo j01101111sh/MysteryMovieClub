@@ -121,10 +121,21 @@
                                                     aria-expanded="false"
                                                     aria-controls="collapse{{ review.id }}">
                                                 <div class="d-flex flex-column flex-md-row w-100 justify-content-between pe-3">
-                                                    <div class="d-flex align-items-center gap-2 mb-1 mb-md-0">
+                                                    <div class="d-flex align-items-center gap-2 mb-1 mb-md-0 flex-wrap">
                                                         <span class="fw-bold">{{ review.user.username }}</span>
                                                         <span class="badge bg-body-secondary text-body border">Q: {{ review.quality }}</span>
                                                         <span class="badge bg-body-secondary text-body border">D: {{ review.difficulty }}</span>
+                                                        {% if review.helpful_count > 0 or review.not_helpful_count > 0 %}
+                                                            <span class="badge bg-success"
+                                                                  title="{{ review.helpful_count }} helpful votes">
+                                                                👍 {{ review.helpful_count }}
+                                                            </span>
+                                                            {% if review.helpfulness_score >= 70 %}
+                                                                <span class="badge bg-info text-dark" title="Highly rated review">
+                                                                    ⭐ {{ review.helpfulness_score|floatformat:0 }}%
+                                                                </span>
+                                                            {% endif %}
+                                                        {% endif %}
                                                     </div>
                                                     <small class="text-muted">{{ review.created_at|timesince }} ago</small>
                                                 </div>
@@ -140,6 +151,8 @@
                                                     <strong>Solved:</strong> {{ review.solved|yesno:"Yes,No" }}
                                                 </div>
                                                 <p class="mb-0">{{ review.comment|linebreaks }}</p>
+                                                {% include "movies/includes/review_helpful_votes.html" with review=review %}
+
                                             </div>
                                         </div>
                                     </div>
