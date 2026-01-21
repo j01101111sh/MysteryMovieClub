@@ -1,5 +1,4 @@
 {% if user.is_authenticated and user != review.user %}
-    <!-- Voting buttons for authenticated users (not the review author) -->
     <div class="d-flex gap-2 align-items-center mt-2">
         <small class="text-muted me-2">Was this review helpful?</small>
         <form method="post"
@@ -9,7 +8,7 @@
             {% csrf_token %}
             <input type="hidden" name="is_helpful" value="true" />
             <button type="submit"
-                    class="btn btn-sm {% if user_voted_helpful.review.pk == review.pk and user_voted_helpful.is_helpful %}btn-success{% else %}btn-outline-success{% endif %}"
+                    class="btn btn-sm {% if review.user_vote and review.user_vote.is_helpful %}btn-success{% else %}btn-outline-success{% endif %}"
                     title="Mark as helpful">
                 👍 <span class="helpful-count">{{ review.helpful_count }}</span>
             </button>
@@ -21,14 +20,13 @@
             {% csrf_token %}
             <input type="hidden" name="is_helpful" value="false" />
             <button type="submit"
-                    class="btn btn-sm {% if user_voted_helpful.review.pk == review.pk and not user_voted_helpful.is_helpful %}btn-danger{% else %}btn-outline-danger{% endif %}"
+                    class="btn btn-sm {% if review.user_vote and not review.user_vote.is_helpful %}btn-danger{% else %}btn-outline-danger{% endif %}"
                     title="Mark as not helpful">
                 👎 <span class="not-helpful-count">{{ review.not_helpful_count }}</span>
             </button>
         </form>
     </div>
 {% else %}
-    <!-- Display-only for anonymous users and review authors -->
     <div class="mt-2">
         <small class="text-muted">
             <span class="badge bg-success">👍 {{ review.helpful_count }}</span>

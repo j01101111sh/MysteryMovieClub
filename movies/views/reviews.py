@@ -40,15 +40,21 @@ class ReviewListView(ElidedPaginationMixin, ListView):
 
         # Add user's helpful votes for vote button highlighting
         if self.request.user.is_authenticated:
+            # Get the list of reviews on the current page
+            page_reviews = context.get("reviews", [])
+
+            # Fetch votes only for these specific reviews
             votes = ReviewHelpfulVote.objects.filter(
                 user=self.request.user,
-                review__movie=self.movie,
+                review__in=page_reviews,
             ).select_related("review")
 
-            # Map review.pk to vote object for efficient template lookup
-            context["user_voted_helpful"] = {vote.review.pk: vote for vote in votes}
-        else:
-            context["user_voted_helpful"] = {}
+            # Map review.pk to vote object for efficient lookup
+            vote_map = {vote.review_id: vote for vote in votes}
+
+            # Attach the vote object directly to the review instance
+            for review in page_reviews:
+                review.user_vote = vote_map.get(review.pk)
 
         return context
 
