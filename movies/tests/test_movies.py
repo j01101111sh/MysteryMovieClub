@@ -218,13 +218,53 @@ class MysteryViewTests(TestCase):
     def test_search_logging(self) -> None:
         """Test that searching triggers an INFO log message."""
         # assertLogs acts as a context manager to capture logs
-        with self.assertLogs("movies.views", level="INFO") as cm:
+        with self.assertLogs("movies.managers", level="INFO") as cm:
             self.client.get(reverse("home"), {"q": "Knives"})
 
             # Verify that our specific message appears in the captured output
             self.assertTrue(
                 any("Search query received: Knives" in o for o in cm.output),
             )
+
+    def test_search_pagination(self) -> None:
+        """Test that the second page of search results works and preserves the query."""
+        # Create enough movies to trigger pagination (15 per page)
+        # Create 20 "Noir" movies which should match the search
+        for i in range(20):
+            MysteryTitle.objects.create(
+                title=f"Noir Movie {i}",
+                slug=f"noir-movie-{i}",
+                release_year=2020,
+                description="Dark and stormy",
+            )
+        # Create 5 "Comedy" movies (should be excluded)
+        for i in range(5):
+            MysteryTitle.objects.create(
+                title=f"Comedy Movie {i}",
+                slug=f"comedy-movie-{i}",
+                release_year=2020,
+                description="Laughs",
+            )
+
+        # 1. Test Page 1 of Search
+        response_p1 = self.client.get(reverse("home"), {"q": "Noir"})
+        self.assertEqual(response_p1.status_code, 200)
+        self.assertEqual(len(response_p1.context["movies"]), 15)
+        self.assertTrue(response_p1.context["is_paginated"])
+        self.assertEqual(response_p1.context["search_query"], "Noir")
+
+        # 2. Test Page 2 of Search
+        response_p2 = self.client.get(reverse("home"), {"q": "Noir", "page": "2"})
+        self.assertEqual(response_p2.status_code, 200)
+        # Should have the remaining 5 Noir movies
+        self.assertEqual(len(response_p2.context["movies"]), 5)
+
+        # Verify we only got Noir movies on page 2
+        for movie in response_p2.context["movies"]:
+            self.assertIn("Noir", movie.title)
+
+        # Verify query is still in context
+        self.assertEqual(response_p2.context["search_query"], "Noir")
 
 
 class MysteryTitleStatsTests(TestCase):

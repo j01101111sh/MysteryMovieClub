@@ -1,11 +1,12 @@
 import logging
 from typing import Any
 
-from django.db.models import Count, Q, QuerySet
+from django.db.models import Count, QuerySet
 from django.views.generic import DetailView, ListView
 
 from movies.forms import TagVoteForm
 from movies.models import Collection, MysteryTitle, Tag, WatchListEntry
+from movies.views.mixins import ElidedPaginationMixin  # Import the new mixin
 
 DEFAULT_PAGE_SIZE = 15
 
@@ -72,39 +73,21 @@ class MysteryDetailView(DetailView):
         return context
 
 
-class MysteryListView(ListView):
+class MysteryListView(ElidedPaginationMixin, ListView):
     model = MysteryTitle
     template_name = "movies/movie_list.html"
     context_object_name = "movies"
     paginate_by = DEFAULT_PAGE_SIZE
 
-    def get_queryset(self) -> QuerySet[MysteryTitle]:
-        # Start with the default queryset (ordered by release year)
-        queryset = super().get_queryset()
+    query: str | None = None
 
-        # Get the search query from the URL parameters
+    def get_queryset(self) -> QuerySet[MysteryTitle]:
         self.query = self.request.GET.get("q")
 
-        if self.query:
-            # Log the search action
-            logger.info("Search query received: %s", self.query)
-
-            # Filter by title, description, or director name
-            queryset = queryset.filter(
-                Q(title__icontains=self.query)
-                | Q(description__icontains=self.query)
-                | Q(director__name__icontains=self.query),
-            )
-
-        return queryset
+        # Get all objects -> search if applicable -> order
+        return MysteryTitle.objects.search(self.query).order_by("-release_year")
 
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
-        if context.get("is_paginated"):
-            context["elided_page_range"] = context["paginator"].get_elided_page_range(
-                context["page_obj"].number,
-                on_each_side=2,
-                on_ends=1,
-            )
         context["search_query"] = self.query
         return context

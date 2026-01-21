@@ -18,27 +18,19 @@ from django.views.generic import (
 
 from movies.forms import CollectionAddItemForm, CollectionForm
 from movies.models import Collection, CollectionItem, MysteryTitle
+from movies.views.mixins import ElidedPaginationMixin
 
 logger = logging.getLogger(__name__)
 
 
-class CollectionListView(ListView):
+class CollectionListView(ElidedPaginationMixin, ListView):
     model = Collection
     template_name = "movies/collection_list.html"
     context_object_name = "collections"
     paginate_by = 12
 
     def get_queryset(self) -> QuerySet[Collection]:
-        base_queryset = Collection.objects.select_related("user")
-        if self.request.user.is_authenticated:
-            # Authenticated users see public collections from others.
-            # Their own collections are handled in get_context_data.
-            queryset = base_queryset.filter(is_public=True).exclude(
-                user=self.request.user,
-            )
-        else:
-            queryset = base_queryset.filter(is_public=True)
-        return queryset
+        return Collection.objects.select_related("user").visible_to(self.request.user)
 
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
