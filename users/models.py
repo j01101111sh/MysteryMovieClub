@@ -25,6 +25,10 @@ class CustomUser(AbstractUser):
         blank=True,
         help_text="A link to your personal website or blog.",
     )
+    is_test_user = models.BooleanField(
+        default=False,
+        help_text="Designates whether this user is a test user.",
+    )
 
     def __str__(self) -> str:
         return self.username

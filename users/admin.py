@@ -15,4 +15,12 @@ class CustomUserAdmin(UserAdmin):
         "username",
         "location",
         "is_staff",
+        "is_test_user",
+    ]
+
+    fieldsets = list(UserAdmin.fieldsets or []) + [
+        (None, {"fields": ("bio", "location", "website", "is_test_user")}),
+    ]
+    add_fieldsets = list(UserAdmin.add_fieldsets or []) + [
+        (None, {"fields": ("bio", "location", "website", "is_test_user")}),
     ]

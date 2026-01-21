@@ -33,7 +33,10 @@ def create_users() -> None:
     for data in user_data:
         user, created = User.objects.get_or_create(
             username=data["username"],
-            defaults={"email": data["email"]},
+            defaults={
+                "email": data["email"],
+                "is_test_user": True,
+            },
         )
         if created:
             user.set_password(data["password"])
