@@ -1,0 +1,25 @@
+.stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        line-height: 1;
+      }
+
+      .stat-label {
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--bs-secondary-color);
+      }
+
+      .badge-tag {
+        font-size: 0.9rem;
+        padding: 0.5em 0.8em;
+      }
+
+      .progress-sm {
+        height: 8px;
+      }
+
+      .text-xs {
+        font-size: 0.75rem;
+      }
