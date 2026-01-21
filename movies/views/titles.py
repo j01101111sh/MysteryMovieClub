@@ -29,8 +29,12 @@ class MysteryDetailView(DetailView):
 
         # Review data
         reviews = self.object.reviews.select_related("user").order_by("-created_at")
-        context["recent_reviews"] = reviews[:3]
+
+        # Convert to list to allow attaching attributes
+        recent_reviews = list(reviews[:3])
+        context["recent_reviews"] = recent_reviews
         context["total_reviews_count"] = reviews.count()
+
         if self.request.user.is_authenticated:
             context["has_reviewed"] = self.object.reviews.filter(
                 user=self.request.user,
@@ -61,15 +65,18 @@ class MysteryDetailView(DetailView):
 
         # Add user's helpful votes for vote button highlighting
         if self.request.user.is_authenticated:
+            # Fetch votes for the specific reviews being displayed
             votes = ReviewHelpfulVote.objects.filter(
                 user=self.request.user,
-                review__movie=self.object,
+                review__in=recent_reviews,
             ).select_related("review")
 
-            # Map review.pk to vote object for efficient template lookup
-            context["user_voted_helpful"] = {vote.review.pk: vote for vote in votes}
-        else:
-            context["user_voted_helpful"] = {}
+            # Map review.pk to vote object
+            vote_map = {vote.review_id: vote for vote in votes}
+
+            # Attach vote to review objects
+            for review in recent_reviews:
+                review.user_vote = vote_map.get(review.pk)
 
         # Watchlist status
         if self.request.user.is_authenticated:
@@ -108,5 +115,4 @@ class MysteryListView(ElidedPaginationMixin, ListView):
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
         context["search_query"] = self.query
-        return context
         return context
