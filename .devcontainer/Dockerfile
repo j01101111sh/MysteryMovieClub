@@ -17,8 +17,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 # Set the locale
 ENV LANG=en_US.UTF-8 \
-    LANGUAGE=en_US:en \
-    LC_ALL=en_US.UTF-8
+    LANGUAGE=en_US:en
 
 # Add alias to the system-wide bashrc so it's available for all users
 COPY .devcontainer/bash_aliases.sh /tmp/bash_aliases.sh
