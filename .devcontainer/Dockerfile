@@ -6,8 +6,11 @@ FROM ghcr.io/astral-sh/uv:python3.14-bookworm
 # - gettext: for Django translation commands
 # - git: for version control in the container
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    gettext \
+    apt-transport-https \
+    ca-certificates \gettext \
+    curl \
     git \
+    gnupg \
     libpq-dev \
     locales \
     vim \
@@ -30,6 +33,12 @@ ENV UV_COMPILE_BYTECODE=1
 ENV UV_PROJECT_ENVIRONMENT="/usr/local"
 # Ensure the path is correct
 ENV PATH="/usr/local/bin:$PATH"
+
+# Install Google Cloud CLI
+RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list \
+    && curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg \
+    && apt-get update && apt-get install -y google-cloud-cli \
+    && rm -rf /var/lib/apt/lists/*
 
 # Set the working directory
 WORKDIR /workspace
