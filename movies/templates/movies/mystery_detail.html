@@ -4,178 +4,275 @@
 
 {% block extra_css %}
     <link rel="stylesheet" href="{% static 'movies/css/heatmap.css' %}" />
+    <style>
+      .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        line-height: 1;
+      }
+
+      .stat-label {
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #6c757d;
+      }
+
+      .badge-tag {
+        font-size: 0.9rem;
+        padding: 0.5em 0.8em;
+      }
+
+      .progress-sm {
+        height: 8px;
+      }
+
+      .text-xs {
+        font-size: 0.75rem;
+      }
+    </style>
 {% endblock extra_css %}
 {% block content %}
-    <div class="movie-container">
-        <div class="movie-header">
-            <h1>
-                {{ movie.title }} <span class="year">({{ movie.release_year }})</span>
-                <span class="badge text-bg-secondary">{{ movie.get_media_type_display }}</span>
-            </h1>
-            <p class="director">
-                Directed by
-                {% if movie.director %}
-                    <a href="{{ movie.director.get_absolute_url }}">{{ movie.director.name }}</a>
-                {% else %}
-                    Unknown
-                {% endif %}
-            </p>
-            {% if movie.series %}
-                <p class="series">
-                    Part of the <a href="{{ movie.series.get_absolute_url }}">{{ movie.series.name }}</a> series
-                </p>
-            {% endif %}
-            {% if movie.is_fair_play_candidate %}
-                {% if movie.fair_play_consensus >= 75 %}
-                    <span class="badge text-bg-success">⚖️ Certified Fair Play ({{ movie.fair_play_consensus|floatformat:0 }}%)</span>
-                {% else %}
-                    <span class="badge text-bg-warning">⚠️ Contested Fairness ({{ movie.fair_play_consensus|floatformat:0 }}%)</span>
-                {% endif %}
-            {% endif %}
-            <div class="d-flex justify-content-between align-items-start">
-                {% if user.is_authenticated %}
-                    <form action="{% url 'movies:watchlist_toggle' movie.slug %}"
-                          method="post"
-                          class="me-2">
-                        {% csrf_token %}
-                        {% if in_watchlist %}
-                            <button type="submit" class="btn btn-outline-danger">Remove from Watchlist</button>
+    <div class="container-fluid py-4">
+        <div class="row mb-4">
+            <div class="col-12">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-2">
+                        <li class="breadcrumb-item">
+                            <a href="{% url 'movies:list' %}" class="text-decoration-none">Movies</a>
+                        </li>
+                        <li class="breadcrumb-item active" aria-current="page">{{ movie.title }}</li>
+                    </ol>
+                </nav>
+                <div class="d-flex flex-wrap align-items-center gap-3">
+                    <h1 class="display-5 fw-bold mb-0">
+                        {{ movie.title }} <span class="text-muted fw-light">({{ movie.release_year }})</span>
+                    </h1>
+                    <span class="badge bg-secondary fs-6 align-self-center">{{ movie.get_media_type_display }}</span>
+                    {% if movie.is_fair_play_candidate %}
+                        {% if movie.fair_play_consensus >= 75 %}
+                            <span class="badge bg-success fs-6 align-self-center"
+                                  title="Fair Play Consensus: {{ movie.fair_play_consensus|floatformat:0 }}%">
+                                ⚖️ Certified Fair Play
+                            </span>
                         {% else %}
-                            <button type="submit" class="btn btn-primary">Add to Watchlist</button>
+                            <span class="badge bg-warning text-dark fs-6 align-self-center"
+                                  title="Fair Play Consensus: {{ movie.fair_play_consensus|floatformat:0 }}%">
+                                ⚠️ Contested Fairness
+                            </span>
                         {% endif %}
-                    </form>
-                    <div class="dropdown">
-                        <button class="btn btn-secondary dropdown-toggle"
-                                type="button"
-                                data-bs-toggle="dropdown"
-                                aria-expanded="false">Add to Collection</button>
-                        <ul class="dropdown-menu">
-                            {% for collection in user_collections %}
-                                <li>
-                                    <form action="{% url 'movies:collection_add_item' collection.pk movie.slug %}"
-                                          method="post">
-                                        {% csrf_token %}
-                                        <button type="submit" class="dropdown-item">{{ collection.name }}</button>
-                                    </form>
-                                </li>
-                            {% empty %}
-                                <li>
-                                    <span class="dropdown-item-text text-muted">No collections created</span>
-                                </li>
-                                <li>
-                                    <hr class="dropdown-divider" />
-                                </li>
-                                <li>
-                                    <a class="dropdown-item" href="{% url 'movies:collection_create' %}">Create new collection</a>
-                                </li>
-                            {% endfor %}
-                        </ul>
-                    </div>
-                {% endif %}
+                    {% endif %}
+                </div>
+                <div class="mt-2 text-muted">
+                    <span>Directed by
+                        {% if movie.director %}
+                            <a href="{{ movie.director.get_absolute_url }}"
+                               class="fw-bold text-decoration-none text-body">{{ movie.director.name }}</a>
+                        {% else %}
+                            Unknown
+                        {% endif %}
+                    </span>
+                    {% if movie.series %}
+                        <span class="mx-2">•</span>
+                        <span>Part of the <a href="{{ movie.series.get_absolute_url }}"
+    class="fw-bold text-decoration-none text-body">{{ movie.series.name }}</a> series</span>
+                    {% endif %}
+                </div>
             </div>
         </div>
-        <div class="movie-grid">
-            <div class="info-column">
-                <div class="stats-box">
-                    <div class="stat">
-                        <strong>Quality</strong>
-                        <div class="score">⭐ {{ movie.avg_quality|floatformat:1 }}/5</div>
+        <div class="row g-4">
+            <div class="col-lg-8">
+                <div class="card shadow-sm mb-4 border-0">
+                    <div class="card-body">
+                        <h4 class="card-title fw-bold mb-3">Plot Summary</h4>
+                        <p class="card-text text-secondary">{{ movie.description|linebreaks }}</p>
                     </div>
-                    <div class="stat">
-                        <strong>Difficulty</strong>
-                        <div class="score">🧠 {{ movie.avg_difficulty|floatformat:1 }}/5</div>
+                </div>
+                <div class="card shadow-sm mb-4 border-0">
+                    <div class="card-body">
+                        <h4 class="card-title fw-bold mb-3">Community Tags</h4>
+                        <div class="d-flex flex-wrap gap-2 mb-3">
+                            {% for tag in tags_with_counts %}
+                                <form action="{% url 'movies:vote_tag' movie.slug %}"
+                                      method="post"
+                                      class="d-inline">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="tag_id" value="{{ tag.id }}" />
+                                    <button type="submit"
+                                            class="btn btn-sm {% if tag.id in user_voted_tag_ids %}btn-primary{% else %}btn-outline-primary{% endif %} rounded-pill badge-tag"
+                                            title="{% if tag.id in user_voted_tag_ids %}Remove vote{% else %}Upvote{% endif %}">
+                                        {{ tag.name }} <span class="badge bg-white text-primary ms-1 rounded-circle">{{ tag.vote_count }}</span>
+                                    </button>
+                                </form>
+                            {% empty %}
+                                <p class="text-muted fst-italic">No tags yet. Be the first to tag this mystery!</p>
+                            {% endfor %}
+                        </div>
+                        {% if user.is_authenticated %}
+                            <div class="border-top pt-3 mt-3">
+                                <form action="{% url 'movies:vote_tag' movie.slug %}"
+                                      method="post"
+                                      class="row g-2 align-items-center">
+                                    {% csrf_token %}
+                                    <div class="col-auto">{{ tag_form.tag }}</div>
+                                    <div class="col-auto">
+                                        <button type="submit" class="btn btn-sm btn-secondary">Add Tag</button>
+                                    </div>
+                                </form>
+                            </div>
+                        {% else %}
+                            <p class="mb-0 text-muted small">
+                                <a href="{% url 'login' %}?next={{ request.path }}">Log in</a> to vote on tags.
+                            </p>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="card shadow-sm border-0">
+                    <div class="card-header bg-body-secondary border-bottom-0 d-flex justify-content-between align-items-center pt-3 pe-3">
+                        <h4 class="card-title fw-bold mb-0">Reviews</h4>
+                        {% if user.is_authenticated and not has_reviewed %}
+                            <a href="{{ movie.get_review_url }}" class="btn btn-sm btn-primary">Write a Review</a>
+                        {% endif %}
+                    </div>
+                    <div class="card-body">
+                        {% if recent_reviews %}
+                            <div class="accordion accordion-flush" id="reviewsAccordion">
+                                {% for review in recent_reviews %}
+                                    <div class="accordion-item border rounded mb-2">
+                                        <h2 class="accordion-header" id="heading{{ review.id }}">
+                                            <button class="accordion-button collapsed rounded"
+                                                    type="button"
+                                                    data-bs-toggle="collapse"
+                                                    data-bs-target="#collapse{{ review.id }}"
+                                                    aria-expanded="false"
+                                                    aria-controls="collapse{{ review.id }}">
+                                                <div class="d-flex flex-column flex-md-row w-100 justify-content-between pe-3">
+                                                    <div class="d-flex align-items-center gap-2 mb-1 mb-md-0">
+                                                        <span class="fw-bold">{{ review.user.username }}</span>
+                                                        <span class="badge bg-body-secondary text-body border">Q: {{ review.quality }}</span>
+                                                        <span class="badge bg-body-secondary text-body border">D: {{ review.difficulty }}</span>
+                                                    </div>
+                                                    <small class="text-muted">{{ review.created_at|timesince }} ago</small>
+                                                </div>
+                                            </button>
+                                        </h2>
+                                        <div id="collapse{{ review.id }}"
+                                             class="accordion-collapse collapse"
+                                             aria-labelledby="heading{{ review.id }}"
+                                             data-bs-parent="#reviewsAccordion">
+                                            <div class="accordion-body bg-body-secondary">
+                                                <div class="mb-2 small text-muted">
+                                                    <strong>Fair Play:</strong> {{ review.is_fair_play|yesno:"Yes,No" }} •
+                                                    <strong>Solved:</strong> {{ review.solved|yesno:"Yes,No" }}
+                                                </div>
+                                                <p class="mb-0">{{ review.comment|linebreaks }}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            {% if total_reviews_count > 3 %}
+                                <div class="mt-3 text-center">
+                                    <a href="{% url 'movies:review_list' movie.slug %}"
+                                       class="btn btn-outline-secondary btn-sm">Read all {{ total_reviews_count }} reviews</a>
+                                </div>
+                            {% endif %}
+                        {% else %}
+                            <div class="text-center py-4 text-muted">
+                                <p>No reviews yet.</p>
+                                {% if not user.is_authenticated %}
+                                    <a href="{% url 'login' %}?next={{ request.path }}">Log in</a> to leave the first review.
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                {% if user.is_authenticated %}
+                    <div class="card shadow-sm border-0 mb-4">
+                        <div class="card-body">
+                            <div class="d-grid gap-2">
+                                <form action="{% url 'movies:watchlist_toggle' movie.slug %}" method="post">
+                                    {% csrf_token %}
+                                    {% if in_watchlist %}
+                                        <button type="submit" class="btn btn-outline-danger w-100">
+                                            <i class="bi bi-bookmark-dash"></i> Remove from Watchlist
+                                        </button>
+                                    {% else %}
+                                        <button type="submit" class="btn btn-primary w-100">
+                                            <i class="bi bi-bookmark-plus"></i> Add to Watchlist
+                                        </button>
+                                    {% endif %}
+                                </form>
+                                <div class="dropdown">
+                                    <button class="btn btn-light w-100 border dropdown-toggle"
+                                            type="button"
+                                            data-bs-toggle="dropdown"
+                                            aria-expanded="false">Add to Collection</button>
+                                    <ul class="dropdown-menu w-100">
+                                        {% for collection in user_collections %}
+                                            <li>
+                                                <form action="{% url 'movies:collection_add_item' collection.pk movie.slug %}"
+                                                      method="post">
+                                                    {% csrf_token %}
+                                                    <button type="submit" class="dropdown-item">{{ collection.name }}</button>
+                                                </form>
+                                            </li>
+                                        {% empty %}
+                                            <li>
+                                                <span class="dropdown-item-text text-muted">No collections created</span>
+                                            </li>
+                                            <li>
+                                                <hr class="dropdown-divider" />
+                                            </li>
+                                            <li>
+                                                <a class="dropdown-item" href="{% url 'movies:collection_create' %}">Create new collection</a>
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+                <div class="card shadow-sm border-0 mb-4">
+                    <div class="card-header bg-transparent fw-bold">Mystery Stats</div>
+                    <div class="card-body">
+                        <div class="row text-center mb-3">
+                            <div class="col-6 border-end">
+                                <div class="stat-value text-primary">{{ movie.avg_quality|floatformat:1 }}</div>
+                                <div class="stat-label">Quality</div>
+                            </div>
+                            <div class="col-6">
+                                <div class="stat-value text-warning">{{ movie.avg_difficulty|floatformat:1 }}</div>
+                                <div class="stat-label">Difficulty</div>
+                            </div>
+                        </div>
+                        {% if movie.is_fair_play_candidate %}
+                            <div class="mt-4">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span class="small fw-bold text-muted">Fair Play Consensus</span>
+                                    <span class="small fw-bold">{{ movie.fair_play_consensus|floatformat:0 }}%</span>
+                                </div>
+                                <div class="progress progress-sm">
+                                    <div class="progress-bar {% if movie.fair_play_consensus >= 75 %}bg-success{% else %}bg-warning{% endif %}"
+                                         role="progressbar"
+                                         style="width: {{ movie.fair_play_consensus }}%"
+                                         aria-valuenow="{{ movie.fair_play_consensus }}"
+                                         aria-valuemin="0"
+                                         aria-valuemax="100"></div>
+                                </div>
+                                <div class="text-center mt-2">
+                                    <small class="text-muted text-xs">Based on user reviews</small>
+                                </div>
+                            </div>
+                        {% endif %}
                     </div>
                 </div>
                 {% include "movies/includes/heatmap.html" %}
 
-                {% if user.is_authenticated and not has_reviewed %}
-                    <div class="mt-3">
-                        <a href="{{ movie.get_review_url }}">Leave a Review</a>
-                    </div>
-                {% endif %}
-                <div class="synopsis">
-                    <h3>Plot Summary</h3>
-                    <p>{{ movie.description|linebreaks }}</p>
-                </div>
             </div>
-        </div>
-        <section class="mt-4">
-            <h3>Community Tags</h3>
-            <div class="d-flex flex-wrap gap-2 mb-3">
-                {% for tag in tags_with_counts %}
-                    <form action="{% url 'movies:vote_tag' movie.slug %}"
-                          method="post"
-                          class="d-inline">
-                        {% csrf_token %}
-                        <input type="hidden" name="tag_id" value="{{ tag.id }}" />
-                        <button type="submit"
-                                class="btn btn-sm {% if tag.id in user_voted_tag_ids %}btn-primary{% else %}btn-outline-primary{% endif %}"
-                                title="{% if tag.id in user_voted_tag_ids %}Remove vote{% else %}Upvote{% endif %}">
-                            {{ tag.name }} <span class="badge bg-light text-dark ms-1">{{ tag.vote_count }}</span>
-                        </button>
-                    </form>
-                {% empty %}
-                    <p class="text-muted">No tags yet.</p>
-                {% endfor %}
-            </div>
-            {% if user.is_authenticated %}
-                <form action="{% url 'movies:vote_tag' movie.slug %}"
-                      method="post"
-                      class="row g-2 align-items-center">
-                    {% csrf_token %}
-                    <div class="col-auto">{{ tag_form.tag }}</div>
-                    <div class="col-auto">
-                        <button type="submit" class="btn btn-sm btn-secondary">Add Tag</button>
-                    </div>
-                </form>
-            {% else %}
-                <p>
-                    <a href="{% url 'login' %}?next={{ request.path }}">Log in</a> to vote on tags.
-                </p>
-            {% endif %}
-        </section>
-        <div class="mt-5">
-            <h3>Reviews</h3>
-            {% if recent_reviews %}
-                <div class="accordion mb-3" id="reviewsAccordion">
-                    {% for review in recent_reviews %}
-                        <div class="accordion-item">
-                            <h2 class="accordion-header" id="heading{{ review.id }}">
-                                <button class="accordion-button collapsed"
-                                        type="button"
-                                        data-bs-toggle="collapse"
-                                        data-bs-target="#collapse{{ review.id }}"
-                                        aria-expanded="false"
-                                        aria-controls="collapse{{ review.id }}">
-                                    <div class="w-100 pe-3">
-                                        <div>⭐ {{ review.quality }}/5 | 🧠 {{ review.difficulty }}/5 | Fair Play: {{ review.is_fair_play|yesno:"Yes,No" }}</div>
-                                        <small class="text-muted">{{ review.created_at|timesince }} ago</small>
-                                    </div>
-                                </button>
-                            </h2>
-                            <div id="collapse{{ review.id }}"
-                                 class="accordion-collapse collapse"
-                                 aria-labelledby="heading{{ review.id }}"
-                                 data-bs-parent="#reviewsAccordion">
-                                <div class="accordion-body">
-                                    <div class="mb-2">
-                                        <small class="text-muted">
-                                            By <a href="{% url 'profile' review.user.username %}">{{ review.user.username }}</a>
-                                        </small>
-                                    </div>
-                                    {{ review.comment|linebreaks }}
-                                </div>
-                            </div>
-                        </div>
-                    {% endfor %}
-                </div>
-                {% if total_reviews_count > 3 %}
-                    <a href="{% url 'movies:review_list' movie.slug %}"
-                       class="btn btn-outline-secondary">Read all {{ total_reviews_count }} reviews</a>
-                {% endif %}
-            {% else %}
-                <p>No reviews yet.</p>
-            {% endif %}
         </div>
     </div>
 {% endblock content %}
