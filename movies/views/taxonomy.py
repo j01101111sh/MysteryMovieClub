@@ -1,6 +1,7 @@
 import logging
 from typing import Any
 
+from django.db.models import Avg
 from django.views.generic import DetailView, ListView
 
 from movies.models import Director, Series
@@ -25,8 +26,6 @@ class DirectorDetailView(DetailView):
         movies = self.object.movies.all()  # type: ignore[attr-defined]
 
         # Prepare data for the scatter plot
-        # We only include movies that have non-zero stats to avoid clustering at (0,0)
-        # and ensure the chart is meaningful.
         plot_data = [
             {
                 "title": movie.title,
@@ -38,8 +37,15 @@ class DirectorDetailView(DetailView):
             if movie.avg_difficulty > 0 or movie.avg_quality > 0
         ]
 
-        # Pass the raw list to the context. Serialization handles by the template.
+        # Calculate averages for the lines
+        stats = movies.aggregate(
+            avg_diff=Avg("avg_difficulty"),
+            avg_qual=Avg("avg_quality"),
+        )
+
         context["plot_data"] = plot_data
+        context["avg_difficulty"] = stats["avg_diff"] or 0.0
+        context["avg_quality"] = stats["avg_qual"] or 0.0
         return context
 
 

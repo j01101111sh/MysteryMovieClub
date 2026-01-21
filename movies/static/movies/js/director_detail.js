@@ -1,13 +1,60 @@
 document.addEventListener("DOMContentLoaded", function () {
   const plotDataScript = document.getElementById("plot-data");
-  if (!plotDataScript) return;
+  const avgDiffScript = document.getElementById("avg-difficulty");
+  const avgQualScript = document.getElementById("avg-quality");
+
+  if (!plotDataScript || !avgDiffScript || !avgQualScript) return;
 
   const plotData = JSON.parse(plotDataScript.textContent);
+  const avgDiff = JSON.parse(avgDiffScript.textContent);
+  const avgQual = JSON.parse(avgQualScript.textContent);
 
   if (plotData.length === 0) return;
 
   const ctx = document.getElementById("directorChart");
   if (!ctx) return;
+
+  // Custom plugin to draw average lines
+  const averageLinesPlugin = {
+    id: "averageLines",
+    afterDatasetsDraw(chart, args, options) {
+      const {
+        ctx,
+        chartArea: { top, bottom, left, right },
+        scales: { x, y },
+      } = chart;
+
+      ctx.save();
+      ctx.lineWidth = 2;
+      ctx.setLineDash([5, 5]);
+
+      // Draw vertical line for Average Difficulty (Red)
+      if (avgDiff > 0) {
+        const xPos = x.getPixelForValue(avgDiff);
+        if (xPos >= left && xPos <= right) {
+          ctx.strokeStyle = "rgba(255, 99, 132, 0.8)";
+          ctx.beginPath();
+          ctx.moveTo(xPos, top);
+          ctx.lineTo(xPos, bottom);
+          ctx.stroke();
+        }
+      }
+
+      // Draw horizontal line for Average Quality (Green)
+      if (avgQual > 0) {
+        const yPos = y.getPixelForValue(avgQual);
+        if (yPos >= top && yPos <= bottom) {
+          ctx.strokeStyle = "rgba(75, 192, 192, 0.8)";
+          ctx.beginPath();
+          ctx.moveTo(left, yPos);
+          ctx.lineTo(right, yPos);
+          ctx.stroke();
+        }
+      }
+
+      ctx.restore();
+    },
+  };
 
   new Chart(ctx, {
     type: "scatter",
@@ -76,5 +123,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }
       },
     },
+    plugins: [averageLinesPlugin],
   });
 });

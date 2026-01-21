@@ -103,7 +103,7 @@ class DirectorViewTests(TestCase):
         self.assertContains(response, "Knives Out")
 
     def test_director_detail_page_context_plot_data(self) -> None:
-        """Test that the director detail page context contains the plot data."""
+        """Test that the director detail page context contains the plot data and averages."""
         # Create a movie with stats associated with director1
         MysteryTitle.objects.create(
             title="Knives Out",
@@ -119,11 +119,17 @@ class DirectorViewTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertIn("plot_data", response.context)
+        self.assertIn("avg_difficulty", response.context)
+        self.assertIn("avg_quality", response.context)
 
-        # plot_data should be a list, not a string
+        # plot_data should be a list
         plot_data = response.context["plot_data"]
         self.assertIsInstance(plot_data, list)
         self.assertEqual(len(plot_data), 1)
         self.assertEqual(plot_data[0]["title"], "Knives Out")
         self.assertEqual(plot_data[0]["x"], 3.0)
         self.assertEqual(plot_data[0]["y"], 4.5)
+
+        # Check averages
+        self.assertEqual(response.context["avg_difficulty"], 3.0)
+        self.assertEqual(response.context["avg_quality"], 4.5)
