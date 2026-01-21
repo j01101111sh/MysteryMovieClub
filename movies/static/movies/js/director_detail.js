@@ -5,9 +5,15 @@ document.addEventListener("DOMContentLoaded", function () {
 
   if (!plotDataScript || !avgDiffScript || !avgQualScript) return;
 
-  const plotData = JSON.parse(plotDataScript.textContent);
-  const avgDiff = JSON.parse(avgDiffScript.textContent);
-  const avgQual = JSON.parse(avgQualScript.textContent);
+  let plotData, avgDiff, avgQual;
+  try {
+    plotData = JSON.parse(plotDataScript.textContent);
+    avgDiff = JSON.parse(avgDiffScript.textContent);
+    avgQual = JSON.parse(avgQualScript.textContent);
+  } catch (e) {
+    console.error("Error parsing chart data from DOM:", e);
+    return;
+  }
 
   if (plotData.length === 0) return;
 
