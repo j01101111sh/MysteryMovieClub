@@ -3,10 +3,12 @@ from typing import Any, cast
 
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.views import redirect_to_login
 from django.db import IntegrityError, transaction
 from django.db.models import QuerySet
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect
+from django.urls import reverse
 from django.views import View
 from django.views.generic import CreateView, ListView
 
@@ -174,7 +176,7 @@ class ReviewHelpfulVoteView(LoginRequiredMixin, View):
             )
 
         next_url = request.GET.get("next")
-        if next_url:
+        if next_url and request.user.is_authenticated:
             return redirect(next_url)
 
-        return redirect(review.movie.get_absolute_url())
+        return redirect_to_login(request.get_full_path(), login_url=reverse("login"))

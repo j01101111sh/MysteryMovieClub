@@ -527,7 +527,10 @@ class ReviewHelpfulVoteViewTests(TestCase):
         response = self.client.post(url, {"is_helpful": "true"})
 
         self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, reverse("login"))
+        self.assertRedirects(
+            response,
+            "/accounts/login/?next=/movies/review/1/helpful/",
+        )
 
     def test_vote_helpful(self) -> None:
         """Test voting that a review is helpful."""
