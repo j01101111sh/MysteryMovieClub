@@ -80,6 +80,15 @@ This project is configured for **GitHub Codespaces**.
         * Username: `admin`
         * Password: `admin`
 
+5. **Persisting Gemini Login**
+    ```bash
+    # Log in to the gcloud tool
+    gcloud auth login
+
+    # Set up Application Default Credentials (used by Gemini Code Assist)
+    gcloud auth application-default login
+    ```
+
 ## 🧪 Testing
 
 We use `pytest` for unit testing. All new features must include unit tests with docstrings.
