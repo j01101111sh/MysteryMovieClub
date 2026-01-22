@@ -38,7 +38,7 @@ if not SECRET_KEY:
 DEBUG = os.getenv("DEBUG", "False") == "True"
 
 # Get str of allowed hosts from .env and then convert to a list
-ALLOWED_HOSTS_CSV = os.getenv("ALLOWED_HOSTS", "*")
+ALLOWED_HOSTS_CSV = os.getenv("ALLOWED_HOSTS", "")
 ALLOWED_HOSTS = [host.strip() for host in ALLOWED_HOSTS_CSV.split(",") if host.strip()]
 
 # Get str of trusted origins from .env and then convert to a list
