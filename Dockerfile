@@ -10,10 +10,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Install uv
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv
 
-# Configure uv
-ENV UV_COMPILE_BYTECODE=1
-ENV UV_LINK_MODE=copy
-ENV PYTHONUNBUFFERED=1
+# Configure env
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    UV_COMPILE_BYTECODE=1 \
+    UV_LINK_MODE=copy \
+    PORT=8000
 
 WORKDIR /app
 
@@ -35,11 +37,10 @@ RUN uv sync --frozen --no-dev --group prod
 # Collect static files
 # We use a dummy secret key here because the build step shouldn't need the real one,
 # but Django throws an error if it's missing.
-RUN SECRET_KEY=build-secret-key \
-    /app/.venv/bin/python manage.py collectstatic --noinput
+RUN uv run python manage.py collectstatic --noinput
 
 # Expose the port
 EXPOSE 8000
 
 # Run with Gunicorn
-CMD ["/app/.venv/bin/gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000"]
+CMD ["uv", "run", "gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000"]
