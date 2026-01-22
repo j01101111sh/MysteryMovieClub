@@ -37,7 +37,9 @@ if not SECRET_KEY:
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DEBUG", "False") == "True"
 
-ALLOWED_HOSTS = ["*"]
+# Get str of allowed hosts from .env and then convert to a list
+ALLOWED_HOSTS_CSV = os.getenv("ALLOWED_HOSTS", "*")
+ALLOWED_HOSTS = [host.strip() for host in ALLOWED_HOSTS_CSV.split(",") if host.strip()]
 
 # Get str of trusted origins from .env and then convert to a list
 CSRF_TRUSTED_ORIGINS_CSV = os.getenv("CSRF_TRUSTED_ORIGINS", "")
