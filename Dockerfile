@@ -37,7 +37,7 @@ RUN uv sync --frozen --no-dev --group prod
 # Collect static files
 # We use a dummy secret key here because the build step shouldn't need the real one,
 # but Django throws an error if it's missing.
-RUN uv run python manage.py collectstatic --noinput
+RUN SECRET_KEY=dummy-key-for-build uv run python manage.py collectstatic --noinput
 
 # Expose the port
 EXPOSE 8000
