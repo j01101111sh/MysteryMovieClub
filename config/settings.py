@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 import os
 from pathlib import Path
 
+import dj_database_url
 from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -36,8 +37,11 @@ if not SECRET_KEY:
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DEBUG", "False") == "True"
 
-ALLOWED_HOSTS = ["*"]
+# Get str of allowed hosts from .env and then convert to a list
+ALLOWED_HOSTS_CSV = os.getenv("ALLOWED_HOSTS", "")
+ALLOWED_HOSTS = [host.strip() for host in ALLOWED_HOSTS_CSV.split(",") if host.strip()]
 
+# Get str of trusted origins from .env and then convert to a list
 CSRF_TRUSTED_ORIGINS_CSV = os.getenv("CSRF_TRUSTED_ORIGINS", "")
 CSRF_TRUSTED_ORIGINS = [
     origin.strip() for origin in CSRF_TRUSTED_ORIGINS_CSV.split(",") if origin.strip()
@@ -99,13 +103,19 @@ WSGI_APPLICATION = "config.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
-DATABASES = {
-    "default": {
+DATABASES = {}
+if os.getenv("DATABASE_URL"):
+    DATABASES["default"] = dict(
+        dj_database_url.config(
+            conn_max_age=600,
+            conn_health_checks=True,
+        ),
+    )
+else:
+    DATABASES["default"] = {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": BASE_DIR / "db.sqlite3",
-    },
-}
-
+    }
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
