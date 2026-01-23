@@ -9,13 +9,13 @@ dependencies = [
     "django>=6.0,<7",
     "python-dotenv>=1.2.1",
     "whitenoise>=6.11.0",
+    "crispy-bootstrap5>=2025.6",
+    "django-crispy-forms>=2.5",
 ]
 
 [dependency-groups]
 dev = [
     "bandit>=1.9.2",
-    "crispy-bootstrap5>=2025.6",
-    "django-crispy-forms>=2.5",
     "django-stubs[compatible-mypy]>=5.2.8",
     "mypy>=1.19.1",
     "pre-commit>=4.5.1",
@@ -25,7 +25,7 @@ dev = [
 ]
 prod = [
     "gunicorn>=23.0.0",
-    "psycopg[binary]>=3.3.2",
+    "psycopg[c]>=3.3.2",
 ]
 
 [tool.ruff]
