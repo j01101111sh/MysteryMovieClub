@@ -1,14 +1,11 @@
-# Use an appropriate Python 3.14 image.
-# Note: Ensure this tag exists or use "python:rc-slim" / "python:3.14-rc-slim" if 3.14 is in preview.
-FROM python:3.14-slim-bookworm
+# Use the official uv image with Python 3.14
+FROM ghcr.io/astral-sh/uv:python3.14-bookworm
 
 # Install system dependencies (if any are needed for your specific packages)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libpq-dev \
+    gcc \
     && rm -rf /var/lib/apt/lists/*
-
-# Install uv
-COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv
 
 # Configure env
 ENV PYTHONUNBUFFERED=1 \
