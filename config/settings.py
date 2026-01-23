@@ -157,7 +157,9 @@ LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/"
 
 # Logging Configuration
-# Log to a file named 'django.log' in the base directory
+LOGS_DIR = BASE_DIR / "logs"
+LOGS_DIR.mkdir(parents=True, exist_ok=True)
+
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
@@ -171,7 +173,7 @@ LOGGING = {
         "file": {
             "level": "DEBUG",
             "class": "logging.handlers.TimedRotatingFileHandler",
-            "filename": BASE_DIR / "logs/django.log",
+            "filename": LOGS_DIR / "django.log",
             "formatter": "verbose",
             "when": "H",
             "interval": os.getenv("LOG_BACKUP_INTERVAL_HOURS", 1),
