@@ -21,7 +21,8 @@ DEV_PASSWORD="dev"
 # 0. Delete existing dev files
 if [ -f "db.sqlite3" ]; then
     echo -e "${YELLOW}Deleting existing dev files...${NC}"
-    rm "db.sqlite3" "django.log"
+    rm "db.sqlite3"
+    rm -R logs/
 fi
 
 # 1. Sync Dependencies (uv)
