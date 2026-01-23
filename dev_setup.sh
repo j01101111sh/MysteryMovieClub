@@ -42,6 +42,7 @@ if [ ! -f .env ]; then
     echo "CSRF_TRUSTED_ORIGINS=https://localhost:8000,https://*.github.dev,https://*.app.github.dev" >> .env
     echo "ADMIN_URL=admin/" >> .env
     echo "ALLOWED_HOSTS=*" >> .env
+    echo "LOG_LEVEL=INFO" >> .env
     echo -e "${GREEN}Done: .env created.${NC}"
 else
     echo -e "${GREEN}.env file already exists. Skipping generation.${NC}"

@@ -171,7 +171,7 @@ LOGGING = {
     },
     "handlers": {
         "file": {
-            "level": "DEBUG",
+            "level": os.getenv("LOG_LEVEL", "WARNING"),
             "class": "logging.handlers.TimedRotatingFileHandler",
             "filename": LOGS_DIR / "django.log",
             "formatter": "verbose",
