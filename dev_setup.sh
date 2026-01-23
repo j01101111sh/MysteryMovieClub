@@ -50,7 +50,7 @@ fi
 echo -e "${CYAN}Running database migrations...${NC}"
 uv run python manage.py migrate
 
-# 5. Create Superuser (Idempotent)
+# 5a. Create Superuser (Idempotent)
 echo -e "${CYAN}Checking for superuser...${NC}"
 uv run python manage.py shell -c "
 from django.contrib.auth import get_user_model;
