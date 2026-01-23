@@ -10,7 +10,10 @@ from movies.managers import MysteryTitleQuerySet
 logger = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
-    from movies.models import CollectionItem, Review, TagVote, WatchListEntry
+    from .collection import CollectionItem
+    from .review import Review
+    from .tag import TagVote
+    from .watchlist import WatchListEntry
 
 
 class MysteryTitle(models.Model):

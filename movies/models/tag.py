@@ -3,7 +3,7 @@ import logging
 from django.conf import settings
 from django.db import models
 
-from movies.models import MysteryTitle
+from .mystery import MysteryTitle
 
 logger = logging.getLogger(__name__)
 

@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 from django.db import models
 from django.urls import reverse
 
-from movies.models import MysteryTitle
+from .mystery import MysteryTitle
 
 logger = logging.getLogger(__name__)
 

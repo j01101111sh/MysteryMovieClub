@@ -7,6 +7,8 @@ from django.urls import reverse
 
 from movies.managers import CollectionQuerySet
 
+from .mystery import MysteryTitle
+
 logger = logging.getLogger(__name__)
 
 
@@ -47,7 +49,7 @@ class CollectionItem(models.Model):
         related_name="items",
     )
     movie = models.ForeignKey(
-        "MysteryTitle",
+        MysteryTitle,
         on_delete=models.CASCADE,
         related_name="collection_items",
     )
