@@ -1,5 +1,5 @@
 from django.test import TestCase
-from django.urls import reverse  # Added import
+from django.urls import reverse
 
 
 class AdminAccessTests(TestCase):
