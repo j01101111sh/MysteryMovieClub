@@ -176,8 +176,8 @@ LOGGING = {
             "filename": LOGS_DIR / "django.log",
             "formatter": "verbose",
             "when": "H",
-            "interval": os.getenv("LOG_BACKUP_INTERVAL_HOURS", 1),
-            "backupCount": os.getenv("LOG_BACKUP_COUNT", 24 * 30),
+            "interval": int(os.getenv("LOG_BACKUP_INTERVAL_HOURS", 1)),
+            "backupCount": int(os.getenv("LOG_BACKUP_COUNT", 24 * 30)),
         },
     },
     "root": {
