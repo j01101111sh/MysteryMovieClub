@@ -22,7 +22,7 @@ DEV_PASSWORD="dev"
 if [ -f "db.sqlite3" ]; then
     echo -e "${YELLOW}Deleting existing dev files...${NC}"
     rm "db.sqlite3"
-    rm -R logs/
+    rm -Rf logs/
 fi
 
 # 1. Sync Dependencies (uv)
