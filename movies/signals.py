@@ -1,4 +1,3 @@
-# movies/signals.py
 import logging
 from typing import Any
 
@@ -7,7 +6,6 @@ from django.core.cache.utils import make_template_fragment_key
 from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
 
-# Added WatchListEntry to imports
 from movies.models import (
     Director,
     MysteryTitle,
