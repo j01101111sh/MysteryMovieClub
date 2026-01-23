@@ -171,7 +171,7 @@ LOGGING = {
         "file": {
             "level": "DEBUG",
             "class": "logging.handlers.TimedRotatingFileHandler",
-            "filename": BASE_DIR / "django.log",
+            "filename": BASE_DIR / "logs/django.log",
             "formatter": "verbose",
             "when": "H",
             "interval": os.getenv("LOG_BACKUP_INTERVAL_HOURS", 1),
