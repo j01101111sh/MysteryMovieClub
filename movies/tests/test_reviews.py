@@ -25,32 +25,14 @@ class ReviewTests(TestCase):
 
     def test_review_model_solved_default(self) -> None:
         """Test that the solved field defaults to False."""
-        review = Review.objects.create(
-            movie=self.movie,
-            user=self.user,
-            quality=5,
-            difficulty=3,
-            is_fair_play=True,
-        )
+        review = ReviewFactory.create(user=self.user, movie=self.movie)
         self.assertFalse(review.solved)
 
     def test_unique_review_constraint(self) -> None:
         """Test that a user cannot review the same movie twice."""
-        Review.objects.create(
-            movie=self.movie,
-            user=self.user,
-            quality=5,
-            difficulty=3,
-            is_fair_play=True,
-        )
+        _ = ReviewFactory.create(user=self.user, movie=self.movie)
         with self.assertRaises(IntegrityError):
-            Review.objects.create(
-                movie=self.movie,
-                user=self.user,
-                quality=1,
-                difficulty=1,
-                is_fair_play=False,
-            )
+            _ = ReviewFactory.create(user=self.user, movie=self.movie)
 
     def test_create_view_login_required(self) -> None:
         """Test that the review creation view requires login."""
@@ -91,13 +73,7 @@ class ReviewTests(TestCase):
     def test_create_view_post_duplicate(self) -> None:
         """Test that posting a duplicate review redirects with a warning message."""
         # Create initial review
-        Review.objects.create(
-            movie=self.movie,
-            user=self.user,
-            quality=3,
-            difficulty=3,
-            is_fair_play=False,
-        )
+        _ = ReviewFactory.create(user=self.user, movie=self.movie, quality=3)
 
         self.client.login(username=self.uname, password=self.upass)
         data = {
@@ -150,14 +126,7 @@ class ReviewTests(TestCase):
     def test_review_creation_logging(self) -> None:
         """Test that creating a review triggers a log message."""
         with self.assertLogs("movies.signals", level="INFO") as cm:
-            Review.objects.create(
-                movie=self.movie,
-                user=self.user,
-                quality=5,
-                difficulty=3,
-                is_fair_play=True,
-                comment="Log Test Review",
-            )
+            _ = ReviewFactory.create(user=self.user, movie=self.movie)
 
             # Verify the log message exists and contains the string representation
             expected_msg = f"Review created: {self.user} for {self.movie.slug}"
