@@ -1,26 +1,15 @@
-import secrets
-
-from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
 
-from movies.models import Collection, CollectionItem, MysteryTitle
+from movies.models import Collection, CollectionItem
+from movies.tests.factories import MovieFactory, UserFactory
 
 
 class CollectionTests(TestCase):
     def setUp(self) -> None:
-        self.uname = f"user_{secrets.token_hex(4)}"
-        self.upass = secrets.token_urlsafe(16)
-
-        self.user = get_user_model().objects.create_user(  # type: ignore
-            username=self.uname,
-            password=self.upass,
-        )
-        self.movie = MysteryTitle.objects.create(
-            title="Knives Out",
-            release_year=2019,
-            slug="knives-out",
-        )
+        self.user, self.upass = UserFactory.create()
+        self.uname = self.user.get_username()
+        self.movie = MovieFactory.create()
         self.collection = Collection.objects.create(
             name="My Favorites",
             user=self.user,
@@ -87,12 +76,8 @@ class CollectionTests(TestCase):
 
     def test_delete_collection_permission(self) -> None:
         """Test that a user cannot delete a collection they do not own."""
-        other_uname = f"user_{secrets.token_hex(4)}"
-        other_upass = secrets.token_urlsafe(16)
-        get_user_model().objects.create_user(  # type: ignore
-            username=other_uname,
-            password=other_upass,
-        )
+        otheruser, other_upass = UserFactory.create()
+        other_uname = otheruser.get_username()
 
         self.client.login(username=other_uname, password=other_upass)
 
@@ -129,12 +114,8 @@ class CollectionTests(TestCase):
             movie=self.movie,
         )
 
-        other_uname = f"user_{secrets.token_hex(4)}"
-        other_upass = secrets.token_urlsafe(16)
-        get_user_model().objects.create_user(  # type: ignore
-            username=other_uname,
-            password=other_upass,
-        )
+        otheruser, other_upass = UserFactory.create()
+        other_uname = otheruser.get_username()
 
         self.client.login(username=other_uname, password=other_upass)
 
@@ -149,13 +130,10 @@ class CollectionTests(TestCase):
     def test_my_collections_separation(self) -> None:
         """Test that the user's collections are separated from others."""
         # Create another user's public collection
-        other_user = get_user_model().objects.create_user(  # type: ignore
-            username="other_user",
-            password=secrets.token_urlsafe(16),
-        )
+        otheruser, _ = UserFactory.create()
         Collection.objects.create(
             name="Other's Favorites",
-            user=other_user,
+            user=otheruser,
             is_public=True,
         )
 
@@ -205,12 +183,8 @@ class CollectionTests(TestCase):
         )
 
         # Create another user
-        other_uname = f"user_{secrets.token_hex(4)}"
-        other_upass = secrets.token_urlsafe(16)
-        get_user_model().objects.create_user(
-            username=other_uname,
-            password=other_upass,
-        )
+        otheruser, other_upass = UserFactory.create()
+        other_uname = otheruser.get_username()
         self.client.login(username=other_uname, password=other_upass)
 
         url = reverse("movies:collection_item_edit", kwargs={"pk": item.pk})
