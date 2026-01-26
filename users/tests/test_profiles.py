@@ -69,7 +69,7 @@ class UserProfileTests(TestCase):
             user=other_user,
         )
 
-        url = reverse("profile", kwargs={"username": self.user.username})
+        url = reverse("profile", kwargs={"username": self.uname})
         response = self.client.get(url)
 
         self.assertNotContains(response, "Other user review")
@@ -91,7 +91,7 @@ class UserProfileTests(TestCase):
     def test_navigation_profile_link_authenticated(self) -> None:
         """Test that the 'My Profile' link appears for logged-in users."""
         self.client.login(username=self.uname, password=self.upass)
-        url = reverse("profile", kwargs={"username": self.user.username})
+        url = reverse("profile", kwargs={"username": self.uname})
         response = self.client.get(url)
 
         profile_url = reverse("profile", kwargs={"username": self.uname})
