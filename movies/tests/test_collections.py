@@ -76,8 +76,8 @@ class CollectionTests(TestCase):
 
     def test_delete_collection_permission(self) -> None:
         """Test that a user cannot delete a collection they do not own."""
-        otheruser, other_upass = UserFactory.create()
-        other_uname = otheruser.get_username()
+        other_user, other_upass = UserFactory.create()
+        other_uname = other_user.get_username()
 
         self.client.login(username=other_uname, password=other_upass)
 
@@ -114,8 +114,8 @@ class CollectionTests(TestCase):
             movie=self.movie,
         )
 
-        otheruser, other_upass = UserFactory.create()
-        other_uname = otheruser.get_username()
+        other_user, other_upass = UserFactory.create()
+        other_uname = other_user.get_username()
 
         self.client.login(username=other_uname, password=other_upass)
 
@@ -130,10 +130,10 @@ class CollectionTests(TestCase):
     def test_my_collections_separation(self) -> None:
         """Test that the user's collections are separated from others."""
         # Create another user's public collection
-        otheruser, _ = UserFactory.create()
+        other_user, _ = UserFactory.create()
         Collection.objects.create(
             name="Other's Favorites",
-            user=otheruser,
+            user=other_user,
             is_public=True,
         )
 
@@ -183,8 +183,8 @@ class CollectionTests(TestCase):
         )
 
         # Create another user
-        otheruser, other_upass = UserFactory.create()
-        other_uname = otheruser.get_username()
+        other_user, other_upass = UserFactory.create()
+        other_uname = other_user.get_username()
         self.client.login(username=other_uname, password=other_upass)
 
         url = reverse("movies:collection_item_edit", kwargs={"pk": item.pk})
