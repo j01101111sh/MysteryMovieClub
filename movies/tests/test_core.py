@@ -3,6 +3,7 @@ from django.test import TestCase
 from django.urls import reverse
 
 from movies.models import MysteryTitle
+from movies.tests.factories import MovieFactory
 
 
 class BaseTemplateTests(TestCase):
@@ -30,12 +31,7 @@ class MovieStyleSheetTests(TestCase):
 
     @classmethod
     def setUpTestData(cls) -> None:
-        cls.movie = MysteryTitle.objects.create(
-            title="Test Movie",
-            release_year=2023,
-            description="Test Description",
-            slug="test-movie-2023",
-        )
+        cls.movie = MovieFactory.create()
 
     def test_detail_view_loads_css(self) -> None:
         """Test that the mystery detail page loads the heatmap CSS."""

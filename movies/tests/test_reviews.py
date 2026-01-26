@@ -1,75 +1,38 @@
-import secrets
-
-from django.contrib.auth import get_user_model
 from django.core.cache import cache
 from django.core.cache.utils import make_template_fragment_key
 from django.db.utils import IntegrityError
 from django.test import TestCase, override_settings
 from django.urls import reverse
 
-from movies.models import MysteryTitle, Review, ReviewHelpfulVote
+from movies.models import Review, ReviewHelpfulVote
+from movies.tests.factories import MovieFactory, ReviewFactory, UserFactory
 
 
 class ReviewTests(TestCase):
     def setUp(self) -> None:
-        self.uname = f"user_{secrets.token_hex(4)}"
-        self.upass = secrets.token_urlsafe(16)
+        self.user, self.upass = UserFactory.create()
+        self.uname = self.user.get_username()
 
-        self.user = get_user_model().objects.create_user(  # type: ignore
-            username=self.uname,
-            password=self.upass,
-        )
-        self.movie = MysteryTitle.objects.create(
-            title="Knives Out",
-            slug="knives-out-2019",
-            release_year=2019,
-            media_type=MysteryTitle.MediaType.MOVIE,
-        )
+        self.movie = MovieFactory.create()
         self.url = reverse("movies:add_review", kwargs={"slug": self.movie.slug})
 
     def test_review_model_creation(self) -> None:
         """Test that a review can be created and the string representation is correct."""
-        review = Review.objects.create(
-            movie=self.movie,
-            user=self.user,
-            quality=5,
-            difficulty=3,
-            is_fair_play=True,
-            solved=True,
-            comment="Great movie!",
-        )
+        review = ReviewFactory.create(user=self.user, movie=self.movie, solved=True)
         self.assertEqual(str(review), f"{self.user}'s review of {self.movie}")
         self.assertEqual(Review.objects.count(), 1)
         self.assertTrue(review.solved)
 
     def test_review_model_solved_default(self) -> None:
         """Test that the solved field defaults to False."""
-        review = Review.objects.create(
-            movie=self.movie,
-            user=self.user,
-            quality=5,
-            difficulty=3,
-            is_fair_play=True,
-        )
+        review = ReviewFactory.create(user=self.user, movie=self.movie)
         self.assertFalse(review.solved)
 
     def test_unique_review_constraint(self) -> None:
         """Test that a user cannot review the same movie twice."""
-        Review.objects.create(
-            movie=self.movie,
-            user=self.user,
-            quality=5,
-            difficulty=3,
-            is_fair_play=True,
-        )
+        _ = ReviewFactory.create(user=self.user, movie=self.movie)
         with self.assertRaises(IntegrityError):
-            Review.objects.create(
-                movie=self.movie,
-                user=self.user,
-                quality=1,
-                difficulty=1,
-                is_fair_play=False,
-            )
+            _ = ReviewFactory.create(user=self.user, movie=self.movie)
 
     def test_create_view_login_required(self) -> None:
         """Test that the review creation view requires login."""
@@ -110,13 +73,7 @@ class ReviewTests(TestCase):
     def test_create_view_post_duplicate(self) -> None:
         """Test that posting a duplicate review redirects with a warning message."""
         # Create initial review
-        Review.objects.create(
-            movie=self.movie,
-            user=self.user,
-            quality=3,
-            difficulty=3,
-            is_fair_play=False,
-        )
+        _ = ReviewFactory.create(user=self.user, movie=self.movie, quality=3)
 
         self.client.login(username=self.uname, password=self.upass)
         data = {
@@ -156,7 +113,7 @@ class ReviewTests(TestCase):
         self.assertFalse(response.context["has_reviewed"])
 
         # Logged in, with review
-        Review.objects.create(
+        _ = ReviewFactory.create(
             movie=self.movie,
             user=self.user,
             quality=4,
@@ -169,14 +126,7 @@ class ReviewTests(TestCase):
     def test_review_creation_logging(self) -> None:
         """Test that creating a review triggers a log message."""
         with self.assertLogs("movies.signals", level="INFO") as cm:
-            Review.objects.create(
-                movie=self.movie,
-                user=self.user,
-                quality=5,
-                difficulty=3,
-                is_fair_play=True,
-                comment="Log Test Review",
-            )
+            _ = ReviewFactory.create(user=self.user, movie=self.movie)
 
             # Verify the log message exists and contains the string representation
             expected_msg = f"Review created: {self.user} for {self.movie.slug}"
@@ -185,24 +135,9 @@ class ReviewTests(TestCase):
 
 class ReviewListViewTests(TestCase):
     def setUp(self) -> None:
-        self.user = get_user_model().objects.create_user(  # type: ignore
-            username=f"user_{secrets.token_hex(4)}",
-            password=secrets.token_urlsafe(16),
-        )
-        self.movie = MysteryTitle.objects.create(
-            title="Knives Out",
-            slug="knives-out-2019",
-            release_year=2019,
-            media_type=MysteryTitle.MediaType.MOVIE,
-        )
-        self.review = Review.objects.create(
-            movie=self.movie,
-            user=self.user,
-            quality=5,
-            difficulty=3,
-            is_fair_play=True,
-            comment="Great movie!",
-        )
+        self.user, _ = UserFactory.create()
+        self.movie = MovieFactory.create()
+        self.review = ReviewFactory.create(user=self.user, movie=self.movie)
         self.url = reverse("movies:review_list", kwargs={"slug": self.movie.slug})
 
     def test_review_list_status_code(self) -> None:
@@ -226,19 +161,9 @@ class ReviewListViewTests(TestCase):
 )
 class ReviewCacheTests(TestCase):
     def setUp(self) -> None:
-        self.uname = f"user_{secrets.token_hex(4)}"
-        self.upass = secrets.token_urlsafe(16)
-
-        self.user = get_user_model().objects.create_user(  # type: ignore
-            username=self.uname,
-            password=self.upass,
-        )
-        self.movie = MysteryTitle.objects.create(
-            title="Glass Onion",
-            slug="glass-onion",
-            release_year=2022,
-            media_type=MysteryTitle.MediaType.MOVIE,
-        )
+        self.user, self.upass = UserFactory.create()
+        self.uname = self.user.get_username()
+        self.movie = MovieFactory.create()
         # Reconstruct the key used in the template: {% cache 900 heatmap movie.pk %}
         self.cache_key = make_template_fragment_key("heatmap", [self.movie.pk])
 
@@ -255,26 +180,14 @@ class ReviewCacheTests(TestCase):
         self.assertIsNotNone(cache.get(self.cache_key))
 
         # 2. Create a review (triggers the post_save signal)
-        Review.objects.create(
-            movie=self.movie,
-            user=self.user,
-            quality=5,
-            difficulty=3,
-            is_fair_play=True,
-        )
+        _ = ReviewFactory.create(user=self.user, movie=self.movie)
 
         # 3. Verify the cache key is now gone
         self.assertIsNone(cache.get(self.cache_key))
 
     def test_heatmap_cache_invalidation_on_delete(self) -> None:
         """Test that deleting a review invalidates the heatmap cache."""
-        review = Review.objects.create(
-            movie=self.movie,
-            user=self.user,
-            quality=5,
-            difficulty=3,
-            is_fair_play=True,
-        )
+        review = ReviewFactory.create(user=self.user, movie=self.movie)
 
         # 1. Populate cache
         cache.set(self.cache_key, "<div>Cached Heatmap HTML</div>")
@@ -292,27 +205,11 @@ class ReviewHelpfulVoteModelTests(TestCase):
 
     def setUp(self) -> None:
         """Set up test data."""
-        self.user1 = get_user_model().objects.create_user(
-            username=f"user1_{secrets.token_hex(4)}",
-            password=secrets.token_urlsafe(16),
-        )
-        self.user2 = get_user_model().objects.create_user(
-            username=f"user2_{secrets.token_hex(4)}",
-            password=secrets.token_urlsafe(16),
-        )
-        self.movie = MysteryTitle.objects.create(
-            title="Test Movie",
-            slug="test-movie",
-            release_year=2023,
-        )
-        self.review = Review.objects.create(
-            movie=self.movie,
-            user=self.user1,
-            quality=4,
-            difficulty=3,
-            is_fair_play=True,
-            comment="Great mystery!",
-        )
+
+        self.user1, _ = UserFactory.create()
+        self.user2, _ = UserFactory.create()
+        self.movie = MovieFactory.create()
+        self.review = ReviewFactory.create(user=self.user1, movie=self.movie)
 
     def test_create_helpful_vote(self) -> None:
         """Test creating a helpful vote."""
@@ -370,35 +267,12 @@ class ReviewHelpfulStatsTests(TestCase):
 
     def setUp(self) -> None:
         """Set up test data."""
-        self.reviewer = get_user_model().objects.create_user(
-            username=f"reviewer_{secrets.token_hex(4)}",
-            password=secrets.token_urlsafe(16),
-        )
-        self.voter1 = get_user_model().objects.create_user(
-            username=f"voter1_{secrets.token_hex(4)}",
-            password=secrets.token_urlsafe(16),
-        )
-        self.voter2 = get_user_model().objects.create_user(
-            username=f"voter2_{secrets.token_hex(4)}",
-            password=secrets.token_urlsafe(16),
-        )
-        self.voter3 = get_user_model().objects.create_user(
-            username=f"voter3_{secrets.token_hex(4)}",
-            password=secrets.token_urlsafe(16),
-        )
-        self.movie = MysteryTitle.objects.create(
-            title="Test Movie",
-            slug="test-movie-stats",
-            release_year=2023,
-        )
-        self.review = Review.objects.create(
-            movie=self.movie,
-            user=self.reviewer,
-            quality=4,
-            difficulty=3,
-            is_fair_play=True,
-            comment="Test review",
-        )
+        self.reviewer, _ = UserFactory.create()
+        self.voter1, _ = UserFactory.create()
+        self.voter2, _ = UserFactory.create()
+        self.voter3, _ = UserFactory.create()
+        self.movie = MovieFactory.create()
+        self.review = ReviewFactory.create(user=self.reviewer, movie=self.movie)
 
     def test_initial_counts_are_zero(self) -> None:
         """Test that initial helpful counts are zero."""
@@ -495,31 +369,13 @@ class ReviewHelpfulVoteViewTests(TestCase):
 
     def setUp(self) -> None:
         """Set up test data."""
-        self.reviewer_username = f"voter_{secrets.token_hex(4)}"
-        self.reviewer_password = secrets.token_urlsafe(16)
-        self.reviewer = get_user_model().objects.create_user(
-            username=self.reviewer_username,
-            password=self.reviewer_password,
-        )
-        self.voter_username = f"voter_{secrets.token_hex(4)}"
-        self.voter_password = secrets.token_urlsafe(16)
-        self.voter = get_user_model().objects.create_user(
-            username=self.voter_username,
-            password=self.voter_password,
-        )
-        self.movie = MysteryTitle.objects.create(
-            title="Test Movie",
-            slug="test-movie-views",
-            release_year=2023,
-        )
-        self.review = Review.objects.create(
-            movie=self.movie,
-            user=self.reviewer,
-            quality=4,
-            difficulty=3,
-            is_fair_play=True,
-            comment="Test review",
-        )
+        self.reviewer, self.reviewer_password = UserFactory.create()
+        self.reviewer_username = self.reviewer.get_username()
+        self.voter, self.voter_password = UserFactory.create()
+        self.voter_username = self.voter.get_username()
+
+        self.movie = MovieFactory.create()
+        self.review = ReviewFactory.create(user=self.reviewer, movie=self.movie)
 
     def test_login_required(self) -> None:
         """Test that voting requires authentication."""
@@ -634,26 +490,10 @@ class ReviewHelpfulSignalTests(TestCase):
 
     def setUp(self) -> None:
         """Set up test data."""
-        self.reviewer = get_user_model().objects.create_user(
-            username=f"reviewer_{secrets.token_hex(4)}",
-            password=secrets.token_urlsafe(16),
-        )
-        self.voter = get_user_model().objects.create_user(
-            username=f"voter_{secrets.token_hex(4)}",
-            password=secrets.token_urlsafe(16),
-        )
-        self.movie = MysteryTitle.objects.create(
-            title="Signal Test Movie",
-            slug="signal-test-movie",
-            release_year=2023,
-        )
-        self.review = Review.objects.create(
-            movie=self.movie,
-            user=self.reviewer,
-            quality=4,
-            difficulty=3,
-            is_fair_play=True,
-        )
+        self.reviewer, _ = UserFactory.create()
+        self.voter, _ = UserFactory.create()
+        self.movie = MovieFactory.create()
+        self.review = ReviewFactory.create(user=self.reviewer, movie=self.movie)
 
     def test_vote_creation_logging(self) -> None:
         """Test that creating a helpful vote triggers a log message."""

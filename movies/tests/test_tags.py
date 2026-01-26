@@ -1,11 +1,9 @@
-import secrets
-
-from django.contrib.auth import get_user_model
 from django.db.utils import IntegrityError
 from django.test import TestCase
 from django.urls import reverse
 
-from movies.models import MysteryTitle, Tag, TagVote
+from movies.models import Tag, TagVote
+from movies.tests.factories import MovieFactory, UserFactory
 
 
 class TagModelTests(TestCase):
@@ -29,12 +27,9 @@ class TagModelTests(TestCase):
 
 class TagVoteTests(TestCase):
     def setUp(self) -> None:
-        self.upass = secrets.token_urlsafe(16)
-        self.user = get_user_model().objects.create_user(  # type: ignore
-            username="tagvoter",
-            password=self.upass,
-        )
-        self.movie = MysteryTitle.objects.create(
+        self.user, self.upass = UserFactory.create()
+        self.uname = self.user.get_username()
+        self.movie = MovieFactory.create(
             title="Tag Movie",
             slug="tag-movie",
             release_year=2021,
@@ -44,7 +39,7 @@ class TagVoteTests(TestCase):
 
     def test_tag_vote_logging(self) -> None:
         """Test that voting for a tag triggers a log message."""
-        self.client.login(username="tagvoter", password=self.upass)
+        self.client.login(username=self.uname, password=self.upass)
 
         # Test voting (adding)
         with self.assertLogs("movies.signals", level="INFO") as cm:

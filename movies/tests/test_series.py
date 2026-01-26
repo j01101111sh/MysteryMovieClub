@@ -2,7 +2,8 @@ from django.db.utils import IntegrityError
 from django.test import TestCase
 from django.urls import reverse
 
-from movies.models import MysteryTitle, Series
+from movies.models import Series
+from movies.tests.factories import MovieFactory
 
 
 class SeriesModelTests(TestCase):
@@ -85,7 +86,7 @@ class SeriesViewTests(TestCase):
 
     def test_series_detail_page_content(self) -> None:
         """Test that the series detail page displays the series' movies."""
-        movie = MysteryTitle.objects.create(
+        movie = MovieFactory.create(
             title="Knives Out",
             slug="knives-out",
             release_year=2019,
@@ -101,7 +102,7 @@ class SeriesViewTests(TestCase):
     def test_series_detail_stats(self) -> None:
         """Test that the series detail page displays correct aggregate statistics."""
         # Movie with both stats
-        MysteryTitle.objects.create(
+        _ = MovieFactory.create(
             title="Glass Onion",
             slug="glass-onion",
             release_year=2022,
@@ -110,7 +111,7 @@ class SeriesViewTests(TestCase):
             avg_difficulty=3.0,
         )
         # Movie with both stats
-        MysteryTitle.objects.create(
+        _ = MovieFactory.create(
             title="Knives Out",
             slug="knives-out",
             release_year=2019,
@@ -119,7 +120,7 @@ class SeriesViewTests(TestCase):
             avg_difficulty=4.0,
         )
         # Movie with only quality stat
-        MysteryTitle.objects.create(
+        _ = MovieFactory.create(
             title="Movie A",
             slug="movie-a",
             release_year=2020,
@@ -128,7 +129,7 @@ class SeriesViewTests(TestCase):
             avg_difficulty=0.0,
         )
         # Movie with only difficulty stat
-        MysteryTitle.objects.create(
+        _ = MovieFactory.create(
             title="Movie B",
             slug="movie-b",
             release_year=2021,
@@ -137,7 +138,7 @@ class SeriesViewTests(TestCase):
             avg_difficulty=5.0,
         )
         # Movie with no stats (should be ignored in average)
-        MysteryTitle.objects.create(
+        _ = MovieFactory.create(
             title="Wake Up Dead Man",
             slug="wake-up-dead-man",
             release_year=2025,
