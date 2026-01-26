@@ -14,6 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       SECRET_KEY: "django-insecure-test-key-for-ci-environment"
+      LOG_LEVEL: "DEBUG"
 
     steps:
       - name: Checkout code
@@ -56,4 +57,4 @@ jobs:
         uses: actions/upload-artifact@v6
         with:
           name: django-log
-          path: django.log
+          path: logs/django.log
