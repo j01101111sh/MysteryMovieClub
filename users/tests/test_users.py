@@ -69,8 +69,8 @@ class SignUpViewTests(TestCase):
         response = self.client.get(reverse("signup"))
         self.assertEqual(response.status_code, 200)
 
-    def test_get_or_create_logging(self) -> None:
-        """Test that get_or_create triggers a log message via signals."""
+    def test_user_creation_logging(self) -> None:
+        """Test that user creation triggers a log message via signals."""
         # assertLogs captures logs from the 'users.signals' logger
         with self.assertLogs("users.signals", level="INFO") as cm:
             _ = UserFactory.create(
