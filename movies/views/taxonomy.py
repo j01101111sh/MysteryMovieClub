@@ -27,7 +27,7 @@ class TaxonomyChartMixin:
         # Filter for movies that have at least one metric rated
         rated_movies = movies_qs.filter(
             Q(avg_difficulty__gt=0) | Q(avg_quality__gt=0),
-        ).only("title", "slug", "avg_difficulty", "avg_quality", "release_year")
+        ).only("title", "slug", "avg_difficulty", "avg_quality")
 
         plot_data = [
             {
