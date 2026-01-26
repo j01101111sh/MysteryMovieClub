@@ -88,17 +88,16 @@ class ReviewFactory:
         Args:
             user: The user authoring the review.
             movie: The movie being reviewed.
-            **kwargs: Fields to override (rating, difficulty, fair_play, etc.).
+            **kwargs: Fields to override (quality, difficulty, fair_play, etc.).
 
         Returns:
             A saved Review instance.
         """
         defaults = {
-            "rating": 80,
-            "difficulty": 50,
-            "fair_play": True,
-            "title": "Test Review Title",
-            "text": "This is a test review content.",
+            "quality": 4,
+            "difficulty": 3,
+            "is_fair_play": True,
+            "comment": "This is a test review content.",
         }
 
         defaults.update(kwargs)
