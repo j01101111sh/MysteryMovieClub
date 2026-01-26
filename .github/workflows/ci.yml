@@ -14,6 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       SECRET_KEY: "django-insecure-test-key-for-ci-environment"
+      LOG_LEVEL: "DEBUG"
 
     steps:
       - name: Checkout code
