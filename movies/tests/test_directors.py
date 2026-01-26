@@ -2,7 +2,8 @@ from django.db.utils import IntegrityError
 from django.test import TestCase
 from django.urls import reverse
 
-from movies.models import Director, MysteryTitle
+from movies.models import Director
+from movies.tests.factories import MovieFactory
 
 
 class DirectorModelTests(TestCase):
@@ -91,12 +92,7 @@ class DirectorViewTests(TestCase):
 
     def test_director_detail_page_content(self) -> None:
         """Test that the director detail page displays the director's movies."""
-        _ = MysteryTitle.objects.create(
-            title="Knives Out",
-            slug="knives-out",
-            release_year=2019,
-            director=self.director1,
-        )
+        _ = MovieFactory.create(title="Knives Out", director=self.director1)
         url = reverse("movies:director_detail", kwargs={"slug": self.director1.slug})
         response = self.client.get(url)
         self.assertContains(response, "Rian Johnson")
@@ -105,10 +101,8 @@ class DirectorViewTests(TestCase):
     def test_director_detail_page_context_plot_data(self) -> None:
         """Test that the director detail page context contains the plot data and averages."""
         # Create a movie with stats associated with director1
-        MysteryTitle.objects.create(
+        _ = MovieFactory.create(
             title="Knives Out",
-            slug="knives-out",
-            release_year=2019,
             director=self.director1,
             avg_quality=4.5,
             avg_difficulty=3.0,
@@ -132,4 +126,5 @@ class DirectorViewTests(TestCase):
 
         # Check averages
         self.assertEqual(response.context["avg_difficulty"], 3.0)
+        self.assertEqual(response.context["avg_quality"], 4.5)
         self.assertEqual(response.context["avg_quality"], 4.5)
