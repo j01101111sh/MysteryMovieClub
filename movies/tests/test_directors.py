@@ -127,4 +127,3 @@ class DirectorViewTests(TestCase):
         # Check averages
         self.assertEqual(response.context["avg_difficulty"], 3.0)
         self.assertEqual(response.context["avg_quality"], 4.5)
-        self.assertEqual(response.context["avg_quality"], 4.5)
