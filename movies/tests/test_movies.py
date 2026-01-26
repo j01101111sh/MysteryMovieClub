@@ -6,6 +6,7 @@ from django.test import TestCase
 from django.urls import reverse
 
 from movies.models import Director, MysteryTitle, Review, Series
+from movies.tests.factories import MovieFactory
 
 
 class MysteryTitleModelTests(TestCase):
@@ -15,7 +16,7 @@ class MysteryTitleModelTests(TestCase):
             slug="rian-johnson",
         )
         self.series = Series.objects.create(name="Benoit Blanc", slug="benoit-blanc")
-        self.movie = MysteryTitle.objects.create(
+        self.movie = MovieFactory.create(
             title="Knives Out",
             slug="knives-out-2019",
             release_year=2019,
@@ -44,19 +45,14 @@ class MysteryTitleModelTests(TestCase):
 
     def test_ordering(self) -> None:
         """Test that movies are ordered by release_year descending, then title."""
-        m_older = MysteryTitle.objects.create(
-            title="A Older",
-            slug="older",
+        m_older = MovieFactory.create(
             release_year=2018,
         )
-        m_newer = MysteryTitle.objects.create(
-            title="Z Newer",
-            slug="newer",
+        m_newer = MovieFactory.create(
             release_year=2020,
         )
-        m_same_year = MysteryTitle.objects.create(
-            title="A Same Year",
-            slug="same-year",
+        m_same_year = MovieFactory.create(
+            title="Aaa",
             release_year=2019,
         )
         expected = [m_newer, m_same_year, self.movie, m_older]
@@ -65,7 +61,7 @@ class MysteryTitleModelTests(TestCase):
     def test_slug_uniqueness(self) -> None:
         """Test that duplicate slugs raise an IntegrityError."""
         with self.assertRaises(IntegrityError):
-            MysteryTitle.objects.create(
+            _ = MovieFactory.create(
                 title="Dup",
                 slug=self.movie.slug,
                 release_year=2020,
@@ -80,10 +76,9 @@ class MysteryTitleModelTests(TestCase):
         """Test that creating a movie triggers a log message."""
         # Use assertLogs to catch logs from the movies.models logger
         with self.assertLogs("movies.signals", level="INFO") as cm:
-            MysteryTitle.objects.create(
+            _ = MovieFactory.create(
                 title="Log Test Movie",
                 slug="log-test-movie",
-                release_year=2022,
             )
             # Verify the log message exists
             self.assertTrue(
@@ -97,7 +92,7 @@ class MysteryViewTests(TestCase):
             name="Rian Johnson",
             slug="rian-johnson",
         )
-        self.movie1 = MysteryTitle.objects.create(
+        self.movie1 = MovieFactory.create(
             title="Knives Out",
             slug="knives-out-2019",
             release_year=2019,
@@ -110,7 +105,7 @@ class MysteryViewTests(TestCase):
             name="Steven Moffat",
             slug="steven-moffat",
         )
-        self.movie2 = MysteryTitle.objects.create(
+        self.movie2 = MovieFactory.create(
             title="Sherlock",
             slug="sherlock-2010",
             release_year=2010,
