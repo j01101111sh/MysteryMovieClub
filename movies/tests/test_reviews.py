@@ -113,7 +113,7 @@ class ReviewTests(TestCase):
         self.assertFalse(response.context["has_reviewed"])
 
         # Logged in, with review
-        Review.objects.create(
+        _ = ReviewFactory.create(
             movie=self.movie,
             user=self.user,
             quality=4,
