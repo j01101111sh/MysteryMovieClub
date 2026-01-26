@@ -4,7 +4,7 @@ from django.db.utils import IntegrityError
 from django.test import TestCase, override_settings
 from django.urls import reverse
 
-from movies.models import MysteryTitle, Review, ReviewHelpfulVote
+from movies.models import Review, ReviewHelpfulVote
 from movies.tests.factories import MovieFactory, ReviewFactory, UserFactory
 
 
@@ -492,18 +492,8 @@ class ReviewHelpfulSignalTests(TestCase):
         """Set up test data."""
         self.reviewer, _ = UserFactory.create()
         self.voter, _ = UserFactory.create()
-        self.movie = MysteryTitle.objects.create(
-            title="Signal Test Movie",
-            slug="signal-test-movie",
-            release_year=2023,
-        )
-        self.review = Review.objects.create(
-            movie=self.movie,
-            user=self.reviewer,
-            quality=4,
-            difficulty=3,
-            is_fair_play=True,
-        )
+        self.movie = MovieFactory.create()
+        self.review = ReviewFactory.create(user=self.reviewer, movie=self.movie)
 
     def test_vote_creation_logging(self) -> None:
         """Test that creating a helpful vote triggers a log message."""
