@@ -63,4 +63,3 @@ class FactoryVerificationTests(TestCase):
         self.assertEqual(review.movie, movie)
         self.assertEqual(review.quality, review_quality)
         self.assertIsNotNone(review.pk)
-        self.assertIsNotNone(review.pk)
