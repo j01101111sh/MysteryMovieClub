@@ -1,0 +1,12 @@
+<div class="card h-100">
+    <div class="card-header">Quality vs. Difficulty Analysis</div>
+    <div class="card-body">
+        {% if not plot_data %}
+            <p class="card-text text-muted text-center my-5">Not enough rated movies to generate analysis.</p>
+        {% else %}
+            <div class="chart-container">
+                <canvas id="taxonomyChart"></canvas>
+            </div>
+        {% endif %}
+    </div>
+</div>

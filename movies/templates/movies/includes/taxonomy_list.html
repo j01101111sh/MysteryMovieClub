@@ -1,0 +1,27 @@
+<div class="card h-100">
+    <div class="card-header">
+        {% if list_title %}
+            {{ list_title }}
+        {% else %}
+            Filmography
+        {% endif %}
+    </div>
+    <ul class="list-group list-group-flush">
+        {% for movie in object.movies.all %}
+            <li class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                <div>
+                    <a href="{{ movie.get_absolute_url }}"
+                       class="text-decoration-none stretched-link">{{ movie.title }}</a>
+                    <div class="small text-muted">{{ movie.release_year }}</div>
+                </div>
+                {% if movie.avg_quality > 0 or movie.avg_difficulty > 0 %}
+                    <span class="badge bg-secondary rounded-pill" title="Quality | Difficulty">
+                        Q: {{ movie.avg_quality|floatformat:1 }} | D: {{ movie.avg_difficulty|floatformat:1 }}
+                    </span>
+                {% endif %}
+            </li>
+        {% empty %}
+            <li class="list-group-item">No movies found.</li>
+        {% endfor %}
+    </ul>
+</div>

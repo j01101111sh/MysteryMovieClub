@@ -154,3 +154,14 @@ class SeriesViewTests(TestCase):
         self.assertEqual(response.context["avg_quality"], 4.0)
         self.assertEqual(response.context["avg_difficulty"], 4.0)
         self.assertContains(response, "4.0")
+
+        # Verify plot data is generated
+        self.assertIn("plot_data", response.context)
+        # We expect 4 movies in the plot data (all except "Wake Up Dead Man" which has 0,0)
+        # However, the filter is (diff > 0 OR qual > 0).
+        # Wake Up Dead Man (0,0) is excluded.
+        # Movie A (3.0, 0.0) is included.
+        # Movie B (0.0, 5.0) is included.
+        # Glass Onion (4.0, 3.0) is included.
+        # Knives Out (5.0, 4.0) is included.
+        self.assertEqual(len(response.context["plot_data"]), 4)
