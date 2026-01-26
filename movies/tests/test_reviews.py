@@ -208,19 +208,8 @@ class ReviewHelpfulVoteModelTests(TestCase):
 
         self.user1, _ = UserFactory.create()
         self.user2, _ = UserFactory.create()
-        self.movie = MysteryTitle.objects.create(
-            title="Test Movie",
-            slug="test-movie",
-            release_year=2023,
-        )
-        self.review = Review.objects.create(
-            movie=self.movie,
-            user=self.user1,
-            quality=4,
-            difficulty=3,
-            is_fair_play=True,
-            comment="Great mystery!",
-        )
+        self.movie = MovieFactory.create()
+        self.review = ReviewFactory.create(user=self.user1, movie=self.movie)
 
     def test_create_helpful_vote(self) -> None:
         """Test creating a helpful vote."""
@@ -282,19 +271,8 @@ class ReviewHelpfulStatsTests(TestCase):
         self.voter1, _ = UserFactory.create()
         self.voter2, _ = UserFactory.create()
         self.voter3, _ = UserFactory.create()
-        self.movie = MysteryTitle.objects.create(
-            title="Test Movie",
-            slug="test-movie-stats",
-            release_year=2023,
-        )
-        self.review = Review.objects.create(
-            movie=self.movie,
-            user=self.reviewer,
-            quality=4,
-            difficulty=3,
-            is_fair_play=True,
-            comment="Test review",
-        )
+        self.movie = MovieFactory.create()
+        self.review = ReviewFactory.create(user=self.reviewer, movie=self.movie)
 
     def test_initial_counts_are_zero(self) -> None:
         """Test that initial helpful counts are zero."""
@@ -396,19 +374,8 @@ class ReviewHelpfulVoteViewTests(TestCase):
         self.voter, self.voter_password = UserFactory.create()
         self.voter_username = self.voter.get_username()
 
-        self.movie = MysteryTitle.objects.create(
-            title="Test Movie",
-            slug="test-movie-views",
-            release_year=2023,
-        )
-        self.review = Review.objects.create(
-            movie=self.movie,
-            user=self.reviewer,
-            quality=4,
-            difficulty=3,
-            is_fair_play=True,
-            comment="Test review",
-        )
+        self.movie = MovieFactory.create()
+        self.review = ReviewFactory.create(user=self.reviewer, movie=self.movie)
 
     def test_login_required(self) -> None:
         """Test that voting requires authentication."""
