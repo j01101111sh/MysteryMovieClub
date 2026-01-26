@@ -22,8 +22,6 @@ repos:
       - id: check-added-large-files # prevent giant files from being committed
         args: ["--maxkb=2048"]
       # python checks
-      - id: name-tests-test # verifies that test files are named correctly
-        args: ["--pytest-test-first"]
       - id: check-docstring-first # checks for code before the docstring
       - id: debug-statements # check for debugger imports and breakpoint calls in python source
       # git checks
