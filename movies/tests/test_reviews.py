@@ -1,6 +1,3 @@
-import secrets
-
-from django.contrib.auth import get_user_model
 from django.core.cache import cache
 from django.core.cache.utils import make_template_fragment_key
 from django.db.utils import IntegrityError
@@ -8,17 +5,14 @@ from django.test import TestCase, override_settings
 from django.urls import reverse
 
 from movies.models import MysteryTitle, Review, ReviewHelpfulVote
+from movies.tests.factories import UserFactory
 
 
 class ReviewTests(TestCase):
     def setUp(self) -> None:
-        self.uname = f"user_{secrets.token_hex(4)}"
-        self.upass = secrets.token_urlsafe(16)
+        self.user, self.upass = UserFactory.create()
+        self.uname = self.user.get_username()
 
-        self.user = get_user_model().objects.create_user(  # type: ignore
-            username=self.uname,
-            password=self.upass,
-        )
         self.movie = MysteryTitle.objects.create(
             title="Knives Out",
             slug="knives-out-2019",
@@ -185,10 +179,7 @@ class ReviewTests(TestCase):
 
 class ReviewListViewTests(TestCase):
     def setUp(self) -> None:
-        self.user = get_user_model().objects.create_user(  # type: ignore
-            username=f"user_{secrets.token_hex(4)}",
-            password=secrets.token_urlsafe(16),
-        )
+        self.user, _ = UserFactory.create()
         self.movie = MysteryTitle.objects.create(
             title="Knives Out",
             slug="knives-out-2019",
@@ -226,13 +217,8 @@ class ReviewListViewTests(TestCase):
 )
 class ReviewCacheTests(TestCase):
     def setUp(self) -> None:
-        self.uname = f"user_{secrets.token_hex(4)}"
-        self.upass = secrets.token_urlsafe(16)
-
-        self.user = get_user_model().objects.create_user(  # type: ignore
-            username=self.uname,
-            password=self.upass,
-        )
+        self.user, self.upass = UserFactory.create()
+        self.uname = self.user.get_username()
         self.movie = MysteryTitle.objects.create(
             title="Glass Onion",
             slug="glass-onion",
@@ -292,14 +278,9 @@ class ReviewHelpfulVoteModelTests(TestCase):
 
     def setUp(self) -> None:
         """Set up test data."""
-        self.user1 = get_user_model().objects.create_user(
-            username=f"user1_{secrets.token_hex(4)}",
-            password=secrets.token_urlsafe(16),
-        )
-        self.user2 = get_user_model().objects.create_user(
-            username=f"user2_{secrets.token_hex(4)}",
-            password=secrets.token_urlsafe(16),
-        )
+
+        self.user1, _ = UserFactory.create()
+        self.user2, _ = UserFactory.create()
         self.movie = MysteryTitle.objects.create(
             title="Test Movie",
             slug="test-movie",
@@ -370,22 +351,10 @@ class ReviewHelpfulStatsTests(TestCase):
 
     def setUp(self) -> None:
         """Set up test data."""
-        self.reviewer = get_user_model().objects.create_user(
-            username=f"reviewer_{secrets.token_hex(4)}",
-            password=secrets.token_urlsafe(16),
-        )
-        self.voter1 = get_user_model().objects.create_user(
-            username=f"voter1_{secrets.token_hex(4)}",
-            password=secrets.token_urlsafe(16),
-        )
-        self.voter2 = get_user_model().objects.create_user(
-            username=f"voter2_{secrets.token_hex(4)}",
-            password=secrets.token_urlsafe(16),
-        )
-        self.voter3 = get_user_model().objects.create_user(
-            username=f"voter3_{secrets.token_hex(4)}",
-            password=secrets.token_urlsafe(16),
-        )
+        self.reviewer, _ = UserFactory.create()
+        self.voter1, _ = UserFactory.create()
+        self.voter2, _ = UserFactory.create()
+        self.voter3, _ = UserFactory.create()
         self.movie = MysteryTitle.objects.create(
             title="Test Movie",
             slug="test-movie-stats",
@@ -495,18 +464,11 @@ class ReviewHelpfulVoteViewTests(TestCase):
 
     def setUp(self) -> None:
         """Set up test data."""
-        self.reviewer_username = f"voter_{secrets.token_hex(4)}"
-        self.reviewer_password = secrets.token_urlsafe(16)
-        self.reviewer = get_user_model().objects.create_user(
-            username=self.reviewer_username,
-            password=self.reviewer_password,
-        )
-        self.voter_username = f"voter_{secrets.token_hex(4)}"
-        self.voter_password = secrets.token_urlsafe(16)
-        self.voter = get_user_model().objects.create_user(
-            username=self.voter_username,
-            password=self.voter_password,
-        )
+        self.reviewer, self.reviewer_password = UserFactory.create()
+        self.reviewer_username = self.reviewer.get_username()
+        self.voter, self.voter_password = UserFactory.create()
+        self.voter_username = self.voter.get_username()
+
         self.movie = MysteryTitle.objects.create(
             title="Test Movie",
             slug="test-movie-views",
@@ -634,14 +596,8 @@ class ReviewHelpfulSignalTests(TestCase):
 
     def setUp(self) -> None:
         """Set up test data."""
-        self.reviewer = get_user_model().objects.create_user(
-            username=f"reviewer_{secrets.token_hex(4)}",
-            password=secrets.token_urlsafe(16),
-        )
-        self.voter = get_user_model().objects.create_user(
-            username=f"voter_{secrets.token_hex(4)}",
-            password=secrets.token_urlsafe(16),
-        )
+        self.reviewer, _ = UserFactory.create()
+        self.voter, _ = UserFactory.create()
         self.movie = MysteryTitle.objects.create(
             title="Signal Test Movie",
             slug="signal-test-movie",
