@@ -2,8 +2,8 @@ from django.db.utils import IntegrityError
 from django.test import TestCase
 from django.urls import reverse
 
+from config.tests.factories import MovieFactory, ReviewFactory, UserFactory
 from movies.models import Director, MysteryTitle, Review, Series
-from movies.tests.factories import MovieFactory, ReviewFactory, UserFactory
 
 
 class MysteryTitleModelTests(TestCase):
