@@ -5,7 +5,7 @@ from django.test import TestCase, override_settings
 from django.urls import reverse
 
 from movies.models import MysteryTitle, Review, ReviewHelpfulVote
-from movies.tests.factories import UserFactory
+from movies.tests.factories import MovieFactory, ReviewFactory, UserFactory
 
 
 class ReviewTests(TestCase):
@@ -13,25 +13,12 @@ class ReviewTests(TestCase):
         self.user, self.upass = UserFactory.create()
         self.uname = self.user.get_username()
 
-        self.movie = MysteryTitle.objects.create(
-            title="Knives Out",
-            slug="knives-out-2019",
-            release_year=2019,
-            media_type=MysteryTitle.MediaType.MOVIE,
-        )
+        self.movie = MovieFactory.create()
         self.url = reverse("movies:add_review", kwargs={"slug": self.movie.slug})
 
     def test_review_model_creation(self) -> None:
         """Test that a review can be created and the string representation is correct."""
-        review = Review.objects.create(
-            movie=self.movie,
-            user=self.user,
-            quality=5,
-            difficulty=3,
-            is_fair_play=True,
-            solved=True,
-            comment="Great movie!",
-        )
+        review = ReviewFactory.create(user=self.user, movie=self.movie, solved=True)
         self.assertEqual(str(review), f"{self.user}'s review of {self.movie}")
         self.assertEqual(Review.objects.count(), 1)
         self.assertTrue(review.solved)
@@ -180,20 +167,8 @@ class ReviewTests(TestCase):
 class ReviewListViewTests(TestCase):
     def setUp(self) -> None:
         self.user, _ = UserFactory.create()
-        self.movie = MysteryTitle.objects.create(
-            title="Knives Out",
-            slug="knives-out-2019",
-            release_year=2019,
-            media_type=MysteryTitle.MediaType.MOVIE,
-        )
-        self.review = Review.objects.create(
-            movie=self.movie,
-            user=self.user,
-            quality=5,
-            difficulty=3,
-            is_fair_play=True,
-            comment="Great movie!",
-        )
+        self.movie = MovieFactory.create()
+        self.review = ReviewFactory.create(user=self.user, movie=self.movie)
         self.url = reverse("movies:review_list", kwargs={"slug": self.movie.slug})
 
     def test_review_list_status_code(self) -> None:
