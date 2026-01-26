@@ -56,4 +56,4 @@ jobs:
         uses: actions/upload-artifact@v6
         with:
           name: django-log
-          path: django.log
+          path: logs/django.log
