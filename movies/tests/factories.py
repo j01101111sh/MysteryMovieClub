@@ -2,7 +2,6 @@ import secrets
 from typing import Any
 
 from django.contrib.auth import get_user_model
-from django.contrib.auth.models import AbstractBaseUser
 from django.utils.text import slugify
 
 from movies.models import MysteryTitle, Review
@@ -21,7 +20,7 @@ class UserFactory:
     def create(
         password: str | None = None,
         **kwargs: Any,
-    ) -> tuple[AbstractBaseUser, str]:
+    ) -> tuple[CustomUser, str]:
         """
         Creates a new user instance.
 
