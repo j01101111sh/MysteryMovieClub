@@ -2,8 +2,8 @@ from django.db.utils import IntegrityError
 from django.test import TestCase
 from django.urls import reverse
 
-from movies.models import MysteryTitle, Tag, TagVote
-from movies.tests.factories import UserFactory
+from movies.models import Tag, TagVote
+from movies.tests.factories import MovieFactory, UserFactory
 
 
 class TagModelTests(TestCase):
@@ -29,7 +29,7 @@ class TagVoteTests(TestCase):
     def setUp(self) -> None:
         self.user, self.upass = UserFactory.create()
         self.uname = self.user.get_username()
-        self.movie = MysteryTitle.objects.create(
+        self.movie = MovieFactory.create(
             title="Tag Movie",
             slug="tag-movie",
             release_year=2021,
