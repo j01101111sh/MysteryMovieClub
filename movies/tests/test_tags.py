@@ -2,8 +2,8 @@ from django.db.utils import IntegrityError
 from django.test import TestCase
 from django.urls import reverse
 
+from config.tests.factories import MovieFactory, UserFactory
 from movies.models import Tag, TagVote
-from movies.tests.factories import MovieFactory, UserFactory
 
 
 class TagModelTests(TestCase):

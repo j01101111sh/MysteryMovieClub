@@ -1,8 +1,8 @@
 from django.test import TestCase
 from django.urls import reverse
 
+from config.tests.factories import MovieFactory, UserFactory
 from movies.models import WatchListEntry
-from movies.tests.factories import MovieFactory, UserFactory
 
 
 class WatchListTests(TestCase):

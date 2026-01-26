@@ -1,7 +1,7 @@
 from django.test import TestCase
 
+from config.tests.factories import MovieFactory, ReviewFactory, UserFactory
 from movies.models import MysteryTitle
-from movies.tests.factories import MovieFactory, ReviewFactory, UserFactory
 
 
 class FactoryVerificationTests(TestCase):

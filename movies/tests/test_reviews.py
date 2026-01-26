@@ -4,8 +4,8 @@ from django.db.utils import IntegrityError
 from django.test import TestCase, override_settings
 from django.urls import reverse
 
+from config.tests.factories import MovieFactory, ReviewFactory, UserFactory
 from movies.models import Review, ReviewHelpfulVote
-from movies.tests.factories import MovieFactory, ReviewFactory, UserFactory
 
 
 class ReviewTests(TestCase):
