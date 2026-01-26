@@ -1,25 +1,15 @@
-import secrets
-
-from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
 
-from movies.models import Director, MysteryTitle, WatchListEntry
+from movies.models import WatchListEntry
+from movies.tests.factories import MovieFactory, UserFactory
 
 
 class WatchListTests(TestCase):
     def setUp(self) -> None:
-        self.uname = f"user_{secrets.token_hex(4)}"
-        self.upass = secrets.token_urlsafe(16)
-        self.user = get_user_model().objects.create_user(  # type: ignore
-            username=self.uname,
-            password=self.upass,
-        )
-        self.movie = MysteryTitle.objects.create(
-            title="Watchlist Movie",
-            slug="watchlist-movie",
-            release_year=2021,
-        )
+        self.user, self.upass = UserFactory.create()
+        self.uname = self.user.get_username()
+        self.movie = MovieFactory.create()
 
     def test_add_to_watchlist(self) -> None:
         self.client.login(username=self.uname, password=self.upass)
@@ -55,22 +45,9 @@ class WatchlistSignalTests(TestCase):
     """
 
     def setUp(self) -> None:
-        self.uname = f"user_{secrets.token_hex(4)}"
-        self.upass = secrets.token_urlsafe(16)
-        self.user = get_user_model().objects.create_user(  # type: ignore
-            username=self.uname,
-            password=self.upass,
-        )
-        self.director = Director.objects.create(
-            name="Director Name",
-            slug="director-name",
-        )
-        self.movie = MysteryTitle.objects.create(
-            title="Test Movie",
-            slug="test-movie-2023",
-            release_year=2023,
-            director=self.director,
-        )
+        self.user, self.upass = UserFactory.create()
+        self.uname = self.user.get_username()
+        self.movie = MovieFactory.create()
 
     def test_watchlist_entry_creation_logging(self) -> None:
         """
