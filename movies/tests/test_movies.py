@@ -1,12 +1,9 @@
-import secrets
-
-from django.contrib.auth import get_user_model
 from django.db.utils import IntegrityError
 from django.test import TestCase
 from django.urls import reverse
 
 from movies.models import Director, MysteryTitle, Review, Series
-from movies.tests.factories import MovieFactory
+from movies.tests.factories import MovieFactory, ReviewFactory, UserFactory
 
 
 class MysteryTitleModelTests(TestCase):
@@ -167,16 +164,10 @@ class MysteryViewTests(TestCase):
 
     def test_detail_page_reviews_context(self) -> None:
         """Test that recent reviews are included in the detail page context."""
-        user = get_user_model().objects.create_user(  # type: ignore
-            username="reviewer",
-            password=secrets.token_urlsafe(16),
-        )
-        Review.objects.create(
+        user, _ = UserFactory.create()
+        _ = ReviewFactory.create(
             movie=self.movie1,
             user=user,
-            quality=5,
-            difficulty=3,
-            is_fair_play=True,
         )
         url = reverse("movies:detail", kwargs={"slug": self.movie1.slug})
         response = self.client.get(url)
@@ -194,12 +185,8 @@ class MysteryViewTests(TestCase):
     def test_pagination(self) -> None:
         """Test that the movie list is paginated."""
         # Create enough movies to trigger pagination
-        for i in range(25):
-            MysteryTitle.objects.create(
-                title=f"Pagination Movie {i}",
-                slug=f"pagination-movie-{i}",
-                release_year=2020,
-            )
+        for _ in range(25):
+            _ = MovieFactory.create()
 
         response = self.client.get(reverse("home"))
         self.assertEqual(response.status_code, 200)
@@ -226,7 +213,7 @@ class MysteryViewTests(TestCase):
         # Create enough movies to trigger pagination (15 per page)
         # Create 20 "Noir" movies which should match the search
         for i in range(20):
-            MysteryTitle.objects.create(
+            _ = MovieFactory.create(
                 title=f"Noir Movie {i}",
                 slug=f"noir-movie-{i}",
                 release_year=2020,
@@ -234,7 +221,7 @@ class MysteryViewTests(TestCase):
             )
         # Create 5 "Comedy" movies (should be excluded)
         for i in range(5):
-            MysteryTitle.objects.create(
+            _ = MovieFactory.create(
                 title=f"Comedy Movie {i}",
                 slug=f"comedy-movie-{i}",
                 release_year=2020,
@@ -264,16 +251,10 @@ class MysteryViewTests(TestCase):
 
 class MysteryTitleStatsTests(TestCase):
     def setUp(self) -> None:
-        self.user1 = get_user_model().objects.create_user(  # type: ignore
-            username=f"user_{secrets.token_hex(4)}",
-            password=secrets.token_urlsafe(16),
-        )
-        self.user2 = get_user_model().objects.create_user(  # type: ignore
-            username=f"user_{secrets.token_hex(4)}",
-            password=secrets.token_urlsafe(16),
-        )
+        self.user1, _ = UserFactory.create()
+        self.user2, _ = UserFactory.create()
 
-        self.movie = MysteryTitle.objects.create(
+        self.movie = MovieFactory.create(
             title="Stats Movie",
             slug="stats-movie",
             release_year=2020,
@@ -287,7 +268,7 @@ class MysteryTitleStatsTests(TestCase):
         self.assertEqual(self.movie.fair_play_consensus, 0.0)
 
         # Add first review
-        Review.objects.create(
+        _ = ReviewFactory.create(
             movie=self.movie,
             user=self.user1,
             quality=4,
@@ -301,7 +282,7 @@ class MysteryTitleStatsTests(TestCase):
         self.assertEqual(self.movie.fair_play_consensus, 100.0)
 
         # Add second review
-        review2 = Review.objects.create(
+        review2 = ReviewFactory.create(
             movie=self.movie,
             user=self.user2,
             quality=2,
