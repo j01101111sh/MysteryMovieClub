@@ -4,16 +4,15 @@ from django.contrib.auth import get_user_model
 from django.test import Client, TestCase
 from django.urls import reverse
 
+from config.tests.factories import UserFactory
 from users.forms import CustomUserCreationForm
 
 
 class CustomUserModelTests(TestCase):
     def test_create_user(self) -> None:
         """Test that a user can be created with a username and password."""
-        User = get_user_model()
-        user = User.objects.create_user(
+        user, _ = UserFactory.create(
             username="testuser",
-            password=secrets.token_urlsafe(16),
         )
         self.assertEqual(user.username, "testuser")
         self.assertTrue(user.is_active)
@@ -35,10 +34,7 @@ class CustomUserModelTests(TestCase):
 
     def test_profile_fields(self) -> None:
         """Test that custom profile fields can be saved."""
-        User = get_user_model()
-        user = User.objects.create_user(
-            username="profiletest",
-            password=secrets.token_urlsafe(16),
+        user, _ = UserFactory.create(
             bio="I love mystery movies.",
             location="Baker Street",
             website="https://example.com",
@@ -49,28 +45,20 @@ class CustomUserModelTests(TestCase):
 
     def test_test_user_flag(self) -> None:
         """Test the is_test_user flag."""
-        User = get_user_model()
         # Test default is False
-        user_normal = User.objects.create_user(
-            username="normal_user",
-            password=secrets.token_urlsafe(16),
-        )
+        user_normal, _ = UserFactory.create()
         self.assertFalse(user_normal.is_test_user)
 
         # Test setting to True
-        user_test = User.objects.create_user(
-            username="test_user",
-            password=secrets.token_urlsafe(16),
+        user_test, _ = UserFactory.create(
             is_test_user=True,
         )
         self.assertTrue(user_test.is_test_user)
 
     def test_string_representation(self) -> None:
         """Test the model's string representation uses the username."""
-        User = get_user_model()
-        user = User.objects.create_user(
+        user, _ = UserFactory.create(
             username="testuser2",
-            password=secrets.token_urlsafe(16),
         )
         self.assertEqual(str(user), "testuser2")
 
@@ -83,12 +71,10 @@ class SignUpViewTests(TestCase):
 
     def test_get_or_create_logging(self) -> None:
         """Test that get_or_create triggers a log message via signals."""
-        User = get_user_model()
         # assertLogs captures logs from the 'users.signals' logger
         with self.assertLogs("users.signals", level="INFO") as cm:
-            User.objects.get_or_create(
+            _ = UserFactory.create(
                 username="signal_test_user",
-                defaults={"password": secrets.token_urlsafe(16)},
             )
 
             # Verify the log message was captured
