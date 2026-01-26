@@ -6,7 +6,7 @@
     {{ director.name }}
 {% endblock title %}
 {% block extra_css %}
-    <link rel="stylesheet" href="{% static 'movies/css/director_detail.css' %}" />
+    <link rel="stylesheet" href="{% static 'movies/css/taxonomy_detail.css' %}" />
 {% endblock extra_css %}
 {% block content %}
     <div class="row mb-4">
@@ -16,39 +16,12 @@
     </div>
     <div class="row">
         <div class="col-lg-8 mb-4">
-            <div class="card h-100">
-                <div class="card-header">Quality vs. Difficulty Analysis</div>
-                <div class="card-body">
-                    {% if not plot_data %}
-                        <p class="card-text text-muted text-center my-5">Not enough rated movies to generate analysis.</p>
-                    {% else %}
-                        <div class="chart-container">
-                            <canvas id="directorChart"></canvas>
-                        </div>
-                    {% endif %}
-                </div>
-            </div>
+            {% include "movies/includes/taxonomy_chart.html" %}
+
         </div>
         <div class="col-lg-4 mb-4">
-            <div class="card h-100">
-                <div class="card-header">Filmography</div>
-                <ul class="list-group list-group-flush">
-                    {% for movie in director.movies.all %}
-                        <li class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
-                            <div>
-                                <a href="{{ movie.get_absolute_url }}"
-                                   class="text-decoration-none stretched-link">{{ movie.title }}</a>
-                                <div class="small text-muted">{{ movie.release_year }}</div>
-                            </div>
-                            {% if movie.avg_quality > 0 %}
-                                <span class="badge bg-primary rounded-pill" title="Quality Score">{{ movie.avg_quality|floatformat:1 }}</span>
-                            {% endif %}
-                        </li>
-                    {% empty %}
-                        <li class="list-group-item">No movies found for this director.</li>
-                    {% endfor %}
-                </ul>
-            </div>
+            {% include "movies/includes/taxonomy_list.html" with object=director %}
+
         </div>
     </div>
 {% endblock content %}
@@ -59,5 +32,5 @@
     {{ plot_data|json_script:"plot-data" }}
     {{ avg_difficulty|json_script:"avg-difficulty" }}
     {{ avg_quality|json_script:"avg-quality" }}
-    <script src="{% static 'movies/js/director_detail.js' %}"></script>
+    <script src="{% static 'movies/js/taxonomy_detail.js' %}"></script>
 {% endblock extra_js %}

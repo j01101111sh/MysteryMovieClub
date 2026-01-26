@@ -1,45 +1,36 @@
 {% extends "base.html" %}
 
+{% load static %}
+
 {% block title %}
     {{ series.name }}
 {% endblock title %}
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'movies/css/taxonomy_detail.css' %}" />
+{% endblock extra_css %}
 {% block content %}
-    <h1>{{ series.name }}</h1>
     <div class="row mb-4">
-        <div class="col-md-6">
-            <div class="card text-center">
-                <div class="card-body">
-                    <h5 class="card-title text-muted">Average Quality</h5>
-                    <p class="card-text display-4">{{ avg_quality|floatformat:1 }}</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6">
-            <div class="card text-center">
-                <div class="card-body">
-                    <h5 class="card-title text-muted">Average Difficulty</h5>
-                    <p class="card-text display-4">{{ avg_difficulty|floatformat:1 }}</p>
-                </div>
-            </div>
+        <div class="col">
+            <h1>{{ series.name }}</h1>
         </div>
     </div>
-    <div class="card">
-        <div class="card-header">Movies in this Series</div>
-        <ul class="list-group list-group-flush">
-            {% for movie in series.movies.all %}
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    <span>
-                        <a href="{{ movie.get_absolute_url }}">{{ movie.title }}</a> ({{ movie.release_year }})
-                    </span>
-                    {% if movie.avg_quality > 0 or movie.avg_difficulty > 0 %}
-                        <span class="badge bg-secondary rounded-pill" title="Quality | Difficulty">
-                            Q: {{ movie.avg_quality|floatformat:1 }} | D: {{ movie.avg_difficulty|floatformat:1 }}
-                        </span>
-                    {% endif %}
-                </li>
-            {% empty %}
-                <li class="list-group-item">No movies found in this series.</li>
-            {% endfor %}
-        </ul>
+    <div class="row">
+        <div class="col-lg-8 mb-4">
+            {% include "movies/includes/taxonomy_chart.html" %}
+
+        </div>
+        <div class="col-lg-4 mb-4">
+            {% include "movies/includes/taxonomy_list.html" with object=series list_title="Movies in this Series" %}
+
+        </div>
     </div>
 {% endblock content %}
+{% block extra_js %}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"
+            integrity="jb8JQMbMoBUzgWatfe6COACi2ljcDdZQ2OxczGA3bGNeWe+6DChMTBJemed7ZnvJ"
+            crossorigin="anonymous"></script>
+    {{ plot_data|json_script:"plot-data" }}
+    {{ avg_difficulty|json_script:"avg-difficulty" }}
+    {{ avg_quality|json_script:"avg-quality" }}
+    <script src="{% static 'movies/js/taxonomy_detail.js' %}"></script>
+{% endblock extra_js %}
