@@ -10,8 +10,9 @@
 db.sqlite3
 
 # Ignore log files
-*.log
+*.log.*
 logs/
+*.log
 
 # Ignore OS-generated files
 .DS_Store
