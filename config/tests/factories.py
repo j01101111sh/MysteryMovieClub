@@ -68,16 +68,14 @@ class MovieFactory:
             "media_type": MysteryTitle.MediaType.MOVIE,
             "description": "A default test description.",
         }
-        director = kwargs.pop("director", None) or DirectorFactory.create()
-        series = kwargs.pop("series", None) or SeriesFactory.create()
+        if "director" not in kwargs:
+            kwargs["director"] = DirectorFactory.create()
+        if "series" not in kwargs:
+            kwargs["series"] = SeriesFactory.create()
         # Update defaults with any provided kwargs
         defaults.update(kwargs)
 
-        movie = MysteryTitle.objects.create(**defaults)
-        movie.director = director
-        movie.series = series
-        movie.save()
-        return movie
+        return MysteryTitle.objects.create(**defaults)
 
 
 class ReviewFactory:
