@@ -61,9 +61,7 @@ class MysteryTitleModelTests(TestCase):
         """Test that duplicate slugs raise an IntegrityError."""
         with self.assertRaises(IntegrityError):
             _ = MovieFactory.create(
-                title="Dup",
                 slug=self.movie.slug,
-                release_year=2020,
             )
 
     def test_series_relationship(self) -> None:
