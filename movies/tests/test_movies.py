@@ -8,7 +8,7 @@ from config.tests.factories import (
     ReviewFactory,
     UserFactory,
 )
-from movies.models import Director, MysteryTitle, Review, Series
+from movies.models import MysteryTitle, Review, Series
 
 
 class MysteryTitleModelTests(TestCase):
@@ -73,9 +73,7 @@ class MysteryTitleModelTests(TestCase):
         """Test that creating a movie triggers a log message."""
         # Use assertLogs to catch logs from the movies.models logger
         with self.assertLogs("movies.signals", level="INFO") as cm:
-            _ = MovieFactory.create(
-                slug="log-test-movie",
-            )
+            _ = MovieFactory.create(slug="log-test-movie")
             # Verify the log message exists
             self.assertTrue(
                 any("Movie created: log-test-movie" in o for o in cm.output),
@@ -84,26 +82,22 @@ class MysteryTitleModelTests(TestCase):
 
 class MysteryViewTests(TestCase):
     def setUp(self) -> None:
-        self.director1 = Director.objects.create(
+        self.director1 = DirectorFactory.create(
             name="Rian Johnson",
-            slug="rian-johnson",
         )
         self.movie1 = MovieFactory.create(
             title="Knives Out",
-            slug="knives-out-2019",
             release_year=2019,
             media_type=MysteryTitle.MediaType.MOVIE,
             description="Whodunit description",
             director=self.director1,
         )
 
-        self.director2 = Director.objects.create(
+        self.director2 = DirectorFactory.create(
             name="Steven Moffat",
-            slug="steven-moffat",
         )
         self.movie2 = MovieFactory.create(
             title="Sherlock",
-            slug="sherlock-2010",
             release_year=2010,
             media_type=MysteryTitle.MediaType.TV_SHOW,
             director=self.director2,
@@ -214,17 +208,11 @@ class MysteryViewTests(TestCase):
         for i in range(20):
             _ = MovieFactory.create(
                 title=f"Noir Movie {i}",
-                slug=f"noir-movie-{i}",
-                release_year=2020,
-                description="Dark and stormy",
             )
         # Create 5 "Comedy" movies (should be excluded)
         for i in range(5):
             _ = MovieFactory.create(
                 title=f"Comedy Movie {i}",
-                slug=f"comedy-movie-{i}",
-                release_year=2020,
-                description="Laughs",
             )
 
         # 1. Test Page 1 of Search
@@ -255,8 +243,6 @@ class MysteryTitleStatsTests(TestCase):
 
         self.movie = MovieFactory.create(
             title="Stats Movie",
-            slug="stats-movie",
-            release_year=2020,
         )
 
     def test_stats_calculation_and_signals(self) -> None:
