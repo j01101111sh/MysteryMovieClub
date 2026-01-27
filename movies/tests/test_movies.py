@@ -6,9 +6,10 @@ from config.tests.factories import (
     DirectorFactory,
     MovieFactory,
     ReviewFactory,
+    SeriesFactory,
     UserFactory,
 )
-from movies.models import MysteryTitle, Review, Series
+from movies.models import MysteryTitle, Review
 
 
 class MysteryTitleModelTests(TestCase):
@@ -16,7 +17,7 @@ class MysteryTitleModelTests(TestCase):
         self.director = DirectorFactory.create(
             name="Rian Johnson",
         )
-        self.series = Series.objects.create(name="Benoit Blanc")
+        self.series = SeriesFactory.create(name="Benoit Blanc")
         self.movie = MovieFactory.create(
             title="Knives Out",
             slug="knives-out-2019",
