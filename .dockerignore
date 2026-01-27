@@ -3,3 +3,5 @@ fly.toml
 *.sqlite3
 .venv/
 .github/
+logs/
+*.log.*
