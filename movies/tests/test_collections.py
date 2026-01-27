@@ -1,7 +1,7 @@
 from django.test import TestCase
 from django.urls import reverse
 
-from config.tests.factories import MovieFactory, UserFactory
+from config.tests.factories import CollectionFactory, MovieFactory, UserFactory
 from movies.models import Collection, CollectionItem
 
 
@@ -10,7 +10,7 @@ class CollectionTests(TestCase):
         self.user, self.upass = UserFactory.create()
         self.uname = self.user.get_username()
         self.movie = MovieFactory.create()
-        self.collection = Collection.objects.create(
+        self.collection = CollectionFactory.create(
             name="My Favorites",
             user=self.user,
             is_public=True,
@@ -131,7 +131,7 @@ class CollectionTests(TestCase):
         """Test that the user's collections are separated from others."""
         # Create another user's public collection
         other_user, _ = UserFactory.create()
-        Collection.objects.create(
+        CollectionFactory.create(
             name="Other's Favorites",
             user=other_user,
             is_public=True,
