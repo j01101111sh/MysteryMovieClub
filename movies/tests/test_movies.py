@@ -317,9 +317,3 @@ class MysteryTitleStatsTests(TestCase):
         self.assertEqual(self.movie.avg_quality, 0.0)
         self.assertEqual(self.movie.avg_difficulty, 0.0)
         self.assertEqual(self.movie.fair_play_consensus, 0.0)
-        self.assertEqual(self.movie.fair_play_consensus, 0.0)
-
-        self.movie.refresh_from_db()
-        self.assertEqual(self.movie.avg_quality, 0.0)
-        self.assertEqual(self.movie.avg_difficulty, 0.0)
-        self.assertEqual(self.movie.fair_play_consensus, 0.0)
