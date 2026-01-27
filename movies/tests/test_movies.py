@@ -2,23 +2,25 @@ from django.db.utils import IntegrityError
 from django.test import TestCase
 from django.urls import reverse
 
-from config.tests.factories import MovieFactory, ReviewFactory, UserFactory
+from config.tests.factories import (
+    DirectorFactory,
+    MovieFactory,
+    ReviewFactory,
+    UserFactory,
+)
 from movies.models import Director, MysteryTitle, Review, Series
 
 
 class MysteryTitleModelTests(TestCase):
     def setUp(self) -> None:
-        self.director = Director.objects.create(
+        self.director = DirectorFactory.create(
             name="Rian Johnson",
-            slug="rian-johnson",
         )
-        self.series = Series.objects.create(name="Benoit Blanc", slug="benoit-blanc")
+        self.series = Series.objects.create(name="Benoit Blanc")
         self.movie = MovieFactory.create(
             title="Knives Out",
             slug="knives-out-2019",
             release_year=2019,
-            description="A detective investigates...",
-            media_type=MysteryTitle.MediaType.MOVIE,
             series=self.series,
             director=self.director,
         )
@@ -312,6 +314,12 @@ class MysteryTitleStatsTests(TestCase):
         # Delete all reviews
         for review in Review.objects.filter(movie=self.movie):
             review.delete()
+
+        self.movie.refresh_from_db()
+        self.assertEqual(self.movie.avg_quality, 0.0)
+        self.assertEqual(self.movie.avg_difficulty, 0.0)
+        self.assertEqual(self.movie.fair_play_consensus, 0.0)
+        self.assertEqual(self.movie.fair_play_consensus, 0.0)
 
         self.movie.refresh_from_db()
         self.assertEqual(self.movie.avg_quality, 0.0)
