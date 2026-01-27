@@ -2,13 +2,13 @@ from django.db.utils import IntegrityError
 from django.test import TestCase
 from django.urls import reverse
 
-from config.tests.factories import MovieFactory, UserFactory
-from movies.models import Tag, TagVote
+from config.tests.factories import MovieFactory, TagFactory, UserFactory
+from movies.models import TagVote
 
 
 class TagModelTests(TestCase):
     def setUp(self) -> None:
-        self.tag = Tag.objects.create(name="Whodunnit", slug="whodunnit")
+        self.tag = TagFactory.create(name="Whodunnit", slug="whodunnit")
 
     def test_string_representation(self) -> None:
         """Test that the tag's string representation is its name."""
@@ -17,24 +17,20 @@ class TagModelTests(TestCase):
     def test_name_uniqueness(self) -> None:
         """Test that duplicate tag names raise an IntegrityError."""
         with self.assertRaises(IntegrityError):
-            Tag.objects.create(name="Whodunnit", slug="other")
+            TagFactory.create(name="Whodunnit", slug="other")
 
     def test_slug_uniqueness(self) -> None:
         """Test that duplicate tag slugs raise an IntegrityError."""
         with self.assertRaises(IntegrityError):
-            Tag.objects.create(name="Other", slug="whodunnit")
+            TagFactory.create(name="Other", slug="whodunnit")
 
 
 class TagVoteTests(TestCase):
     def setUp(self) -> None:
         self.user, self.upass = UserFactory.create()
         self.uname = self.user.get_username()
-        self.movie = MovieFactory.create(
-            title="Tag Movie",
-            slug="tag-movie",
-            release_year=2021,
-        )
-        self.tag = Tag.objects.create(name="Suspense", slug="suspense")
+        self.movie = MovieFactory.create(title="Tag Movie")
+        self.tag = TagFactory.create(name="Suspense")
         self.url = reverse("movies:vote_tag", kwargs={"slug": self.movie.slug})
 
     def test_tag_vote_logging(self) -> None:
