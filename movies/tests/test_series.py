@@ -2,13 +2,12 @@ from django.db.utils import IntegrityError
 from django.test import TestCase
 from django.urls import reverse
 
-from config.tests.factories import MovieFactory
-from movies.models import Series
+from config.tests.factories import MovieFactory, SeriesFactory
 
 
 class SeriesModelTests(TestCase):
     def setUp(self) -> None:
-        self.series = Series.objects.create(name="Benoit Blanc", slug="benoit-blanc")
+        self.series = SeriesFactory.create(name="Benoit Blanc", slug="benoit-blanc")
 
     def test_string_representation(self) -> None:
         """Test that the model's string representation returns the series name."""
@@ -25,17 +24,17 @@ class SeriesModelTests(TestCase):
     def test_slug_uniqueness(self) -> None:
         """Test that duplicate slugs for series raise an IntegrityError."""
         with self.assertRaises(IntegrityError):
-            Series.objects.create(name="Blanc", slug="benoit-blanc")
+            SeriesFactory.create(name="Blanc", slug="benoit-blanc")
 
     def test_name_uniqueness(self) -> None:
         """Test that duplicate names for series raise an IntegrityError."""
         with self.assertRaises(IntegrityError):
-            Series.objects.create(name="Benoit Blanc", slug="blanc")
+            SeriesFactory.create(name="Benoit Blanc", slug="blanc")
 
     def test_series_creation_logging(self) -> None:
         """Test that creating a series triggers a log message."""
         with self.assertLogs("movies.signals", level="INFO") as cm:
-            Series.objects.create(
+            SeriesFactory.create(
                 name="Log Test Series",
                 slug="log-test-series",
             )
@@ -48,11 +47,8 @@ class SeriesModelTests(TestCase):
 
 class SeriesViewTests(TestCase):
     def setUp(self) -> None:
-        self.series1 = Series.objects.create(name="Benoit Blanc", slug="benoit-blanc")
-        self.series2 = Series.objects.create(
-            name="Sherlock Holmes",
-            slug="sherlock-holmes",
-        )
+        self.series1 = SeriesFactory.create(name="Benoit Blanc")
+        self.series2 = SeriesFactory.create(name="Sherlock Holmes")
 
     def test_series_list_page_status_code(self) -> None:
         """Test that the series list page returns a 200 OK status code."""
@@ -103,45 +99,30 @@ class SeriesViewTests(TestCase):
         """Test that the series detail page displays correct aggregate statistics."""
         # Movie with both stats
         _ = MovieFactory.create(
-            title="Glass Onion",
-            slug="glass-onion",
-            release_year=2022,
             series=self.series1,
             avg_quality=4.0,
             avg_difficulty=3.0,
         )
         # Movie with both stats
         _ = MovieFactory.create(
-            title="Knives Out",
-            slug="knives-out",
-            release_year=2019,
             series=self.series1,
             avg_quality=5.0,
             avg_difficulty=4.0,
         )
         # Movie with only quality stat
         _ = MovieFactory.create(
-            title="Movie A",
-            slug="movie-a",
-            release_year=2020,
             series=self.series1,
             avg_quality=3.0,
             avg_difficulty=0.0,
         )
         # Movie with only difficulty stat
         _ = MovieFactory.create(
-            title="Movie B",
-            slug="movie-b",
-            release_year=2021,
             series=self.series1,
             avg_quality=0.0,
             avg_difficulty=5.0,
         )
         # Movie with no stats (should be ignored in average)
         _ = MovieFactory.create(
-            title="Wake Up Dead Man",
-            slug="wake-up-dead-man",
-            release_year=2025,
             series=self.series1,
             avg_quality=0.0,
             avg_difficulty=0.0,

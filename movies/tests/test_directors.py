@@ -2,13 +2,12 @@ from django.db.utils import IntegrityError
 from django.test import TestCase
 from django.urls import reverse
 
-from config.tests.factories import MovieFactory
-from movies.models import Director
+from config.tests.factories import DirectorFactory, MovieFactory
 
 
 class DirectorModelTests(TestCase):
     def setUp(self) -> None:
-        self.director = Director.objects.create(
+        self.director = DirectorFactory.create(
             name="Alfred Hitchcock",
             slug="alfred-hitchcock",
         )
@@ -28,17 +27,17 @@ class DirectorModelTests(TestCase):
     def test_slug_uniqueness(self) -> None:
         """Test that duplicate slugs for directors raise an IntegrityError."""
         with self.assertRaises(IntegrityError):
-            Director.objects.create(name="Hitchcock", slug="alfred-hitchcock")
+            DirectorFactory.create(name="Hitchcock", slug="alfred-hitchcock")
 
     def test_name_uniqueness(self) -> None:
         """Test that duplicate names for directors raise an IntegrityError."""
         with self.assertRaises(IntegrityError):
-            Director.objects.create(name="Alfred Hitchcock", slug="hitchcock")
+            DirectorFactory.create(name="Alfred Hitchcock", slug="hitchcock")
 
     def test_director_creation_logging(self) -> None:
         """Test that creating a director triggers a log message."""
         with self.assertLogs("movies.signals", level="INFO") as cm:
-            Director.objects.create(
+            DirectorFactory.create(
                 name="Log Test Director",
                 slug="log-test-director",
             )
@@ -51,11 +50,11 @@ class DirectorModelTests(TestCase):
 
 class DirectorViewTests(TestCase):
     def setUp(self) -> None:
-        self.director1 = Director.objects.create(
+        self.director1 = DirectorFactory.create(
             name="Rian Johnson",
             slug="rian-johnson",
         )
-        self.director2 = Director.objects.create(
+        self.director2 = DirectorFactory.create(
             name="Alfred Hitchcock",
             slug="alfred-hitchcock",
         )

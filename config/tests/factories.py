@@ -4,7 +4,7 @@ from typing import Any
 from django.contrib.auth import get_user_model
 from django.utils.text import slugify
 
-from movies.models import MysteryTitle, Review
+from movies.models import Collection, Director, MysteryTitle, Review, Series, Tag
 from users.models import CustomUser
 
 # Type alias for the user model
@@ -68,7 +68,10 @@ class MovieFactory:
             "media_type": MysteryTitle.MediaType.MOVIE,
             "description": "A default test description.",
         }
-
+        if "director" not in kwargs:
+            kwargs["director"] = DirectorFactory.create()
+        if "series" not in kwargs:
+            kwargs["series"] = SeriesFactory.create()
         # Update defaults with any provided kwargs
         defaults.update(kwargs)
 
@@ -103,3 +106,112 @@ class ReviewFactory:
         defaults.update(kwargs)
 
         return Review.objects.create(user=user, movie=movie, **defaults)
+
+
+class DirectorFactory:
+    """
+    Factory for creating Director instances.
+    """
+
+    @staticmethod
+    def create(**kwargs: Any) -> Director:
+        """
+        Creates a new Director instance.
+
+        Args:
+            **kwargs: Fields to override.
+
+        Returns:
+            A saved Director instance.
+        """
+        name = kwargs.get("name", f"Director {secrets.token_hex(2)}")
+        defaults = {
+            "name": name,
+            "slug": kwargs.get("slug", slugify(name) + f"-{secrets.token_hex(2)}"),
+        }
+        defaults.update(kwargs)
+
+        return Director.objects.create(**defaults)
+
+
+class SeriesFactory:
+    """
+    Factory for creating Series instances.
+    """
+
+    @staticmethod
+    def create(**kwargs: Any) -> Series:
+        """
+        Creates a new Series instance.
+
+        Args:
+            **kwargs: Fields to override.
+
+        Returns:
+            A saved Series instance.
+        """
+        name = kwargs.get("name", f"Series {secrets.token_hex(2)}")
+        defaults = {
+            "name": name,
+            "slug": kwargs.get("slug", slugify(name) + f"-{secrets.token_hex(2)}"),
+        }
+        defaults.update(kwargs)
+
+        return Series.objects.create(**defaults)
+
+
+class TagFactory:
+    """
+    Factory for creating Tag instances.
+    """
+
+    @staticmethod
+    def create(**kwargs: Any) -> Tag:
+        """
+        Creates a new Tag instance.
+
+        Args:
+            **kwargs: Fields to override.
+
+        Returns:
+            A saved Tag instance.
+        """
+        name = kwargs.get("name", f"Tag-{secrets.token_hex(2)}")
+        defaults = {
+            "name": name,
+            "slug": kwargs.get("slug", slugify(name) + f"-{secrets.token_hex(2)}"),
+        }
+        defaults.update(kwargs)
+
+        return Tag.objects.create(**defaults)
+
+
+class CollectionFactory:
+    """
+    Factory for creating Collection instances (user-created lists).
+    """
+
+    @staticmethod
+    def create(user: CustomUser | None = None, **kwargs: Any) -> Collection:
+        """
+        Creates a new Collection instance.
+
+        Args:
+            user: The user creating the collection.
+            **kwargs: Fields to override.
+
+        Returns:
+            A saved Collection instance.
+        """
+        if user is None:
+            user, _ = UserFactory.create()
+
+        name = kwargs.get("name", f"Collection {secrets.token_hex(2)}")
+        defaults = {
+            "name": name,
+            "description": "A default collection description.",
+            "is_public": True,
+        }
+        defaults.update(kwargs)
+
+        return Collection.objects.create(user=user, **defaults)
