@@ -74,7 +74,6 @@ class MysteryTitleModelTests(TestCase):
         # Use assertLogs to catch logs from the movies.models logger
         with self.assertLogs("movies.signals", level="INFO") as cm:
             _ = MovieFactory.create(
-                title="Log Test Movie",
                 slug="log-test-movie",
             )
             # Verify the log message exists
