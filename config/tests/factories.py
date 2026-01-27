@@ -68,11 +68,16 @@ class MovieFactory:
             "media_type": MysteryTitle.MediaType.MOVIE,
             "description": "A default test description.",
         }
-
+        director = kwargs.pop("director", None) or DirectorFactory.create()
+        series = kwargs.pop("series", None) or SeriesFactory.create()
         # Update defaults with any provided kwargs
         defaults.update(kwargs)
 
-        return MysteryTitle.objects.create(**defaults)
+        movie = MysteryTitle.objects.create(**defaults)
+        movie.director = director
+        movie.series = series
+        movie.save()
+        return movie
 
 
 class ReviewFactory:
@@ -124,6 +129,7 @@ class DirectorFactory:
         name = kwargs.get("name", f"Director {secrets.token_hex(2)}")
         defaults = {
             "name": name,
+            "slug": kwargs.get("slug", slugify(name) + f"-{secrets.token_hex(2)}"),
         }
         defaults.update(kwargs)
 
@@ -149,7 +155,7 @@ class SeriesFactory:
         name = kwargs.get("name", f"Series {secrets.token_hex(2)}")
         defaults = {
             "name": name,
-            "description": "A default series description.",
+            "slug": kwargs.get("slug", slugify(name) + f"-{secrets.token_hex(2)}"),
         }
         defaults.update(kwargs)
 
@@ -210,5 +216,4 @@ class CollectionFactory:
         }
         defaults.update(kwargs)
 
-        return Collection.objects.create(user=user, **defaults)
         return Collection.objects.create(user=user, **defaults)
